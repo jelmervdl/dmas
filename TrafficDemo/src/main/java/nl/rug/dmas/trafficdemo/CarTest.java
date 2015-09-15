@@ -85,8 +85,8 @@ public class CarTest extends TestbedTest {
             }
         }
         
-        public void setAngle(float angleDelta) {
-            this.body.setTransform(this.body.getPosition(), (float) ((angleDelta / 180f) * Math.PI));
+        public void setAngleDeg(float angleDelta) {
+            this.body.setTransform(this.body.getPosition(), this.car.body.getAngle() + (float) ((angleDelta / 180f) * Math.PI));
         }
         
         public Vec2 getLocalVelocity() {
@@ -276,7 +276,7 @@ public class CarTest extends TestbedTest {
         else
             car.acceleration = Acceleration.NONE;
         
-        car.update(1);
+        car.update(50);
         
         addTextLine("Steer: " + car.steer.toString());
         addTextLine("Acceleration: " + car.acceleration.toString());
