@@ -128,9 +128,9 @@ public class CarTest extends TestbedTest {
         SteerDirection steer = SteerDirection.NONE;
         Acceleration acceleration =  Acceleration.NONE;
         
-        float maxSteerAngleDeg = 20;
+        float maxSteerAngleDeg = 40;
         float maxSpeedKMH = 60;
-        float power = 60;
+        float power = 250;
         float wheelAngleDeg = 0;
         
         float width;
@@ -194,16 +194,19 @@ public class CarTest extends TestbedTest {
             
             switch (this.steer) {
                 case RIGHT:
-                    this.wheelAngleDeg = Math.min(Math.max(this.wheelAngleDeg, 0) + increase, this.maxSteerAngleDeg);
+                    this.wheelAngleDeg = Math.min(this.wheelAngleDeg + increase, this.maxSteerAngleDeg);
                     break;
                     
                 case LEFT:
-                    this.wheelAngleDeg = Math.max(Math.min(this.wheelAngleDeg, 0) - increase, -this.maxSteerAngleDeg);
+                    this.wheelAngleDeg = Math.max(this.wheelAngleDeg - increase, -this.maxSteerAngleDeg);
                     break;
                    
                 case NONE:
                 default:
-                    this.wheelAngleDeg = 0;
+                    if (this.wheelAngleDeg > 0)
+                        this.wheelAngleDeg = Math.max(this.wheelAngleDeg - increase, 0);
+                    else if (this.wheelAngleDeg < 0)
+                        this.wheelAngleDeg = Math.min(this.wheelAngleDeg + increase, 0);
                     break;
             }
             
@@ -262,9 +265,9 @@ public class CarTest extends TestbedTest {
         Vec2 worldMouse = getWorldMouse();
         Vec2 carMouse = car.body.getLocalPoint(worldMouse);
         
-        if (carMouse.x < -3)
+        if (carMouse.x < -2)
             car.steer = SteerDirection.LEFT;
-        else if (carMouse.x > 3)
+        else if (carMouse.x > 2)
             car.steer = SteerDirection.RIGHT;
         else
             car.steer = SteerDirection.NONE;
@@ -276,7 +279,7 @@ public class CarTest extends TestbedTest {
         else
             car.acceleration = Acceleration.NONE;
         
-        car.update(50);
+        car.update(10);
         
         addTextLine("Steer: " + car.steer.toString());
         addTextLine("Acceleration: " + car.acceleration.toString());
