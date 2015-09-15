@@ -128,10 +128,10 @@ public class CarTest extends TestbedTest {
         SteerDirection steer = SteerDirection.NONE;
         Acceleration acceleration =  Acceleration.NONE;
         
-        float maxSteerAngle = 20;
-        float maxSpeed = 60;
+        float maxSteerAngleDeg = 20;
+        float maxSpeedKMH = 60;
         float power = 60;
-        float wheelAngle = 0;
+        float wheelAngleDeg = 0;
         
         float width;
         float length;
@@ -190,34 +190,34 @@ public class CarTest extends TestbedTest {
             // Set wheel angle
             
             // Calculate the change in wheel's angle for this update, assuming the wheel will reach is maximum angle from zero in 200 ms
-            float increase = (this.maxSteerAngle / 200f) * duration;
+            float increase = (this.maxSteerAngleDeg / 200f) * duration;
             
             switch (this.steer) {
                 case RIGHT:
-                    this.wheelAngle = Math.min(Math.max(this.wheelAngle, 0) + increase, this.maxSteerAngle);
+                    this.wheelAngleDeg = Math.min(Math.max(this.wheelAngleDeg, 0) + increase, this.maxSteerAngleDeg);
                     break;
                     
                 case LEFT:
-                    this.wheelAngle = Math.max(Math.min(this.wheelAngle, 0) - increase, -this.maxSteerAngle);
+                    this.wheelAngleDeg = Math.max(Math.min(this.wheelAngleDeg, 0) - increase, -this.maxSteerAngleDeg);
                     break;
                    
                 case NONE:
                 default:
-                    this.wheelAngle = 0;
+                    this.wheelAngleDeg = 0;
                     break;
             }
             
             // Update revolving wheels
             // This assumes the first two wheels are the revolving wheels
             for (int i = 0; i < 2; ++i)
-                wheels.get(i).setAngle(this.wheelAngle);
+                wheels.get(i).setAngleDeg(this.wheelAngleDeg);
             
             // Apply force to wheels
             Vec2 baseVec = new Vec2(0, 0); //vector pointing in the direction force will be applied to a wheel ; relative to the wheel.
             
             switch (this.acceleration) {
                 case ACCELERATE:
-                    if (this.getSpeedInKMH() < this.maxSpeed)
+                    if (this.getSpeedInKMH() < this.maxSpeedKMH)
                         baseVec = new Vec2(0, -1);
                     break;
                    
