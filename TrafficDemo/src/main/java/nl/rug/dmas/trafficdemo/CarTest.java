@@ -6,6 +6,7 @@
 package nl.rug.dmas.trafficdemo;
 
 import java.util.ArrayList;
+import java.util.Random;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
@@ -139,13 +140,13 @@ public class CarTest extends TestbedTest {
         Body body;
         ArrayList<Wheel> wheels;
         
-        public Car(float width, float length) {
+        public Car(float width, float length, Vec2 position) {
             this.width = width;
             this.length = length;
             
             BodyDef def = new BodyDef();
             def.type = BodyType.DYNAMIC;
-            def.position = new Vec2(10, 10);
+            def.position = position;
             def.angle = 0;
             def.linearDamping = 0.5f; // gradually reduces velocity, makes the car reduce speed slowly if neither accelerator nor brake is pressed
             def.angularDamping = 0.3f;
@@ -250,12 +251,18 @@ public class CarTest extends TestbedTest {
         }
     }
     
-    Car car;
+    ArrayList<Car> cars = new ArrayList<>();
     
     @Override
     public void initTest(boolean argDeserialized) {
         getWorld().setGravity(new Vec2());
-        car = new Car(2, 4);
+        Random gen = new Random();
+        
+        for (int i = 0; i < 5; ++i) {
+            float x = 10 * (gen.nextFloat() - 0.5f);
+            float y = 10 * (gen.nextFloat() - 0.5f);
+            cars.add(new Car(2, 4, new Vec2(x, y)));
+        }
     }
     
     @Override
@@ -263,27 +270,30 @@ public class CarTest extends TestbedTest {
         super.step(settings);
         
         Vec2 worldMouse = getWorldMouse();
-        Vec2 carMouse = car.body.getLocalPoint(worldMouse);
         
-        if (carMouse.x < -2)
-            car.steer = SteerDirection.LEFT;
-        else if (carMouse.x > 2)
-            car.steer = SteerDirection.RIGHT;
-        else
-            car.steer = SteerDirection.NONE;
-        
-        if (carMouse.y < -2)
-            car.acceleration = Acceleration.ACCELERATE;
-        else if (carMouse.y > 2)
-            car.acceleration = Acceleration.BRAKE;
-        else
-            car.acceleration = Acceleration.NONE;
-        
-        car.update(10);
-        
-        addTextLine("Steer: " + car.steer.toString());
-        addTextLine("Acceleration: " + car.acceleration.toString());
-        addTextLine("Speed: " + car.getSpeedInKMH() + "km/h");
+        for (Car car : cars) {
+            Vec2 carMouse = car.body.getLocalPoint(worldMouse);
+
+            if (carMouse.x < -2)
+                car.steer = SteerDirection.LEFT;
+            else if (carMouse.x > 2)
+                car.steer = SteerDirection.RIGHT;
+            else
+                car.steer = SteerDirection.NONE;
+
+            if (carMouse.y < -2)
+                car.acceleration = Acceleration.ACCELERATE;
+            else if (carMouse.y > 2)
+                car.acceleration = Acceleration.BRAKE;
+            else
+                car.acceleration = Acceleration.NONE;
+
+            car.update(10);
+
+            addTextLine("Steer: " + car.steer.toString());
+            addTextLine("Acceleration: " + car.acceleration.toString());
+            addTextLine("Speed: " + car.getSpeedInKMH() + "km/h");
+        }
     }
 
     @Override
