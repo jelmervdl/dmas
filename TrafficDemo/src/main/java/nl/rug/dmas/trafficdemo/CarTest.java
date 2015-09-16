@@ -7,14 +7,7 @@ package nl.rug.dmas.trafficdemo;
 
 import java.util.ArrayList;
 import java.util.Random;
-import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.Body;
-import org.jbox2d.dynamics.BodyDef;
-import org.jbox2d.dynamics.BodyType;
-import org.jbox2d.dynamics.FixtureDef;
-import org.jbox2d.dynamics.joints.PrismaticJointDef;
-import org.jbox2d.dynamics.joints.RevoluteJointDef;
 import org.jbox2d.testbed.framework.TestbedSettings;
 import org.jbox2d.testbed.framework.TestbedTest;
 
@@ -77,7 +70,8 @@ public class CarTest extends TestbedTest
             else
                 car.acceleration = Acceleration.NONE;
 
-            car.update(10);
+            float hz = settings.getSetting(TestbedSettings.Hz).value;
+            car.update(1.0f / hz);
 
             addTextLine("Steer: " + car.steer.toString());
             addTextLine("Acceleration: " + car.acceleration.toString());

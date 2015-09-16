@@ -26,6 +26,7 @@ public class Car {
     float maxSpeedKMH = 60;
     float power = 250;
     float wheelAngleDeg = 0;
+    float steeringSpeed = 5f;
 
     float width;
     float length;
@@ -36,7 +37,9 @@ public class Car {
     public Car(World world, float width, float length, Vec2 position) {
         this.width = width;
         this.length = length;
-
+        
+        // The body is the 'physics body', more or less a group of fixtures
+        // (actual shapes) that together form one physical unit.
         BodyDef def = new BodyDef();
         def.type = BodyType.DYNAMIC;
         def.position = position;
@@ -45,7 +48,8 @@ public class Car {
         def.angularDamping = 0.3f;
         def.bullet = true;  //dedicates more time to collision detection - car travelling at high speeds at low framerates otherwise might teleport through obstacles.
         body = world.createBody(def);
-
+        
+        // Let's also create a fixture (a solid part) for our body
         FixtureDef fixDef = new FixtureDef();
         fixDef.density = 1.0f;
         fixDef.friction = 0.3f; //friction when rubbing agaisnt other shapes
@@ -76,7 +80,7 @@ public class Car {
         this.body.setLinearVelocity(velocity.mul((speed * 1000) / 3600f));
     }
 
-    public void update(int duration) {
+    public void update(float dt) {
         // Kill sideway velocity
         for (Wheel wheel : wheels)
             wheel.killSidewaysVelocity();
@@ -84,7 +88,7 @@ public class Car {
         // Set wheel angle
 
         // Calculate the change in wheel's angle for this update, assuming the wheel will reach is maximum angle from zero in 200 ms
-        float increase = (this.maxSteerAngleDeg / 200f) * duration;
+        float increase = this.maxSteerAngleDeg * dt * this.steeringSpeed;
 
         switch (this.steer) {
             case RIGHT:
@@ -103,11 +107,6 @@ public class Car {
                     this.wheelAngleDeg = Math.min(this.wheelAngleDeg + increase, 0);
                 break;
         }
-
-        // Update revolving wheels
-        // This assumes the first two wheels are the revolving wheels
-        for (int i = 0; i < 2; ++i)
-            wheels.get(i).setAngleDeg(this.wheelAngleDeg);
 
         // Apply force to wheels
         Vec2 baseVec = new Vec2(0, 0); //vector pointing in the direction force will be applied to a wheel ; relative to the wheel.
@@ -130,12 +129,15 @@ public class Car {
 
         // multiply by engine power, which gives us a force vector relative to the wheel
         Vec2 forceVec = baseVec.mul(power);
-
-        // apply force to each wheel
+        
+        // apply force and steering to each wheel
         // Assume the powered wheels are the first two wheels
-        for (int i = 0; i < 2; ++i) {
-            Body wheelBody = wheels.get(i).body;
-            wheelBody.applyForce(wheelBody.getWorldVector(forceVec), wheelBody.getWorldCenter());
+        for (Wheel wheel : wheels) { // Update revolving wheels
+            if (wheel.revolving == Joint.REVOLVING)
+                wheel.setAngleDeg(this.wheelAngleDeg);
+            
+            if (wheel.powered == Power.POWERED)
+                wheel.body.applyForce(wheel.body.getWorldVector(forceVec), wheel.body.getWorldCenter());
         }
 
         //if going very slow, stop - to prevent endless sliding
