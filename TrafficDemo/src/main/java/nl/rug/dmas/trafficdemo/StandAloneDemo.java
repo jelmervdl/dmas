@@ -8,6 +8,7 @@ package nl.rug.dmas.trafficdemo;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -29,9 +30,27 @@ public class StandAloneDemo {
     
     static class TrafficPanel extends JPanel {
         Scenario scenario;
+        float scale = 10f;
         
         public TrafficPanel(Scenario scenarion) {
             this.scenario = scenarion;
+        }
+        
+        public Vec2 getMouseWorldLocation() {
+            Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
+            Point panelLoc = getLocationOnScreen();
+            int mx = mouseLoc.x - panelLoc.x;
+            int my = mouseLoc.y - panelLoc.y;
+
+            Point center = getCenter();
+            float wx = (mx - center.x) / scale;
+            float wy = (my - center.y) / scale;
+            
+            return new Vec2(wx, wy);
+        }
+        
+        private Point getCenter() {
+            return new Point(getSize().width / 2, getSize().height / 2);
         }
         
         @Override
@@ -46,8 +65,7 @@ public class StandAloneDemo {
             // World position Vec2(0,0) is the center of the screen
             // Scale translates one world point to n pixels.
             
-            float scale = 10f;
-            Point center = new Point(getSize().width / 2, getSize().height / 2);
+            Point center = getCenter();
             
             // First we should draw (or blit, that would be awesome fast!) the
             // roads. But there are no roads yet.
@@ -126,6 +144,28 @@ public class StandAloneDemo {
         // Optional todo: replace this with a scheduled repeating executor
         // so we don't have to deal with the timing of the thread sleep?
         final Thread mainLoop = new Thread(new Runnable() {
+            private void agentStep() {
+                Vec2 worldMouse = panel.getMouseWorldLocation();
+                
+                for (Car car : scenario.cars) {
+                    Vec2 carMouse = car.body.getLocalPoint(worldMouse);
+
+                    if (carMouse.x < -2)
+                        car.steer = SteerDirection.LEFT;
+                    else if (carMouse.x > 2)
+                        car.steer = SteerDirection.RIGHT;
+                    else
+                        car.steer = SteerDirection.NONE;
+
+                    if (carMouse.y < -2)
+                        car.acceleration = Acceleration.ACCELERATE;
+                    else if (carMouse.y > 2)
+                        car.acceleration = Acceleration.ACCELERATE; //Acceleration.BRAKE;
+                    else
+                        car.acceleration = Acceleration.NONE;
+                }
+            }
+            
             @Override
             public void run() {
                 try {
@@ -133,6 +173,8 @@ public class StandAloneDemo {
                     
                     while (!Thread.interrupted()) {
                         long startTimeMS = System.currentTimeMillis();
+                        
+                        agentStep();
                         
                         scenario.step(stepTime);
                         world.step(stepTime, 3, 8);
