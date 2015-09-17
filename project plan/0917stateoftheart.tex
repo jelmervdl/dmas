@@ -1,0 +1,33 @@
+\documentclass[a4paper]{article}
+
+\usepackage[english]{babel}
+
+% References
+\usepackage[backend=bibtex]{biblatex}
+\usepackage{csquotes}
+\bibliography{biblio}
+
+\title{State of the art\\ \sc{Sharing the Road: Autonomous Vehicles Meet Human Drivers}}
+\author{%
+	Laura van de Braak (s2165341) \and 
+	Jelmer van der Linde (s1772791) \and 
+	Laura Baakman (s1869140)
+}
+
+\begin{document}
+
+\maketitle
+
+\paragraph{Problem} We need a system that helps navigate autonomous cars that can mix with the current traffic and does not need changes to existing traffic.
+
+\paragraph{State of the art} A reservation-based approach can efficiently and safely govern interactions of multiple autonomous vehicles at intersections. (Vehicles call ahead to the intersection manager and ask to reserve a slot.) However, the system relies on all vehicles being equipped with the requisite technology — a restriction that would make implementing such a sys- tem in the real world extremely difficult.
+
+\paragraph{New idea} This paper makes two main contributions. First, we show how to augment this intersection control mechanism to allow use by human drivers with minimal additional infrastructure. (Traffic lights will have a new policy, allowing one lane a green light at a time. All requests that do not collide with this lane can be granted.) Second, we show that this hybrid intersection control mechanism offers performance and safety benefits over traditional traffic light systems. 
+
+\paragraph{Results} Thus, implementing our system over an extended time frame will not adversely affect over- all traffic conditions at any stage. Furthermore, we show that at each stage the mechanism offers an incentive for individuals to use autonomous-driver-agent-equipped vehicles. Our work is fully implemented and tested in a custom simulator and detailed experimental results are presented.
+
+\paragraph{Relevance} Traffic jams are an increasing pain in the arse.
+
+\printbibliography
+
+\end{document}
