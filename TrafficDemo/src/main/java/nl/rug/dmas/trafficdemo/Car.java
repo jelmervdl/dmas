@@ -19,6 +19,7 @@ import org.jbox2d.dynamics.World;
  * @author jelmer
  */
 public class Car {
+    
     SteerDirection steer = SteerDirection.NONE;
     Acceleration acceleration =  Acceleration.NONE;
 
