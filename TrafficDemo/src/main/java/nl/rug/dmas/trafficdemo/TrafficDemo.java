@@ -1,10 +1,10 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Documentation on JBox2D can be found at:
+ * http://trentcoder.github.io/JBox2D_JavaDoc/apidocs/
  */
 package nl.rug.dmas.trafficdemo;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -12,14 +12,13 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Arrays;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
+import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Transform;
 import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.World;
 
 /**
@@ -77,6 +76,7 @@ public class TrafficDemo {
         }
 
         private void drawCar(Graphics2D g2, Car car, Point offset, float scale) {
+            g2 = (Graphics2D) g2.create();
             // For now this just draws the polygon of the physics body shape.
             // We might want to change this to our own polygon calculation based
             // on the car.body.getPosition() and car.body.getAngle() so we can
@@ -85,28 +85,61 @@ public class TrafficDemo {
             // Get me some wheels (draw them first because they are below)
             for (Wheel wheel : car.wheels) {
                 g2.setColor(Color.BLACK);
-                drawBody(g2, wheel.body, offset, scale);
+                // (Assume the body of a wheel has only one fixture, the body shape itself.)
+                drawShape(g2, wheel.body.getFixtureList().getShape(), wheel.body.getTransform(), offset, scale);
             }
 
             // Then draw the body of the car
             g2.setColor(Color.RED);
-            drawBody(g2, car.body, offset, scale);
+            drawShape(g2, car.bodyFixture.getShape(), car.body.getTransform(), offset, scale);
+            
+            // And overlay the vision of the driver
+            if (car.driver.seesOtherCars())
+                g2.setColor(Color.BLUE);
+            else
+                g2.setColor(Color.YELLOW);
+            
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+            drawShape(g2, car.visionFixture.getShape(), car.body.getTransform(), offset, scale);
+            
+            g2.dispose();
         }
-
-        private void drawBody(Graphics2D g2, Body body, Point offset, float scale) {
-            PolygonShape poly = (PolygonShape) body.getFixtureList().getShape();
+        
+        private void drawShape(Graphics2D g2, Shape shape, Transform transform, Point offset, float scale) {
+            switch (shape.getType()) {
+                case POLYGON:
+                    drawPolygonShape(g2, (PolygonShape) shape, transform, offset, scale);
+                    break;
+                case CIRCLE:
+                    drawCircleShape(g2, (CircleShape) shape, transform, offset, scale);
+                    break;
+            } 
+        }
+        private void drawPolygonShape(Graphics2D g2, PolygonShape poly, Transform transform, Point offset, float scale) {
             int vertexCount = poly.m_count;
             int[] xs = new int[vertexCount];
             int[] ys = new int[vertexCount];
 
             Vec2 vertex = new Vec2();
             for (int i = 0; i < vertexCount; ++i) {
-                Transform.mulToOutUnsafe(body.getTransform(), poly.m_vertices[i], vertex);
+                Transform.mulToOutUnsafe(transform, poly.m_vertices[i], vertex);
                 xs[i] = Math.round(vertex.x * scale + offset.x);
                 ys[i] = Math.round(vertex.y * scale + offset.y);
             }
 
             g2.fillPolygon(xs, ys, vertexCount);
+        }
+        
+        private void drawCircleShape(Graphics2D g2, CircleShape circle, Transform transform, Point offset, float scale) {   
+            Vec2 center = new Vec2();
+            Transform.mulToOutUnsafe(transform, circle.m_p, center);
+            center.addLocal(circle.getRadius() / -2f, circle.getRadius() / -2f);
+            
+            g2.fillOval(
+                Math.round(center.x * scale + offset.x),
+                Math.round(center.y * scale + offset.y),
+                Math.round(circle.getRadius() * scale),
+                Math.round(circle.getRadius() * scale));
         }
     }
 
@@ -119,11 +152,10 @@ public class TrafficDemo {
 
         // Create a scenario with two cars looping left and right (and colliiiddiiingg >:D )
         final Scenario scenario = new Scenario(world);
-        scenario.cars.add(new Car(world, 2, 4, new Vec2(1, 0)));
+        scenario.cars.add(new Car(scenario, new Driver(scenario), 2, 4, new Vec2(5, 0)));
         scenario.cars.get(0).acceleration = Acceleration.ACCELERATE;
         scenario.cars.get(0).steer = SteerDirection.RIGHT;
-
-        scenario.cars.add(new Car(world, 2, 4, new Vec2(-1, 0)));
+        scenario.cars.add(new Car(scenario, new Driver(scenario), 2, 4, new Vec2(-5, 0)));
         scenario.cars.get(1).acceleration = Acceleration.ACCELERATE;
         scenario.cars.get(1).steer = SteerDirection.LEFT;
 
@@ -176,9 +208,9 @@ public class TrafficDemo {
                     while (!Thread.interrupted()) {
                         long startTimeMS = System.currentTimeMillis();
 
-                        agentStep();
-
+                        scenario.commonKnowledge.put("mouse", panel.getMouseWorldLocation());
                         scenario.step(stepTime);
+                        
                         world.step(stepTime, 3, 8);
                         panel.repaint(); // todo: only repaint if the cars moved?
 
