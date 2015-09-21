@@ -70,28 +70,57 @@ public class Car {
         body = scenario.world.createBody(def);
         
         // Let's also create a fixture (a solid part) for our body
+        bodyFixture = body.createFixture(getBodyDef());
+        bodyFixture.setUserData(this);
+        
+        // And, let's create a sensor for the car's vision (and give it the driver as data)
+        visionFixture = body.createFixture(getFOVDef());
+        visionFixture.setUserData(driver);
+
+        // Finally, add some wheels.
+        wheels = createWheels();
+    }
+    
+    /**
+     * Creates a Fixture recipe based on the width and length of the vehicle.
+     * @return a FixtureDef for the collision body
+     */
+    protected FixtureDef getBodyDef() {
         FixtureDef fixDef = new FixtureDef();
         fixDef.density = 1.0f;
         fixDef.friction = 0.3f; //friction when rubbing agaisnt other shapes
         fixDef.restitution = 0.4f;//amount of force feedback when hitting something. >0 makes the car bounce off, it's fun!
+        
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(width / 2 , length / 2);
         fixDef.shape = shape;
-        bodyFixture = body.createFixture(fixDef);
-        bodyFixture.setUserData(this);
         
-        // And, let's create a sensor for the car's vision (and give it the driver as data)
+        return fixDef;
+    }
+    
+    /**
+     * Creates a Fixture recipe based on the shape of the FOV of the driver
+     * @return a FixtureDef for the vision sensor
+     */
+    protected FixtureDef getFOVDef() {
         FixtureDef visionDef = new FixtureDef();
         visionDef.shape = driver.getFOVShape();
         visionDef.isSensor = true;
-        visionFixture = body.createFixture(visionDef);
-        visionFixture.setUserData(driver);
-
-        wheels = new ArrayList<>();
-        wheels.add(new Wheel(scenario.world, this, new Vec2(-1f, -1.2f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top left
-        wheels.add(new Wheel(scenario.world, this, new Vec2(-1f,  1.2f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom left
-        wheels.add(new Wheel(scenario.world, this, new Vec2( 1f, -1.2f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top right
-        wheels.add(new Wheel(scenario.world, this, new Vec2( 1f,  1.2f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom right
+        return visionDef;
+    }
+    
+    /**
+     * Positions wheels at the front and the back based on the width and length
+     * of the vehilce.
+     * @return a list of wheels
+     */
+    protected ArrayList<Wheel> createWheels() {
+        ArrayList<Wheel> wheels = new ArrayList<>();
+        wheels.add(new Wheel(scenario.world, this, new Vec2(width / -2f, length / -2f + 0.8f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top left
+        wheels.add(new Wheel(scenario.world, this, new Vec2(width / -2f, length /  2f - 0.8f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom left
+        wheels.add(new Wheel(scenario.world, this, new Vec2(width /  2f, length / -2f + 0.8f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top right
+        wheels.add(new Wheel(scenario.world, this, new Vec2(width /  2f, length /  2f - 0.8f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom right
+        return wheels;
     }
 
     public Vec2 getLocalVelocity() {
