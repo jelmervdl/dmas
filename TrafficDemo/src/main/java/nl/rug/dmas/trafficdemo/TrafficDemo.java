@@ -55,6 +55,8 @@ public class TrafficDemo {
         
         @Override
         public void paint(Graphics g) {
+            paintComponent(g);
+            
             Graphics2D g2 = (Graphics2D) g;
             
             // This paint method gets called indirectly every 1/60th of a second
