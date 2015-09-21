@@ -48,7 +48,7 @@ class Driver {
     
     public void step()
     {
-        Vec2 worldMouse = scenario.commonKnowledge.get("mouse");
+        Vec2 worldMouse = (Vec2) scenario.commonKnowledge.get("mouse");
         Vec2 carMouse = car.body.getLocalPoint(worldMouse);
 
         if (carMouse.x < -2)

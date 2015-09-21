@@ -11,7 +11,6 @@ import java.util.Map;
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
-import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.contacts.Contact;
 
@@ -30,7 +29,7 @@ public class Scenario {
     /**
      * A map of locations known to all agents (such as the mouse ;) )
      */
-    Map<String, Vec2> commonKnowledge = new HashMap<>();
+    Map<String, Object> commonKnowledge = new HashMap<>();
     
     public Scenario(World world) {
         this.world = world;
