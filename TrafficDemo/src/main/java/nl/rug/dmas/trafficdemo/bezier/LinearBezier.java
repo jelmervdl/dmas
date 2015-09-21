@@ -20,7 +20,7 @@ public class LinearBezier extends Bezier {
 
     @Override
     protected Vec2 interpolate(float t, Vec2... controlPoints) {
-        if (controlPoints.length != 2) {
+        if (controlPoints.length != 0) {
             throw new InputMismatchException("Linear bezier curves don't need controlpoints.");
         }
         return this.source.mul(1 - t).add(this.destination.mul(t));
