@@ -75,10 +75,10 @@ public class Car {
         return (getLocalVelocity().length() / 1000) * 3600;
     }
 
-    public void setSpeed(float speed) {
+    public void setSpeed(float speedInKMH) {
         Vec2 velocity = getLocalVelocity();
         velocity.normalize();
-        this.body.setLinearVelocity(velocity.mul((speed * 1000) / 3600f));
+        this.body.setLinearVelocity(velocity.mul((speedInKMH * 1000) / 3600f));
     }
 
     public void update(float dt) {
