@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
-import nl.rug.dmas.trafficdemo.streetGraph.FlowGraph;
 
 /**
  *
@@ -13,7 +12,7 @@ import nl.rug.dmas.trafficdemo.streetGraph.FlowGraph;
 public class GraphReader {
 
     private static Scanner scanner;
-    private static FlowGraph graph;
+    private static StreetGraph graph;
     private static int numNodes;
     private static int numEdges;
 
@@ -22,7 +21,7 @@ public class GraphReader {
      * @param file
      * @return
      */
-    public static FlowGraph read(File file) {
+    public static StreetGraph read(File file) {
         try {
             scanner = new Scanner(file);
         } catch (FileNotFoundException ex) {
@@ -48,7 +47,7 @@ public class GraphReader {
                 throw new InputMismatchException("Sink can not be the same node as the source.");
             }
 
-            graph = new FlowGraph(source, sink);
+            graph = new StreetGraph(source, sink);
 
             // Read in all the edges and add them to the graph.
             for (int i = 0; i < numEdges; i++) {
@@ -77,5 +76,11 @@ public class GraphReader {
             throw new InputMismatchException("Illigal Node weight.");
         }
         return nodeWeight;
+    }
+
+    public static void main(String[] args) {
+        File inputFile = new File("./graaf.txt");
+        StreetGraph graaf = GraphReader.read(inputFile);
+        System.out.println(graaf);
     }
 }

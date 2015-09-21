@@ -9,7 +9,7 @@ import java.util.Map.Entry;
  *
  * @author Laura & Bastiaan
  */
-public class FlowGraph {
+public class StreetGraph {
 
     private final HashMap<Integer, Vertex> vertices;
     private final ArrayList<Edge> edges;
@@ -21,7 +21,7 @@ public class FlowGraph {
      * @param source the source of the graph
      * @param sink the sink of the graph
      */
-    public FlowGraph(int source, int sink) {
+    public StreetGraph(int source, int sink) {
         this.source = new Vertex(source);
         this.sink = new Vertex(sink);
         this.vertices = new HashMap<>();
