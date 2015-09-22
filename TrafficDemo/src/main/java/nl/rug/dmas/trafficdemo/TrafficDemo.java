@@ -133,13 +133,13 @@ public class TrafficDemo {
         private void drawCircleShape(Graphics2D g2, CircleShape circle, Transform transform, Point offset, float scale) {   
             Vec2 center = new Vec2();
             Transform.mulToOutUnsafe(transform, circle.m_p, center);
-            center.addLocal(circle.getRadius() / -2f, circle.getRadius() / -2f);
+            center.addLocal(-circle.getRadius(), -circle.getRadius());
             
             g2.fillOval(
                 Math.round(center.x * scale + offset.x),
                 Math.round(center.y * scale + offset.y),
-                Math.round(circle.getRadius() * scale),
-                Math.round(circle.getRadius() * scale));
+                Math.round(2 * circle.getRadius() * scale),
+                Math.round(2 * circle.getRadius() * scale));
         }
     }
 

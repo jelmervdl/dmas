@@ -8,6 +8,7 @@ package nl.rug.dmas.trafficdemo;
 import java.util.HashSet;
 import java.util.Set;
 import org.jbox2d.collision.shapes.CircleShape;
+import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Fixture;
@@ -42,7 +43,7 @@ class Driver {
      */
     public Shape getFOVShape() {
         Shape shape = new CircleShape();
-        shape.setRadius(8);
+        shape.setRadius(4);
         return shape;
     }
     
