@@ -1,5 +1,5 @@
-numNodes numEdges
-3 2
+Number of Nodes and Edges
+3 3
 Sources
 1 2
 Sinks
