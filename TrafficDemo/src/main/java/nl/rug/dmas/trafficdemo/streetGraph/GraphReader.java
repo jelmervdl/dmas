@@ -16,11 +16,26 @@ public class GraphReader {
     private static int numNodes;
     private static int numEdges;
 
-    /**
-     *
-     * @param file
-     * @return
-     */
+    private static void readHeaderRow(Scanner scanner) {
+        String line = scanner.nextLine();
+    }
+
+    private static int readNaturalNumber(Scanner scanner, String descriptionOfInt) {
+        int naturalNumber = scanner.nextInt();
+        if (naturalNumber <= 0) {
+            throw new InputMismatchException(descriptionOfInt + "cannot be negative or zero.");
+        }
+        return naturalNumber;
+    }
+
+    private static void readNumNodes(Scanner scanner) {
+        numNodes = readNaturalNumber(scanner, "Number of nodes");
+    }
+
+    private static void readNumEdges(Scanner scanner) {
+        numEdges = readNaturalNumber(scanner, "Number of edges");
+    }
+
     public static StreetGraph read(File file) {
         try {
             scanner = new Scanner(file);
@@ -30,33 +45,28 @@ public class GraphReader {
         }
 
         try {
-            numNodes = scanner.nextInt();
-            if (numNodes <= 0) {
-                throw new InputMismatchException("Number of nodes can not be negative or zero.");
-            }
+            readHeaderRow(scanner);
+            readNumNodes(scanner);
+            readNumEdges(scanner);
+//            readSources(scanner);
+//            readSinks(scanner);
 
-            numEdges = scanner.nextInt();
-
-            if (numEdges <= 0) {
-                throw new InputMismatchException("Number of edges can not be negative or zero.");
-            }
-
-            int source = checkNodeValues(scanner.nextInt());
-            int sink = checkNodeValues(scanner.nextInt());
-            if (source == sink) {
-                throw new InputMismatchException("Sink can not be the same node as the source.");
-            }
-
-            graph = new StreetGraph(source, sink);
-
-            // Read in all the edges and add them to the graph.
-            for (int i = 0; i < numEdges; i++) {
-                graph.addEdge(checkNodeValues(scanner.nextInt()),
-                        checkNodeValues(scanner.nextInt()),
-                        checkNodeWeight(scanner.nextInt()));
-            }
-            // All edges have been read, rest of input (if any) will be ignored.
-
+//
+//            int source = checkNodeValues(scanner.nextInt());
+//            int sink = checkNodeValues(scanner.nextInt());
+//            if (source == sink) {
+//                throw new InputMismatchException("Sink can not be the same node as the source.");
+//            }
+//
+//            graph = new StreetGraph(source, sink);
+//
+//            // Read in all the edges and add them to the graph.
+//            for (int i = 0; i < numEdges; i++) {
+//                graph.addEdge(checkNodeValues(scanner.nextInt()),
+//                        checkNodeValues(scanner.nextInt()),
+//                        checkNodeWeight(scanner.nextInt()));
+//            }
+//            // All edges have been read, rest of input (if any) will be ignored.
         } catch (InputMismatchException ex) {
             ex.printStackTrace(System.err);
             System.exit(-1);
@@ -79,7 +89,7 @@ public class GraphReader {
     }
 
     public static void main(String[] args) {
-        File inputFile = new File("./graaf.txt");
+        File inputFile = new File("./input/graaf.txt");
         StreetGraph graaf = GraphReader.read(inputFile);
         System.out.println(graaf);
     }
