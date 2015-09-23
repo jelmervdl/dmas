@@ -75,13 +75,8 @@ public class GraphReader {
             readHeaderRow(scanner);
             HashSet<Integer> sinks = readSetOfNaturalNumbersFromLine(scanner, GraphReader.numNodes);
 
-//
-//            int source = checkNodeValues(scanner.nextInt());
-//            int sink = checkNodeValues(scanner.nextInt());
-//            if (source == sink) {
-//                throw new InputMismatchException("Sink can not be the same node as the source.");
-//            }
-//
+            readHeaderRow(scanner);
+
 //            graph = new StreetGraph(source, sink);
 //
 //            // Read in all the edges and add them to the graph.

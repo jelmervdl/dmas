@@ -2,6 +2,7 @@ package nl.rug.dmas.trafficdemo.streetGraph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 
 /**
@@ -13,36 +14,30 @@ public class StreetGraph {
 
     private final HashMap<Integer, Vertex> vertices;
     private final ArrayList<Edge> edges;
-    private final Vertex source;
-    private final Vertex sink;
+    private final HashMap<Integer, Vertex> sources;
+    private final HashMap<Integer, Vertex> sinks;
 
-    /**
-     *
-     * @param source the source of the graph
-     * @param sink the sink of the graph
-     */
-    public StreetGraph(int source, int sink) {
-        this.source = new Vertex(source);
-        this.sink = new Vertex(sink);
+    public StreetGraph(HashSet<Integer> sources, HashSet<Integer> sinks) {
+        this.sources = new HashMap<>();
+        this.sinks = new HashMap<>();
+
         this.vertices = new HashMap<>();
         this.edges = new ArrayList<>();
-        this.vertices.put(source, this.source);
-        this.vertices.put(sink, this.sink);
     }
 
     /**
-     * @return the source of the graph
+     * @return the sources of the graph
      */
-    public Vertex getSource() {
-        return source;
+    public ArrayList<Vertex> getSources() {
+        return new ArrayList<>(sources.values());
     }
 
     /**
      *
-     * @return the sink of the graph
+     * @return the sinks of the graph
      */
-    public Vertex getSink() {
-        return sink;
+    public ArrayList<Vertex> getSinks() {
+        return new ArrayList<>(sinks.values());
     }
 
     /**
@@ -72,21 +67,11 @@ public class StreetGraph {
         destinationVertex.addIncomingEdge(newEdge);
     }
 
-    /**
-     * Set the visited flag on false for every vertex in the graph.
-     */
-    private void clearFlags() {
-        for (Entry<Integer, Vertex> entry : this.vertices.entrySet()) {
-            entry.getValue().clearVisitedFlags();
-        }
-        for (Edge edge : this.edges) {
-            edge.setBackwardEdge(false);
-        }
-    }
-
     @Override
     public String toString() {
-        String res = "Source:\t" + this.source.getVertexListIndex() + "\nSink:\t" + this.sink.getVertexListIndex() + "\n" + "Vertices\n";
+//        TODO: Fix toString()
+//        String res = "Source:\t" + this.sources.getVertexListIndex() + "\nSink:\t" + this.sinks.getVertexListIndex() + "\n" + "Vertices\n";
+        String res = "";
         for (Entry<Integer, Vertex> entry : this.vertices.entrySet()) {
             res += "\t" + entry.getValue() + "\n";
         }
