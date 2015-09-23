@@ -29,6 +29,11 @@ public class Scenario {
     // A map of locations known to all agents (such as the mouse ;) )
     Map<String, Object> commonKnowledge = new HashMap<>();
     
+    final private ArrayList<Car> carsToRemove = new ArrayList<>();
+    final private ArrayList<Car> carsToAdd = new ArrayList<>();
+    
+    private boolean locked = false;
+    
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact
      * listener. This listener updates the fixturesInSight list of the drivers
@@ -72,15 +77,62 @@ public class Scenario {
     }
     
     /**
-     * Steps the simulation of dt seconds.
+     * Add a car to the simulation. If a car is added during a time step, the
+     * addition is queued and the car is added once the time step has completed.
+     * @param car to add
+     */
+    public void add(Car car) {
+        if (isLocked())
+            carsToAdd.add(car);
+        else
+            cars.add(car);
+    }
+    
+    /**
+     * Remove a car from the simulation. If a car is removed during a time step,
+     * it is only queued for removal until it will be removed once the time step
+     * has completed.
+     * @param car to remove
+     */
+    public void remove(Car car) {
+        if (isLocked())
+            carsToRemove.add(car);
+        else
+            cars.remove(car);
+    }
+    
+    /**
+     * Whether the simulation is locked. (I.e. a time step is in progress.)
+     * @return time step is in progress
+     */
+    public boolean isLocked() {
+        return locked;
+    }
+    
+    /**
+     * Steps the simulation of dt seconds. This locks the simulation.
      * @param dt delta time in seconds
      */
     public void step(float dt) {
-        for (Car car : cars) {
-            car.driver.step();
-            car.update(dt);
+        locked = true;
+
+        try {
+
+            for (Car car : cars) {
+                car.driver.step();
+                car.update(dt);
+            }
+
+            world.step(dt, 3, 8);
+
+            if (!carsToRemove.isEmpty())
+                cars.removeAll(carsToRemove);
+            
+            if (!carsToAdd.isEmpty())
+                cars.addAll(carsToAdd);
         }
-        
-        world.step(dt, 3, 8);
+        finally {
+            locked = false;
+        }
     }
 }

@@ -38,7 +38,7 @@ public class TrafficDemo {
         // Create a scenario with two cars looping left and right (and colliiiddiiingg >:D )
         final Scenario scenario = new Scenario();
         for (int i = 0; i < numberOfCars; ++i) {
-            scenario.cars.add(new Car(scenario, new Driver(scenario), 2, 4, RandomUtil.nextRandomVec(-10, 10, -10, 10)));
+            scenario.add(new Car(scenario, new Driver(scenario), 2, 4, RandomUtil.nextRandomVec(-10, 10, -10, 10)));
         }
 
         // Pony up a simple window, our only entrypoint to the app
