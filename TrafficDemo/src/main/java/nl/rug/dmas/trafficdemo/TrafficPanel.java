@@ -19,7 +19,7 @@ import org.jbox2d.common.Transform;
 import org.jbox2d.common.Vec2;
 
 /**
- *
+ * Draws cars.
  * @author jelmer
  */
 public class TrafficPanel extends JPanel {
@@ -34,6 +34,11 @@ public class TrafficPanel extends JPanel {
         this.scenario = scenarion;
     }
 
+    /**
+     * Get the location of the mouse in World coordinates. I.e. the center of
+     * this panel is world coordinate 0,0. Scaling is also taken into account.
+     * @return Vec2 with the mouse coordinates in world space.
+     */
     public Vec2 getMouseWorldLocation() {
         Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
         Point panelLoc = getLocationOnScreen();
@@ -47,10 +52,20 @@ public class TrafficPanel extends JPanel {
         return new Vec2(wx, wy);
     }
 
+    /**
+     * Get the location in pixels of the center of the panel, typically the
+     * half of the width and height of the panel.
+     * @return center of panel in pixels
+     */
     private Point getCenter() {
         return new Point(getSize().width / 2, getSize().height / 2);
     }
 
+    /**
+     * Our custom painting of awesome cars. Do not call directly, but call
+     * repaint() instead.
+     * @param Graphics
+     */
     @Override
     public void paint(Graphics g) {
         paintComponent(g);
@@ -73,6 +88,13 @@ public class TrafficPanel extends JPanel {
         }
     }
 
+    /**
+     * Draw a car! Or, the body, wheels and if needed any debugging data.
+     * @param graphics
+     * @param car
+     * @param offset in pixels of 0,0 in world space
+     * @param scale to scale world space coordinates to pixels
+     */
     private void drawCar(Graphics2D g2, Car car, Point offset, float scale) {
         g2 = (Graphics2D) g2.create();
         // For now this just draws the polygon of the physics body shape.
@@ -105,6 +127,15 @@ public class TrafficPanel extends JPanel {
         g2.dispose();
     }
 
+    /**
+     * Draws a filled JBox2D shape using fillPolygon or fillOval. Only supports
+     * PolygonShape and CircleShape at this moment.
+     * @param graphics
+     * @param shape JBox2D shape
+     * @param transform applied to the shape to get the location and rotation
+     * @param offset in pixels of 0,0 in world space
+     * @param scale to scale world space coordinates to pixels
+     */
     private void drawShape(Graphics2D g2, Shape shape, Transform transform, Point offset, float scale) {
         switch (shape.getType()) {
             case POLYGON:
@@ -113,8 +144,19 @@ public class TrafficPanel extends JPanel {
             case CIRCLE:
                 drawCircleShape(g2, (CircleShape) shape, transform, offset, scale);
                 break;
+            default:
+                throw new UnsupportedOperationException("drawShape can only draw POLYGON and CIRCLE for now.");
         } 
     }
+    
+    /**
+     * Draws a filled JBox2D PolygonShape using fillPolygon.
+     * @param graphics
+     * @param poly JBox2D PolygonShape
+     * @param transform applied to the shape to get the location and rotation
+     * @param offset in pixels of 0,0 in world space
+     * @param scale to scale world space coordinates to pixels
+     */
     private void drawPolygonShape(Graphics2D g2, PolygonShape poly, Transform transform, Point offset, float scale) {
         int vertexCount = poly.m_count;
         int[] xs = new int[vertexCount];
@@ -130,6 +172,14 @@ public class TrafficPanel extends JPanel {
         g2.fillPolygon(xs, ys, vertexCount);
     }
 
+    /**
+     * Draws a filled JBox2D CircleShape using fillOval.
+     * @param graphics
+     * @param circle JBox2D CircleShape
+     * @param transform applied to the shape to get the location and rotation
+     * @param offset in pixels of 0,0 in world space
+     * @param scale to scale world space coordinates to pixels
+     */
     private void drawCircleShape(Graphics2D g2, CircleShape circle, Transform transform, Point offset, float scale) {   
         Vec2 center = new Vec2();
         Transform.mulToOutUnsafe(transform, circle.m_p, center);

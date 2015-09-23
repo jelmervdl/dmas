@@ -16,7 +16,9 @@ import org.jbox2d.dynamics.joints.PrismaticJointDef;
 import org.jbox2d.dynamics.joints.RevoluteJointDef;
 
 /**
- *
+ * A car wheel, to be attached to (and instantiated by) a Car. A wheel can be
+ * revolving (meaning it is used for steering) and powered (meaning it is used
+ * for gaining velocity).
  * @author jelmer
  */
 public class Wheel {
@@ -27,6 +29,16 @@ public class Wheel {
     Body body;
     Vec2 position;
 
+    /**
+     * Create a wheel
+     * @param world physics simulation in which the wheel is created
+     * @param car car to which the wheel is attached
+     * @param position of the wheel relative to the center of the car
+     * @param width of the wheel
+     * @param length (or radius) of the wheel
+     * @param joint type of joint, either fixed or revolving
+     * @param power type of axel, either powered or not powered.
+     */
     public Wheel(World world, Car car, Vec2 position, float width, float length, Joint joint, Power power) {
         this.car = car;
         this.position = position;
@@ -66,8 +78,12 @@ public class Wheel {
         }
     }
 
-    public void setAngleDeg(float angleDelta) {
-        this.body.setTransform(this.body.getPosition(), this.car.body.getAngle() + (float) ((angleDelta / 180f) * Math.PI));
+    /**
+     * Set the angle of the wheel relative to the body of the car.
+     * @param angle in degrees
+     */
+    public void setAngleDeg(float angle) {
+        this.body.setTransform(this.body.getPosition(), this.car.body.getAngle() + (float) ((angle / 180f) * Math.PI));
     }
 
     public Vec2 getLocalVelocity() {

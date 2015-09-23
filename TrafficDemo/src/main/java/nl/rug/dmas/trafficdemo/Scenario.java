@@ -15,22 +15,25 @@ import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.contacts.Contact;
 
 /**
- *
+ * A scenario, which is simulated in a world and updates the state of the
+ * cars and drivers from time step to time step.
  * @author jelmer
  */
 public class Scenario {
     World world;
     
-    /**
-     * A list of all cars in the simulation.
-     */
+    // A list of all cars in the simulation.
     ArrayList<Car> cars = new ArrayList<>();
     
-    /**
-     * A map of locations known to all agents (such as the mouse ;) )
-     */
+    // A map of locations known to all agents (such as the mouse ;) )
     Map<String, Object> commonKnowledge = new HashMap<>();
     
+    /**
+     * A scenario takes an instance of a JBox2D world and sets the contact
+     * listener. This listener updates the fixturesInSight list of the drivers
+     * throughout the simulation.
+     * @param world a JBox2D world
+     */
     public Scenario(World world) {
         this.world = world;
         
@@ -66,6 +69,11 @@ public class Scenario {
         });
     }
     
+    /**
+     * Steps the simulation of dt seconds. Mainly triggers the drivers to update
+     * and the cars to update their steering behavior as well.
+     * @param dt delta time in seconds
+     */
     public void step(float dt) {
         for (Car car : cars) {
             car.driver.step();

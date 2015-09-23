@@ -24,7 +24,7 @@ import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 
 /**
- *
+ * A simulation of a car with a physical body, wheels and a metaphysical driver.
  * @author jelmer
  */
 public class Car {
@@ -114,7 +114,7 @@ public class Car {
     
     /**
      * Positions wheels at the front and the back based on the width and length
-     * of the vehilce.
+     * of the vehicle.
      * @return a list of wheels
      */
     protected ArrayList<Wheel> createWheels() {
@@ -126,14 +126,29 @@ public class Car {
         return wheels;
     }
 
+    /**
+     * Get the local velocity of the car. This is equal to the actual speed of
+     * the car itself, but it also gives you the direction of that velocity.
+     * @return velocity of car
+     */
     public Vec2 getLocalVelocity() {
         return this.body.getLocalVector(this.body.getLinearVelocityFromLocalPoint(new Vec2(0, 0)));
     }
 
+    /**
+     * Get the local velocity in speed.
+     * @return speed of car
+     */
     public float getSpeedInKMH() {
         return (getLocalVelocity().length() / 1000) * 3600;
     }
 
+    /**
+     * Set the speed of the body of the car. This alters the velocity the car
+     * already has gained. To change the velocity of the car in a realistic way,
+     * use steering and acceleration.
+     * @param speedInKMH 
+     */
     public void setSpeed(float speedInKMH) {
         Vec2 velocity = getLocalVelocity();
         velocity.normalize();
@@ -141,8 +156,10 @@ public class Car {
     }
     
     /**
-     * Returns sight of the car in world space coordinates
-     * @return 
+     * Returns the shape of the field of view the car has. Any other fixture in
+     * the world that is positioned inside this shape will be available through
+     * the fixturesInSight set of the driver.
+     * @return a JBox2D shape representing the FOV
      */
     public Shape getSight()
     {
@@ -151,6 +168,11 @@ public class Car {
         return sight;
     }
 
+    /**
+     * Updates the simulation of the car. Typically called indirectly by
+     * Scenario.update(dt).
+     * @param dt delta time in seconds.
+     */
     public void update(float dt) {
         // Kill sideway velocity
         for (Wheel wheel : wheels)
