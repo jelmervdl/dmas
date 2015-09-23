@@ -15,22 +15,21 @@ import org.jbox2d.dynamics.World;
  * @author jelmer
  */
 public class TrafficDemo {
+    static final int hz = 60; // 60 fps
+    
+    static final int numberOfCars = 15;
 
     static public void main(String[] args) {
-        final int hz = 60; // 60 fps
-
+        
         // Create a world without gravity (2d world seen from top, eh!)
         // The world is our physics simulation.
         final World world = new World(new Vec2(0, 0));
 
         // Create a scenario with two cars looping left and right (and colliiiddiiingg >:D )
         final Scenario scenario = new Scenario(world);
-        scenario.cars.add(new Car(scenario, new Driver(scenario), 2, 4, new Vec2(5, 0)));
-        scenario.cars.get(0).acceleration = Acceleration.ACCELERATE;
-        scenario.cars.get(0).steer = SteerDirection.RIGHT;
-        scenario.cars.add(new Car(scenario, new Driver(scenario), 2, 4, new Vec2(-5, 0)));
-        scenario.cars.get(1).acceleration = Acceleration.ACCELERATE;
-        scenario.cars.get(1).steer = SteerDirection.LEFT;
+        for (int i = 0; i < numberOfCars; ++i) {
+            scenario.cars.add(new Car(scenario, new Driver(scenario), 2, 4, RandomUtil.nextRandomVec(-10, 10, -10, 10)));
+        }
 
         // Pony up a simple window, our only entrypoint to the app
         JFrame window = new JFrame();
