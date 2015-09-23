@@ -49,30 +49,6 @@ public class TrafficDemo {
         // Optional todo: replace this with a scheduled repeating executor
         // so we don't have to deal with the timing of the thread sleep?
         final Thread mainLoop = new Thread(new Runnable() {
-            private void agentStep() {
-                Vec2 worldMouse = panel.getMouseWorldLocation();
-
-                for (Car car : scenario.cars) {
-                    Vec2 carMouse = car.body.getLocalPoint(worldMouse);
-
-                    if (carMouse.x < -2) {
-                        car.steer = SteerDirection.LEFT;
-                    } else if (carMouse.x > 2) {
-                        car.steer = SteerDirection.RIGHT;
-                    } else {
-                        car.steer = SteerDirection.NONE;
-                    }
-
-                    if (carMouse.y < -2) {
-                        car.acceleration = Acceleration.ACCELERATE;
-                    } else if (carMouse.y > 2) {
-                        car.acceleration = Acceleration.ACCELERATE; //Acceleration.BRAKE;
-                    } else {
-                        car.acceleration = Acceleration.NONE;
-                    }
-                }
-            }
-
             @Override
             public void run() {
                 try {
