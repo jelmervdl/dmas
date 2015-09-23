@@ -9,7 +9,6 @@ public class Edge {
 
     private final Vertex origin;
     private final Vertex destination;
-    private boolean backwardEdge;
 
     /**
      *
@@ -19,15 +18,6 @@ public class Edge {
     protected Edge(Vertex origin, Vertex destination) {
         this.origin = origin;
         this.destination = destination;
-        this.backwardEdge = false;
-    }
-
-    protected boolean isBackwardEdge() {
-        return backwardEdge;
-    }
-
-    protected void setBackwardEdge(boolean backwardEdge) {
-        this.backwardEdge = backwardEdge;
     }
 
     /**
