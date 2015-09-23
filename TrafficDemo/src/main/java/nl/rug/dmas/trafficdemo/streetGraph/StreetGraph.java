@@ -19,6 +19,11 @@ public class StreetGraph {
     private final HashMap<Integer, Vertex> sources;
     private final HashMap<Integer, Vertex> sinks;
 
+    /**
+     * A graph representing streets, vertices represent intersections, edges
+     * represent roads. Sources represent locations where traffic may enter the
+     * simulation, sinks where traffic may leave the simulation.
+     */
     public StreetGraph() {
         this.sources = new HashMap<>();
         this.sinks = new HashMap<>();
@@ -43,10 +48,22 @@ public class StreetGraph {
         }
     }
 
-    public void setSources(HashSet<Integer> indices) {
+    /**
+     * Set the sources of the StreetGraph, sources represent the locations where
+     * traffic may enter the simulation.
+     *
+     * @param indices The 'names' of the sources
+     */
+    protected void setSources(HashSet<Integer> indices) {
         vertexHashSetToHashMap(indices, this.sources);
     }
 
+    /**
+     * Set the sinks of the StreetGraph, sinks represent the locations where
+     * traffic may enter the simulation.
+     *
+     * @param indices The 'names' of the sinks
+     */
     public void setSinks(HashSet<Integer> indices) {
         vertexHashSetToHashMap(indices, this.sinks);
     }
@@ -94,9 +111,7 @@ public class StreetGraph {
 
     @Override
     public String toString() {
-// TODO Fix toString()
-//        String res = "Source:\t" + this.sources.getVertexListIndex() + "\nSink:\t" + this.sinks.getVertexListIndex() + "\n" + "Vertices\n";
-        String res = "";
+        String res = "Sources:\t" + this.sources.keySet() + "\nSinks:\t\t" + this.sinks.keySet() + "\n" + "Vertices\n";
         for (Entry<Integer, Vertex> entry : this.vertices.entrySet()) {
             res += "\t" + entry.getValue() + "\n";
         }
