@@ -48,12 +48,30 @@ public class GraphReader {
         return naturalNumbers;
     }
 
-    private static void readNumNodes(Scanner scanner) {
-        numNodes = readNaturalNumber(scanner, "Number of nodes");
+    private static void readNumNodesAndEdges(Scanner scanner) {
+        readHeaderRow(scanner);
+        GraphReader.numNodes = readNaturalNumber(scanner, "Number of nodes");
+        GraphReader.numEdges = readNaturalNumber(scanner, "Number of edges");
     }
 
-    private static void readNumEdges(Scanner scanner) {
-        numEdges = readNaturalNumber(scanner, "Number of edges");
+    private static HashSet<Integer> readSinks(Scanner scanner) {
+        readHeaderRow(scanner);
+        HashSet<Integer> sinks = readSetOfNaturalNumbersFromLine(scanner, GraphReader.numNodes);
+        return sinks;
+    }
+
+    private static void readEdges(Scanner scanner) {
+        readHeaderRow(scanner);
+        for (int i = 0; i < numEdges; i++) {
+            graph.addEdge(checkNodeValues(scanner.nextInt()),
+                    checkNodeValues(scanner.nextInt()));
+        }
+    }
+
+    private static HashSet<Integer> readSources(Scanner scanner) {
+        readHeaderRow(scanner);
+        HashSet<Integer> sources = readSetOfNaturalNumbersFromLine(scanner, GraphReader.numNodes);
+        return sources;
     }
 
     public static StreetGraph read(File file) {
@@ -64,28 +82,17 @@ public class GraphReader {
             System.exit(-1);
         }
 
+        graph = new StreetGraph();
+
         try {
-            readHeaderRow(scanner);
-            readNumNodes(scanner);
-            readNumEdges(scanner);
+            readNumNodesAndEdges(scanner);
+            HashSet<Integer> sources = readSources(scanner);
+            HashSet<Integer> sinks = readSinks(scanner);
 
-            readHeaderRow(scanner);
-            HashSet<Integer> sources = readSetOfNaturalNumbersFromLine(scanner, GraphReader.numNodes);
+            readEdges(scanner);
+            graph.setSinks(sinks);
+            graph.setSources(sources);
 
-            readHeaderRow(scanner);
-            HashSet<Integer> sinks = readSetOfNaturalNumbersFromLine(scanner, GraphReader.numNodes);
-
-            readHeaderRow(scanner);
-
-//            graph = new StreetGraph(source, sink);
-//
-//            // Read in all the edges and add them to the graph.
-//            for (int i = 0; i < numEdges; i++) {
-//                graph.addEdge(checkNodeValues(scanner.nextInt()),
-//                        checkNodeValues(scanner.nextInt()),
-//                        checkNodeWeight(scanner.nextInt()));
-//            }
-//            // All edges have been read, rest of input (if any) will be ignored.
         } catch (InputMismatchException ex) {
             ex.printStackTrace(System.err);
             System.exit(-1);
@@ -98,13 +105,6 @@ public class GraphReader {
             throw new InputMismatchException("Illigal Node index.");
         }
         return nodeIndex;
-    }
-
-    private static int checkNodeWeight(int nodeWeight) {
-        if (nodeWeight < 0) {
-            throw new InputMismatchException("Illigal Node weight.");
-        }
-        return nodeWeight;
     }
 
     public static void main(String[] args) {
