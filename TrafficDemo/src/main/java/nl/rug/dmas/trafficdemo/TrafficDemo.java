@@ -15,8 +15,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import org.jbox2d.common.Vec2;
-import org.jbox2d.dynamics.World;
 
 /**
  *
@@ -37,12 +35,8 @@ public class TrafficDemo {
         
         final Preferences prefs = Preferences.userNodeForPackage(TrafficDemo.class);
         
-        // Create a world without gravity (2d world seen from top, eh!)
-        // The world is our physics simulation.
-        final World world = new World(new Vec2(0, 0));
-
         // Create a scenario with two cars looping left and right (and colliiiddiiingg >:D )
-        final Scenario scenario = new Scenario(world);
+        final Scenario scenario = new Scenario();
         for (int i = 0; i < numberOfCars; ++i) {
             scenario.cars.add(new Car(scenario, new Driver(scenario), 2, 4, RandomUtil.nextRandomVec(-10, 10, -10, 10)));
         }
@@ -96,8 +90,7 @@ public class TrafficDemo {
                         scenario.commonKnowledge.put("mouse", panel.getMouseWorldLocation());
                         scenario.step(stepTime);
                         
-                        world.step(stepTime, 3, 8);
-                        panel.repaint(); // todo: only repaint if the cars moved?
+                        panel.repaint();
 
                         long finishTimeMS = System.currentTimeMillis();
                         long sleepTimeMS = (long) (stepTime * 1000) - (finishTimeMS - startTimeMS);

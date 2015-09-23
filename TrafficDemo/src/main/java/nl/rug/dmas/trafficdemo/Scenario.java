@@ -11,6 +11,7 @@ import java.util.Map;
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.contacts.Contact;
 
@@ -32,11 +33,12 @@ public class Scenario {
      * A scenario takes an instance of a JBox2D world and sets the contact
      * listener. This listener updates the fixturesInSight list of the drivers
      * throughout the simulation.
-     * @param world a JBox2D world
      */
-    public Scenario(World world) {
-        this.world = world;
-        
+    public Scenario() {
+        // Create a world without gravity (2d world seen from top, eh!)
+        // The world is our physics simulation.
+        world = new World(new Vec2(0, 0));
+
         // Keep a contact listener that monitors whether cars are in sight of
         // drivers.
         world.setContactListener(new ContactListener() {
@@ -70,8 +72,7 @@ public class Scenario {
     }
     
     /**
-     * Steps the simulation of dt seconds. Mainly triggers the drivers to update
-     * and the cars to update their steering behavior as well.
+     * Steps the simulation of dt seconds.
      * @param dt delta time in seconds
      */
     public void step(float dt) {
@@ -79,5 +80,7 @@ public class Scenario {
             car.driver.step();
             car.update(dt);
         }
+        
+        world.step(dt, 3, 8);
     }
 }
