@@ -12,6 +12,8 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 
@@ -25,6 +27,12 @@ public class TrafficDemo {
     static final int numberOfCars = 15;
 
     static public void main(String[] args) {
+        try {
+            System.setProperty("apple.laf.useScreenMenuBar", "true");
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            // Could not initialize awesome Mac-specific UI, but Java UI will be sort of fine, I guess.
+        }
         
         // Create a world without gravity (2d world seen from top, eh!)
         // The world is our physics simulation.
