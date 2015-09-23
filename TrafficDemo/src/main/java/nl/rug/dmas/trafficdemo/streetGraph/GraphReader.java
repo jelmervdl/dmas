@@ -19,7 +19,9 @@ public class GraphReader {
     private static int numEdges;
 
     private static void readHeaderRow(Scanner scanner) {
-        String line = scanner.nextLine();
+        if (scanner.nextLine().equals("")) {
+            scanner.nextLine();
+        }
     }
 
     private static int readNaturalNumber(Scanner scanner, String descriptionOfInt) {
