@@ -11,39 +11,10 @@ public class Path {
 
     private LinkedList<Edge> path;
 
-    /**
-     *
-     */
     protected Path() {
         this.path = new LinkedList<>();
     }
 
-    /**
-     *
-     * @param sink
-     * @param source
-     */
-    protected Path(Vertex sink, Vertex source) {
-        //Retrace path
-        this();
-        Vertex currentVertex = sink;
-        Edge currentEdge = sink.getVisitedFromEdge();
-        while (currentVertex != source) {
-            this.path.addFirst(currentEdge);
-            if (currentEdge.isBackwardEdge()) {
-                currentVertex = currentEdge.getDestination();
-                currentEdge = currentVertex.getVisitedFromEdge();
-            } else {
-                currentVertex = currentEdge.getOrigin();
-                currentEdge = currentVertex.getVisitedFromEdge();
-            }
-        }
-    }
-
-    /**
-     *
-     * @return
-     */
     public LinkedList<Edge> getPath() {
         return path;
     }
