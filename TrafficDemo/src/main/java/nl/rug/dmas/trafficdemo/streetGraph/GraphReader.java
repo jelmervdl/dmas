@@ -2,6 +2,8 @@ package nl.rug.dmas.trafficdemo.streetGraph;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -28,6 +30,22 @@ public class GraphReader {
         return naturalNumber;
     }
 
+    private static HashSet<Integer> readSetOfNaturalNumbersFromLine(Scanner scanner, int maximumElementHeight) {
+        String line = scanner.nextLine();
+        Scanner lineScanner = new Scanner(line);
+        HashSet<Integer> naturalNumbers = new HashSet<>();
+        int naturalNumber;
+        while (lineScanner.hasNextInt()) {
+            naturalNumber = lineScanner.nextInt();
+            if (naturalNumber >= maximumElementHeight) {
+                throw new InputMismatchException("Node " + naturalNumber + " cannot be a a description for a node since there are only" + maximumElementHeight + " nodes.");
+            }
+            naturalNumbers.add(naturalNumber);
+        }
+        lineScanner.close();
+        return naturalNumbers;
+    }
+
     private static void readNumNodes(Scanner scanner) {
         numNodes = readNaturalNumber(scanner, "Number of nodes");
     }
@@ -48,8 +66,12 @@ public class GraphReader {
             readHeaderRow(scanner);
             readNumNodes(scanner);
             readNumEdges(scanner);
-//            readSources(scanner);
-//            readSinks(scanner);
+
+            readHeaderRow(scanner);
+            HashSet<Integer> sources = readSetOfNaturalNumbersFromLine(scanner, GraphReader.numNodes);
+
+            readHeaderRow(scanner);
+            HashSet<Integer> sinks = readSetOfNaturalNumbersFromLine(scanner, GraphReader.numNodes);
 
 //
 //            int source = checkNodeValues(scanner.nextInt());
