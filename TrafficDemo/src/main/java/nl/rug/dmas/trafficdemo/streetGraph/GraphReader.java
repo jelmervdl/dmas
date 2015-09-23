@@ -2,7 +2,6 @@ package nl.rug.dmas.trafficdemo.streetGraph;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -18,85 +17,94 @@ public class GraphReader {
     private static int numNodes;
     private static int numEdges;
 
-    private static void readHeaderRow(Scanner scanner) {
-        if (scanner.nextLine().equals("")) {
-            scanner.nextLine();
+    private static void readHeaderRow() {
+        if (GraphReader.scanner.nextLine().equals("")) {
+            GraphReader.scanner.nextLine();
         }
     }
 
-    private static int readNaturalNumber(Scanner scanner, String descriptionOfInt) {
-        int naturalNumber = scanner.nextInt();
+    private static int readNaturalNumber(String descriptionOfInt) {
+        int naturalNumber = GraphReader.scanner.nextInt();
         if (naturalNumber <= 0) {
             throw new InputMismatchException(descriptionOfInt + "cannot be negative or zero.");
         }
         return naturalNumber;
     }
 
-    private static HashSet<Integer> readSetOfNaturalNumbersFromLine(Scanner scanner, int maximumElementHeight) {
-        String line = scanner.nextLine();
-        Scanner lineScanner = new Scanner(line);
-        HashSet<Integer> naturalNumbers = new HashSet<>();
-        int naturalNumber;
-        while (lineScanner.hasNextInt()) {
-            naturalNumber = lineScanner.nextInt();
-            if (naturalNumber >= maximumElementHeight) {
-                throw new InputMismatchException("Node " + naturalNumber + " cannot be a a description for a node since there are only" + maximumElementHeight + " nodes.");
+    private static HashSet<Integer> readSetOfNaturalNumbersFromLine(int maximumElementHeight) {
+        String line = GraphReader.scanner.nextLine();
+        HashSet<Integer> naturalNumbers;
+        try (Scanner lineScanner = new Scanner(line)) {
+            naturalNumbers = new HashSet<>();
+            int naturalNumber;
+            while (lineScanner.hasNextInt()) {
+                naturalNumber = lineScanner.nextInt();
+                if (naturalNumber >= maximumElementHeight) {
+                    throw new InputMismatchException("Node " + naturalNumber + " cannot be a a description for a node since there are only" + maximumElementHeight + " nodes.");
+                }
+                naturalNumbers.add(naturalNumber);
             }
-            naturalNumbers.add(naturalNumber);
         }
-        lineScanner.close();
         return naturalNumbers;
     }
 
-    private static void readNumNodesAndEdges(Scanner scanner) {
-        readHeaderRow(scanner);
-        GraphReader.numNodes = readNaturalNumber(scanner, "Number of nodes");
-        GraphReader.numEdges = readNaturalNumber(scanner, "Number of edges");
+    private static void readNumNodesAndEdges() {
+        readHeaderRow();
+        GraphReader.numNodes = readNaturalNumber("Number of nodes");
+        GraphReader.numEdges = readNaturalNumber("Number of edges");
     }
 
-    private static HashSet<Integer> readSinks(Scanner scanner) {
-        readHeaderRow(scanner);
-        HashSet<Integer> sinks = readSetOfNaturalNumbersFromLine(scanner, GraphReader.numNodes);
+    private static HashSet<Integer> readSinks() {
+        readHeaderRow();
+        HashSet<Integer> sinks = readSetOfNaturalNumbersFromLine(GraphReader.numNodes);
         return sinks;
     }
 
-    private static void readEdges(Scanner scanner) {
-        readHeaderRow(scanner);
-        for (int i = 0; i < numEdges; i++) {
-            graph.addEdge(checkNodeValues(scanner.nextInt()),
-                    checkNodeValues(scanner.nextInt()));
+    private static void readEdges() {
+        readHeaderRow();
+        for (int i = 0; i < GraphReader.numEdges; i++) {
+            GraphReader.graph.addEdge(checkNodeValues(GraphReader.scanner.nextInt()),
+                    checkNodeValues(GraphReader.scanner.nextInt()));
         }
     }
 
-    private static HashSet<Integer> readSources(Scanner scanner) {
-        readHeaderRow(scanner);
-        HashSet<Integer> sources = readSetOfNaturalNumbersFromLine(scanner, GraphReader.numNodes);
+    private static HashSet<Integer> readSources() {
+        readHeaderRow();
+        HashSet<Integer> sources = readSetOfNaturalNumbersFromLine(GraphReader.numNodes);
         return sources;
     }
 
+    /**
+     * Read an input file, according to the syntax presented in the readme of
+     * this project, in a graph.
+     *
+     * @param file The path of the file relative to the folder input
+     * @return A StreetGraph with the graph represented in the file.
+     */
     public static StreetGraph read(File file) {
         try {
-            scanner = new Scanner(file);
+            GraphReader.scanner = new Scanner(file);
         } catch (FileNotFoundException ex) {
             ex.printStackTrace(System.err);
             System.exit(-1);
         }
 
-        graph = new StreetGraph();
+        GraphReader.graph = new StreetGraph();
 
         try {
-            readNumNodesAndEdges(scanner);
-            HashSet<Integer> sources = readSources(scanner);
-            HashSet<Integer> sinks = readSinks(scanner);
+            readNumNodesAndEdges();
+            HashSet<Integer> sources = readSources();
+            HashSet<Integer> sinks = readSinks();
 
-            readEdges(scanner);
-            graph.setSinks(sinks);
-            graph.setSources(sources);
+            readEdges();
+            GraphReader.graph.setSinks(sinks);
+            GraphReader.graph.setSources(sources);
 
         } catch (InputMismatchException ex) {
             ex.printStackTrace(System.err);
             System.exit(-1);
         }
+        GraphReader.scanner.close();
         return graph;
     }
 
@@ -105,11 +113,5 @@ public class GraphReader {
             throw new InputMismatchException("Illigal Node index.");
         }
         return nodeIndex;
-    }
-
-    public static void main(String[] args) {
-        File inputFile = new File("./input/graaf.txt");
-        StreetGraph graaf = GraphReader.read(inputFile);
-        System.out.println(graaf);
     }
 }
