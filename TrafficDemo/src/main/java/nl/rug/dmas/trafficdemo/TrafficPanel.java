@@ -121,7 +121,7 @@ public class TrafficPanel extends JPanel {
         // Then draw the body of the car
         g2.setColor(car.color);
         drawShape(g2, car.bodyFixture.getShape(), car.body.getTransform(), offset, scale);
-
+        
         // And overlay the vision of the driver
         if (drawFOV) {
             if (car.driver.seesOtherCars())
@@ -132,7 +132,11 @@ public class TrafficPanel extends JPanel {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
             drawShape(g2, car.visionFixture.getShape(), car.body.getTransform(), offset, scale);
         }
-        
+
+        // for testing, draw the angle the car tries to achieve
+        g2.setColor(Color.RED);
+        drawAngle(g2, car.targetBodyAngle, car.body.getPosition(), offset, scale);
+
         g2.dispose();
     }
 

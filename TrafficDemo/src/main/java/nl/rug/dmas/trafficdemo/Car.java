@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
+import org.jbox2d.common.MathUtils;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
@@ -25,11 +26,11 @@ import org.jbox2d.dynamics.World;
 public class Car {
     Driver driver;
     
-    SteerDirection steer = SteerDirection.NONE;
+    float targetSpeedKMH = 0f;
     Acceleration acceleration =  Acceleration.NONE;
 
+    float targetBodyAngle = 0f;
     float maxSteerAngleDeg = 40;
-    float maxSpeedKMH = 60;
     float power = 250;
     float wheelAngleDeg = 0;
     float steeringSpeed = 5f;
@@ -145,8 +146,12 @@ public class Car {
      * Get the local velocity in speed.
      * @return speed of car
      */
-    public float getSpeedInKMH() {
+    public float getSpeedKMH() {
         return (getLocalVelocity().length() / 1000) * 3600;
+    }
+    
+    public void setSpeedKMH(float speedInKMH) {
+        targetSpeedKMH = speedInKMH;
     }
 
     /**
@@ -155,10 +160,20 @@ public class Car {
      * use steering and acceleration.
      * @param speedInKMH 
      */
-    public void setSpeed(float speedInKMH) {
+    private void setSpeed(float speedInKMH) {
         Vec2 velocity = getLocalVelocity();
         velocity.normalize();
         this.body.setLinearVelocity(velocity.mul((speedInKMH * 1000) / 3600f));
+    }
+    
+    public void setSteeringDirection(float angle) {
+        targetBodyAngle = body.getAngle() + angle * MathUtils.DEG2RAD;
+    }
+    
+    public void setSteeringDirection(Vec2 direction) {
+        direction = direction.clone();
+        direction.normalize();
+        setSteeringDirection((MathUtils.atan2(direction.y, direction.x) - MathUtils.HALF_PI) * MathUtils.RAD2DEG);
     }
     
     /**
@@ -187,33 +202,18 @@ public class Car {
         // Set wheel angle
 
         // Calculate the change in wheel's angle for this update, assuming the wheel will reach is maximum angle from zero in 200 ms
-        float increase = this.maxSteerAngleDeg * dt * this.steeringSpeed;
-
-        switch (this.steer) {
-            case RIGHT:
-                this.wheelAngleDeg = Math.min(this.wheelAngleDeg + increase, this.maxSteerAngleDeg);
-                break;
-
-            case LEFT:
-                this.wheelAngleDeg = Math.max(this.wheelAngleDeg - increase, -this.maxSteerAngleDeg);
-                break;
-
-            case NONE:
-            default:
-                if (this.wheelAngleDeg > 0)
-                    this.wheelAngleDeg = Math.max(this.wheelAngleDeg - increase, 0);
-                else if (this.wheelAngleDeg < 0)
-                    this.wheelAngleDeg = Math.min(this.wheelAngleDeg + increase, 0);
-                break;
-        }
-
+        //float increase = maxSteerAngleDeg * dt * steeringSpeed;
+        
+        // TODO incorporate increase and steeringSpeed into this very simple hack that controls steering
+        wheelAngleDeg = MathUtils.clamp((targetBodyAngle - body.getAngle()) * MathUtils.RAD2DEG, -maxSteerAngleDeg, maxSteerAngleDeg);
+        
         // Apply force to wheels
         Vec2 baseVec = new Vec2(0, 0); //vector pointing in the direction force will be applied to a wheel ; relative to the wheel.
 
         switch (this.acceleration) {
             case ACCELERATE:
-                if (this.getSpeedInKMH() < this.maxSpeedKMH)
-                    baseVec = new Vec2(0, -1);
+                if (this.getSpeedKMH() < this.targetSpeedKMH)
+                    baseVec = new Vec2(0, -10); // Note: this represents the engine power!
                 break;
 
             case BRAKE:
@@ -233,14 +233,14 @@ public class Car {
         // Assume the powered wheels are the first two wheels
         for (Wheel wheel : wheels) { // Update revolving wheels
             if (wheel.revolving == Joint.REVOLVING)
-                wheel.setAngleDeg(this.wheelAngleDeg);
+                wheel.setAngleDeg(wheelAngleDeg);
             
             if (wheel.powered == Power.POWERED)
                 wheel.body.applyForce(wheel.body.getWorldVector(forceVec), wheel.body.getWorldCenter());
         }
 
         //if going very slow, stop - to prevent endless sliding
-        if (getSpeedInKMH() < 4 && acceleration == Acceleration.NONE)
+        if (getSpeedKMH() < 4 && acceleration == Acceleration.NONE)
             setSpeed(0);
     }
 }

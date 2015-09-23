@@ -61,19 +61,12 @@ class Driver {
     }
     
     private void setSteerDirection(Vec2 direction) {
-        direction.normalize();
+        car.setSteeringDirection(direction.mul(-1f));
         
-        if (direction.x < -0.1)
-            car.steer = SteerDirection.LEFT;
-        else if (direction.x > 0.1)
-            car.steer = SteerDirection.RIGHT;
-        else
-            car.steer = SteerDirection.NONE;
+        car.setSpeedKMH(direction.length() * 10);
 
-        if (direction.y < -0.1)
+        if (direction.length() > 0.5f)
             car.acceleration = Acceleration.ACCELERATE;
-        else if (direction.y > 0.1)
-            car.acceleration = Acceleration.ACCELERATE; //Acceleration.BRAKE;
         else
             car.acceleration = Acceleration.NONE;
     }
