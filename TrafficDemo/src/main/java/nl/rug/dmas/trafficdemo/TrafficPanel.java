@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
+import org.jbox2d.common.MathUtils;
 import org.jbox2d.common.Transform;
 import org.jbox2d.common.Vec2;
 
@@ -198,5 +199,43 @@ public class TrafficPanel extends JPanel {
             Math.round(center.y * scale + offset.y),
             Math.round(2 * circle.getRadius() * scale),
             Math.round(2 * circle.getRadius() * scale));
+    }
+    
+    private void drawAngle(Graphics2D g2, float angle, Vec2 position, Point offset, float scale) {
+        angle -= MathUtils.HALF_PI;
+        Vec2 direction = new Vec2(MathUtils.cos(angle), MathUtils.sin(angle));
+        drawVec(g2, direction, position, offset, scale);
+    }
+    
+    private void drawVec(Graphics2D g2, Vec2 direction, Vec2 position, Point offset, float scale) {
+        // target is the absolute world position of the tip of the vector
+        Vec2 target = position.add(direction);
+        
+        // draw the line of the vector
+        g2.drawLine(
+            Math.round(position.x * scale + offset.x),
+            Math.round(position.y * scale + offset.y),
+            Math.round(target.x * scale + offset.x),
+            Math.round(target.y * scale + offset.y)
+        );
+        
+        // and draw a little arrowhead at the tip
+        float angle = MathUtils.atan2(direction.y, direction.x);
+        float arrowLength = MathUtils.clamp(direction.length() / 10f, 0.5f, 1.0f);
+        float arrowWidth = 0.125f * MathUtils.PI;
+        
+        int[] xs = new int[]{
+            Math.round(target.x * scale + offset.x), // tip
+            Math.round((target.x - arrowLength * MathUtils.cos(angle + arrowWidth)) * scale + offset.x), // bottom left
+            Math.round((target.x - arrowLength * MathUtils.cos(angle - arrowWidth)) * scale + offset.x) // bottom right
+        };
+        
+        int[] ys = new int[] {
+            Math.round(target.y * scale + offset.y),
+            Math.round((target.y - arrowLength * MathUtils.sin(angle + arrowWidth)) * scale + offset.y),
+            Math.round((target.y - arrowLength * MathUtils.sin(angle - arrowWidth)) * scale + offset.y)
+        };
+        
+        g2.fillPolygon(xs, ys, xs.length);
     }
 }
