@@ -10,17 +10,12 @@ import java.util.NoSuchElementException;
 public class Path {
 
     private LinkedList<Edge> path;
-    private int maxFlow;
 
     /**
      *
      */
     protected Path() {
         this.path = new LinkedList<>();
-    }
-
-    public int getMaxFlow() {
-        return maxFlow;
     }
 
     /**
@@ -33,7 +28,6 @@ public class Path {
         this();
         Vertex currentVertex = sink;
         Edge currentEdge = sink.getVisitedFromEdge();
-        int minimalCapacityOnPath = Integer.MAX_VALUE;
         while (currentVertex != source) {
             this.path.addFirst(currentEdge);
             if (currentEdge.isBackwardEdge()) {
