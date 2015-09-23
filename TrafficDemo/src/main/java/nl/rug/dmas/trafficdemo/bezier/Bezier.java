@@ -66,4 +66,21 @@ public abstract class Bezier {
         }
         return curvePoints;
     }
+    
+    public static void main(String[] args) {
+        Vec2 source = new Vec2((float) 1.0, (float) 0.0);
+        Vec2 control = new Vec2((float) 0.0, (float) 2.0);
+        Vec2 destination = new Vec2((float) 2.0, (float) 1.0);
+        int resolution = 20;
+
+        Bezier bluh = new QuadraticBezier(source, destination);
+        ArrayList<Vec2> points = bluh.computePointsOnCurve(resolution, control);
+
+        System.out.print("[");
+        for (Vec2 point : points) {
+            System.out.println(point.x + ", " + point.y + ";");
+        }
+        System.out.println("];");
+    }
+    
 }
