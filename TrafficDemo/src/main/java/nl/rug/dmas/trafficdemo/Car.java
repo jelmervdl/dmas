@@ -16,13 +16,13 @@ import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.Fixture;
 import org.jbox2d.dynamics.FixtureDef;
+import org.jbox2d.dynamics.World;
 
 /**
  * A simulation of a car with a physical body, wheels and a metaphysical driver.
  * @author jelmer
  */
 public class Car {
-    Scenario scenario;
     Driver driver;
     
     SteerDirection steer = SteerDirection.NONE;
@@ -45,26 +45,30 @@ public class Car {
     Fixture bodyFixture;
     Fixture visionFixture;
     
-    public Car(Scenario scenario, Driver driver, float width, float length, Vec2 position) {
-        this.scenario = scenario;
+    private Vec2 initialPosition;
+    
+    public Car(Driver driver, float width, float length, Vec2 position) {
         this.driver = driver;
         this.width = width;
         this.length = length;
+        this.initialPosition = position;
         this.color = RandomUtil.nextRandomPastelColor();
         
         // Let the driver know which car to steer.
         driver.setCar(this);
-        
+    }
+    
+    public void initialize(World world) {
         // The body is the 'physics body', more or less a group of fixtures
         // (actual shapes) that together form one physical unit.
         BodyDef def = new BodyDef();
         def.type = BodyType.DYNAMIC;
-        def.position = position;
+        def.position = initialPosition;
         def.angle = 0;
         def.linearDamping = 0.5f; // gradually reduces velocity, makes the car reduce speed slowly if neither accelerator nor brake is pressed
         def.angularDamping = 0.3f;
         def.bullet = true;  //dedicates more time to collision detection - car travelling at high speeds at low framerates otherwise might teleport through obstacles.
-        body = scenario.world.createBody(def);
+        body = world.createBody(def);
         
         // Let's also create a fixture (a solid part) for our body
         bodyFixture = body.createFixture(getBodyDef());
@@ -75,7 +79,15 @@ public class Car {
         visionFixture.setUserData(driver);
 
         // Finally, add some wheels.
-        wheels = createWheels();
+        wheels = createWheels(world);
+    }
+    
+    /**
+     * Destroys the internal representation of a car. This method is unsafe! Do
+     * not call it during 
+     */
+    public void destroy(World world) {
+        world.destroyBody(body);
     }
     
     /**
@@ -111,12 +123,12 @@ public class Car {
      * of the vehicle.
      * @return a list of wheels
      */
-    protected ArrayList<Wheel> createWheels() {
+    protected ArrayList<Wheel> createWheels(World world) {
         ArrayList<Wheel> wheels = new ArrayList<>();
-        wheels.add(new Wheel(scenario.world, this, new Vec2(width / -2f, length / -2f + 0.8f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top left
-        wheels.add(new Wheel(scenario.world, this, new Vec2(width / -2f, length /  2f - 0.8f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom left
-        wheels.add(new Wheel(scenario.world, this, new Vec2(width /  2f, length / -2f + 0.8f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top right
-        wheels.add(new Wheel(scenario.world, this, new Vec2(width /  2f, length /  2f - 0.8f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom right
+        wheels.add(new Wheel(world, this, new Vec2(width / -2f, length / -2f + 0.8f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top left
+        wheels.add(new Wheel(world, this, new Vec2(width / -2f, length /  2f - 0.8f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom left
+        wheels.add(new Wheel(world, this, new Vec2(width /  2f, length / -2f + 0.8f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top right
+        wheels.add(new Wheel(world, this, new Vec2(width /  2f, length /  2f - 0.8f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom right
         return wheels;
     }
 

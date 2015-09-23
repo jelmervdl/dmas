@@ -8,6 +8,9 @@ package nl.rug.dmas.trafficdemo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
@@ -32,7 +35,9 @@ public class Scenario {
     final private ArrayList<Car> carsToRemove = new ArrayList<>();
     final private ArrayList<Car> carsToAdd = new ArrayList<>();
     
-    private boolean locked = false;
+    final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    final Lock readLock = lock.readLock();
+    final Lock writeLock = lock.writeLock();
     
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact
@@ -82,10 +87,19 @@ public class Scenario {
      * @param car to add
      */
     public void add(Car car) {
-        if (isLocked())
+        if (writeLock.tryLock())
+            try {
+                addCarUnsafe(car);
+            } finally {
+                writeLock.unlock();
+        } else {
             carsToAdd.add(car);
-        else
-            cars.add(car);
+        }
+    }
+    
+    private void addCarUnsafe(Car car) {
+        car.initialize(world);
+        cars.add(car);
     }
     
     /**
@@ -95,18 +109,20 @@ public class Scenario {
      * @param car to remove
      */
     public void remove(Car car) {
-        if (isLocked())
+        if (writeLock.tryLock()) {
+            try {
+                removeCarUnsafe(car);
+            } finally {
+                writeLock.unlock();
+            }
+        } else {
             carsToRemove.add(car);
-        else
-            cars.remove(car);
+        }
     }
     
-    /**
-     * Whether the simulation is locked. (I.e. a time step is in progress.)
-     * @return time step is in progress
-     */
-    public boolean isLocked() {
-        return locked;
+    private void removeCarUnsafe(Car car) {
+        car.destroy(world);
+        cars.remove(car);
     }
     
     /**
@@ -114,25 +130,41 @@ public class Scenario {
      * @param dt delta time in seconds
      */
     public void step(float dt) {
-        locked = true;
-
+        // For running the simulation we only need a read lock
+        readLock.lock();
         try {
-
             for (Car car : cars) {
                 car.driver.step();
                 car.update(dt);
             }
 
             world.step(dt, 3, 8);
+        } finally {
+            readLock.unlock();
+        }
+        
+        // For altering the cars that need to be added or removed we want a
+        // complete lock.
+        writeLock.lock();
+        try {
+            // Process removals that were queued
+            if (!carsToRemove.isEmpty()) {
+                for (Car car : carsToRemove)
+                    removeCarUnsafe(car);
 
-            if (!carsToRemove.isEmpty())
-                cars.removeAll(carsToRemove);
-            
-            if (!carsToAdd.isEmpty())
-                cars.addAll(carsToAdd);
+                carsToRemove.clear();
+            }
+
+            // And process additions that were also queued
+            if (!carsToAdd.isEmpty()) {
+                for (Car car : carsToAdd)
+                    addCarUnsafe(car);
+
+                carsToAdd.clear();
+            }
         }
         finally {
-            locked = false;
-        }
+            writeLock.unlock();
+        }       
     }
 }

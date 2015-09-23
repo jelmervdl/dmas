@@ -79,12 +79,17 @@ public class TrafficPanel extends JPanel {
         // World position Vec2(0,0) is the center of the screen
         // Scale translates one world point to n pixels.
         Point center = getCenter();
-
-        // First we should draw (or blit, that would be awesome fast!) the
-        // roads. But there are no roads yet.
-        // Then on top of those, we draw our cars.
-        for (Car car : scenario.cars) {
-            drawCar(g2, car, center, scale);
+        
+        scenario.readLock.lock();
+        try {
+            // First we should draw (or blit, that would be awesome fast!) the
+            // roads. But there are no roads yet.
+            // Then on top of those, we draw our cars.
+            for (Car car : scenario.cars) {
+                drawCar(g2, car, center, scale);
+            }
+        } finally {
+            scenario.readLock.unlock();
         }
     }
 
