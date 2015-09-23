@@ -8,6 +8,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.prefs.Preferences;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -34,6 +35,8 @@ public class TrafficDemo {
             // Could not initialize awesome Mac-specific UI, but Java UI will be sort of fine, I guess.
         }
         
+        final Preferences prefs = Preferences.userNodeForPackage(TrafficDemo.class);
+        
         // Create a world without gravity (2d world seen from top, eh!)
         // The world is our physics simulation.
         final World world = new World(new Vec2(0, 0));
@@ -52,20 +55,23 @@ public class TrafficDemo {
         
         // The TrafficPanel draws the actual scenario (cars etc.)
         final TrafficPanel panel = new TrafficPanel(scenario);
+        panel.drawFOV = prefs.getBoolean("drawFOV", panel.drawFOV); // prefer user stored preference
         window.add(panel);
         
+        // Add a menu bar for some configuration toggles
         JMenuBar menuBar = new JMenuBar();
         window.setJMenuBar(menuBar);
         
         JMenu viewMenu = new JMenu("View");
         menuBar.add(viewMenu);
         
-        final JCheckBoxMenuItem drawFOV = new JCheckBoxMenuItem("Show FOV", panel.drawFOV);
+        final JCheckBoxMenuItem drawFOV = new JCheckBoxMenuItem("Show Field of View", panel.drawFOV);
         viewMenu.add(drawFOV);
         drawFOV.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 panel.drawFOV = drawFOV.isSelected();
+                prefs.putBoolean("drawFOV", panel.drawFOV);
             }
         });
         
@@ -75,6 +81,9 @@ public class TrafficDemo {
         // Once finished, it sleeps until the next frame.
         // Optional todo: replace this with a scheduled repeating executor
         // so we don't have to deal with the timing of the thread sleep?
+        // Other todo: SWING is not thread-safe, so we might need to add some
+        // checks that we are not painting a world that is currenly updating and
+        // inconsistent.
         final Thread mainLoop = new Thread(new Runnable() {
             @Override
             public void run() {
