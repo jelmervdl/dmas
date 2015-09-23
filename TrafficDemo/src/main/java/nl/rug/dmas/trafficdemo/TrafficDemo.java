@@ -4,9 +4,14 @@
  */
 package nl.rug.dmas.trafficdemo;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 
@@ -36,11 +41,26 @@ public class TrafficDemo {
         window.setTitle("Traffic!");
         window.setSize(500, 500);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+        
         // The TrafficPanel draws the actual scenario (cars etc.)
         final TrafficPanel panel = new TrafficPanel(scenario);
         window.add(panel);
-
+        
+        JMenuBar menuBar = new JMenuBar();
+        window.setJMenuBar(menuBar);
+        
+        JMenu viewMenu = new JMenu("View");
+        menuBar.add(viewMenu);
+        
+        final JCheckBoxMenuItem drawFOV = new JCheckBoxMenuItem("Show FOV", panel.drawFOV);
+        viewMenu.add(drawFOV);
+        drawFOV.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                panel.drawFOV = drawFOV.isSelected();
+            }
+        });
+        
         // Run our main loop in another thread. This one updates the scenario
         // which in turn will update the cars (our agent drivers).
         // It also updates the 'world', which is our physics simulation.

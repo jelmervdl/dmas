@@ -26,6 +26,9 @@ public class TrafficPanel extends JPanel {
 
     Scenario scenario;
     float scale = 10f;
+    
+    // Options (for now)
+    boolean drawFOV = true;
 
     public TrafficPanel(Scenario scenarion) {
         this.scenario = scenarion;
@@ -89,14 +92,16 @@ public class TrafficPanel extends JPanel {
         drawShape(g2, car.bodyFixture.getShape(), car.body.getTransform(), offset, scale);
 
         // And overlay the vision of the driver
-        if (car.driver.seesOtherCars())
-            g2.setColor(Color.BLUE);
-        else
-            g2.setColor(Color.YELLOW);
-
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
-        drawShape(g2, car.visionFixture.getShape(), car.body.getTransform(), offset, scale);
-
+        if (drawFOV) {
+            if (car.driver.seesOtherCars())
+                g2.setColor(Color.BLUE);
+            else
+                g2.setColor(Color.YELLOW);
+            
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
+            drawShape(g2, car.visionFixture.getShape(), car.body.getTransform(), offset, scale);
+        }
+        
         g2.dispose();
     }
 
