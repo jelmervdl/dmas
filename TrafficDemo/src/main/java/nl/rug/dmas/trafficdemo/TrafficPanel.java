@@ -85,7 +85,7 @@ public class TrafficPanel extends JPanel {
         }
 
         // Then draw the body of the car
-        g2.setColor(Color.RED);
+        g2.setColor(car.color);
         drawShape(g2, car.bodyFixture.getShape(), car.body.getTransform(), offset, scale);
 
         // And overlay the vision of the driver
@@ -94,7 +94,7 @@ public class TrafficPanel extends JPanel {
         else
             g2.setColor(Color.YELLOW);
 
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
         drawShape(g2, car.visionFixture.getShape(), car.body.getTransform(), offset, scale);
 
         g2.dispose();

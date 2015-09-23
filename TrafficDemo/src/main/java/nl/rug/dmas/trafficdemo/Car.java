@@ -5,6 +5,7 @@
  */
 package nl.rug.dmas.trafficdemo;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -42,6 +43,7 @@ public class Car {
 
     float width;
     float length;
+    Color color;
 
     Body body;
     ArrayList<Wheel> wheels;
@@ -54,6 +56,7 @@ public class Car {
         this.driver = driver;
         this.width = width;
         this.length = length;
+        this.color = RandomUtil.nextRandomPastelColor();
         
         // Let the driver know which car to steer.
         driver.setCar(this);
