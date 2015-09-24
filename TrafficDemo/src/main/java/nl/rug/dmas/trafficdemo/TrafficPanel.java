@@ -237,12 +237,28 @@ public class TrafficPanel extends JPanel {
             Math.round(2 * circle.getRadius() * scale));
     }
     
+    /**
+     * Draw an absolute angle as an arrow of 1.0 (i.e. 1.0 * scale) world point length
+     * @param g2
+     * @param angle in radians
+     * @param position of the beginning of the angle
+     * @param offset in pixels of 0,0 in world space
+     * @param scale to scale world space coordinates to pixels
+     */
     private void drawAngle(Graphics2D g2, float angle, Vec2 position, Point offset, float scale) {
         angle -= MathUtils.HALF_PI;
         Vec2 direction = new Vec2(MathUtils.cos(angle), MathUtils.sin(angle));
         drawVec(g2, direction, position, offset, scale);
     }
     
+    /**
+     * Draw a direction vector relative to position.
+     * @param g2
+     * @param direction vector
+     * @param position of the base of the vector
+     * @param offset in pixels of 0,0 in world space
+     * @param scale to scale world space coordinates to pixels
+     */
     private void drawVec(Graphics2D g2, Vec2 direction, Vec2 position, Point offset, float scale) {
         // target is the absolute world position of the tip of the vector
         Vec2 target = position.add(direction);
@@ -275,6 +291,18 @@ public class TrafficPanel extends JPanel {
         g2.fillPolygon(xs, ys, xs.length);
     }
 
+    /**
+     * Draw a little headlight box with light coming out of it!
+     * @param g
+     * @param lightColor color of the light
+     * @param position position in car space of the point between the light and the light box I.e. the light box is 'behind' this point, and the light cone 'in front of'
+     * @param angleDeg absolute rotation of the light in degrees
+     * @param angleWidth width of the light beam in degrees
+     * @param reach length of the light beam in pixels
+     * @param transform transforms the position of the light in car space to world space
+     * @param offset in pixels of 0,0 in world space
+     * @param scale to scale world space coordinates to pixels
+     */
     private void drawHeadlight(Graphics2D g, Color lightColor, Vec2 position, int angleDeg, int angleWidth, int reach, Transform transform, Point offset, float scale) {
         Graphics2D g2 = (Graphics2D) g.create();
         Vec2 worldPosition = new Vec2();
@@ -293,16 +321,11 @@ public class TrafficPanel extends JPanel {
         
         // Secondly, draw the light beam
         
-        /*
-        angleDeg %= 360;
-        angleDeg *= -1;
-        */
         angleDeg -= 90;
         
-        float radius = reach / 2;
         float[] dist = {0.0f, 1.0f};
         Color[] colors = {lightColor, new Color(0.0f, 0.0f, 0.0f, 0.0f)};
-        RadialGradientPaint p = new RadialGradientPaint(new Point(0, 0), radius, dist, colors);
+        RadialGradientPaint p = new RadialGradientPaint(new Point(0, 0), reach / 2, dist, colors);
         g2.setPaint(p);
         g2.fillArc(-reach, -reach, reach * 2, reach * 2, -angleWidth / 2 + 90, angleWidth);
         
