@@ -13,6 +13,7 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
+import java.util.List;
 import javax.swing.JPanel;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
@@ -32,6 +33,7 @@ public class TrafficPanel extends JPanel {
     
     // Options (for now)
     boolean drawFOV = true;
+    boolean drawDirection = true;
 
     public TrafficPanel(Scenario scenarion) {
         this.scenario = scenarion;
@@ -90,81 +92,86 @@ public class TrafficPanel extends JPanel {
             // First we should draw (or blit, that would be awesome fast!) the
             // roads. But there are no roads yet.
             // Then on top of those, we draw our cars.
-            for (Car car : scenario.cars) {
-                drawCar(g2, car, center, scale);
-            }
+            drawCars(g2, scenario.cars, center, scale);
         } finally {
             scenario.readLock.unlock();
         }
     }
 
     /**
-     * Draw a car! Or, the body, wheels and if needed any debugging data.
+     * Draw all cars and appropriate debug data. This first draws all wheels,
+     * then the car bodies, the lights and and then the debug data.
      * @param graphics
-     * @param car
+     * @param cars a list of cars
      * @param offset in pixels of 0,0 in world space
      * @param scale to scale world space coordinates to pixels
      */
-    private void drawCar(Graphics2D g2, Car car, Point offset, float scale) {
-        g2 = (Graphics2D) g2.create();
-        // For now this just draws the polygon of the physics body shape.
-        // We might want to change this to our own polygon calculation based
-        // on the car.body.getPosition() and car.body.getAngle() so we can
-        // draw stuff like light and a windscreen to make the car identifyable.
-
-        // Get me some wheels (draw them first because they are below)
-        for (Wheel wheel : car.wheels) {
-            g2.setColor(Color.BLACK);
-            // (Assume the body of a wheel has only one fixture, the body shape itself.)
-            drawShape(g2, wheel.body.getFixtureList().getShape(), wheel.body.getTransform(), offset, scale);
+    private void drawCars(Graphics2D g2, List<Car> cars, Point offset, float scale) {
+        // Draw all wheels
+        g2.setColor(Color.BLACK);
+        for (Car car : cars) {
+            for (Wheel wheel : car.wheels) {
+                // (Assume the body of a wheel has only one fixture, the body shape itself.)
+                drawShape(g2, wheel.body.getFixtureList().getShape(), wheel.body.getTransform(), offset, scale);
+            }
         }
-
-        // Then draw the body of the car
-        g2.setColor(car.color);
-        drawShape(g2, car.bodyFixture.getShape(), car.body.getTransform(), offset, scale);
+        
+        // Then draw the body of the cars
+        for (Car car : cars) {
+            g2.setColor(car.color);
+            drawShape(g2, car.bodyFixture.getShape(), car.body.getTransform(), offset, scale);
+        }
         
         // Draw headlights! I have too much free time.
-        switch (car.acceleration) {
-            case ACCELERATE:
-                drawHeadlight(g2, Color.YELLOW,
-                    new Vec2(-car.width / 2 + 0.5f, -car.length / 2),
-                    Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 50,
-                    car.body.getTransform(), offset, scale);
-                drawHeadlight(g2, Color.YELLOW,
-                    new Vec2(car.width / 2 - 0.5f, -car.length / 2),
-                    Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 50,
-                    car.body.getTransform(), offset, scale);
-                break;
-            case BRAKE:
-                drawHeadlight(g2, Color.RED,
-                    new Vec2(-car.width / 2 + 0.5f, car.length / 2),
-                    Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 10,
-                    car.body.getTransform(), offset, scale);
-                drawHeadlight(g2, Color.RED,
-                    new Vec2(car.width / 2 - 0.5f, car.length / 2),
-                    Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 10,
-                    car.body.getTransform(), offset, scale);
-                break;
+        for (Car car : cars) {
+            switch (car.acceleration) {
+                case ACCELERATE:
+                    drawHeadlight(g2, Color.YELLOW,
+                        new Vec2(-car.width / 2 + 0.5f, -car.length / 2),
+                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 50,
+                        car.body.getTransform(), offset, scale);
+                    drawHeadlight(g2, Color.YELLOW,
+                        new Vec2(car.width / 2 - 0.5f, -car.length / 2),
+                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 50,
+                        car.body.getTransform(), offset, scale);
+                    break;
+                case BRAKE:
+                    drawHeadlight(g2, Color.RED,
+                        new Vec2(-car.width / 2 + 0.5f, car.length / 2),
+                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 10,
+                        car.body.getTransform(), offset, scale);
+                    drawHeadlight(g2, Color.RED,
+                        new Vec2(car.width / 2 - 0.5f, car.length / 2),
+                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 10,
+                        car.body.getTransform(), offset, scale);
+                    break;
+            }
         }
         
         // And overlay the vision of the driver
         if (drawFOV) {
-            if (car.driver.seesOtherCars())
-                g2.setColor(Color.BLUE);
-            else
-                g2.setColor(Color.YELLOW);
-            
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
-            drawShape(g2, car.visionFixture.getShape(), car.body.getTransform(), offset, scale);
+            for (Car car : cars) {
+                if (car.driver.seesOtherCars())
+                    g2.setColor(Color.BLUE);
+                else
+                    g2.setColor(Color.YELLOW);
+
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
+                drawShape(g2, car.visionFixture.getShape(), car.body.getTransform(), offset, scale);
+            }
         }
 
         // for testing, draw the angle the car tries to achieve
-        g2.setColor(Color.RED);
-        drawAngle(g2, car.targetBodyAngle, car.body.getPosition(), offset, scale);
-
+        if (drawDirection) {
+            g2.setColor(Color.RED);
+            for (Car car : cars) {
+                drawAngle(g2, car.targetBodyAngle, car.body.getPosition(), offset, scale);
+            }
+        }
+        
         g2.dispose();
     }
-
+    
     /**
      * Draws a filled JBox2D shape using fillPolygon or fillOval. Only supports
      * PolygonShape and CircleShape at this moment.
