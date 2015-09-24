@@ -57,6 +57,7 @@ public class TrafficDemo {
         // The TrafficPanel draws the actual scenario (cars etc.)
         final TrafficPanel panel = new TrafficPanel(scenario);
         panel.drawFOV = prefs.getBoolean("drawFOV", panel.drawFOV); // prefer user stored preference
+        panel.drawDirection = prefs.getBoolean("drawDirection", panel.drawDirection);
         window.add(panel);
         
         // Add a menu bar for some configuration toggles
@@ -98,6 +99,16 @@ public class TrafficDemo {
             public void itemStateChanged(ItemEvent e) {
                 panel.drawFOV = drawFOV.isSelected();
                 prefs.putBoolean("drawFOV", panel.drawFOV);
+            }
+        });
+        
+        final JCheckBoxMenuItem drawDirection = new JCheckBoxMenuItem("Show Direction", panel.drawDirection);
+        viewMenu.add(drawDirection);
+        drawDirection.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                panel.drawDirection = drawDirection.isSelected();
+                prefs.putBoolean("drawDirection", panel.drawDirection);
             }
         });
         
