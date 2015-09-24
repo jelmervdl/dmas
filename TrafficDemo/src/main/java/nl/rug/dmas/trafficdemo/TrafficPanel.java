@@ -11,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import javax.swing.JPanel;
 import org.jbox2d.collision.shapes.CircleShape;
@@ -66,7 +67,7 @@ public class TrafficPanel extends JPanel {
     /**
      * Our custom painting of awesome cars. Do not call directly, but call
      * repaint() instead.
-     * @param Graphics
+     * @param g
      */
     @Override
     public void paint(Graphics g) {
@@ -121,6 +122,30 @@ public class TrafficPanel extends JPanel {
         // Then draw the body of the car
         g2.setColor(car.color);
         drawShape(g2, car.bodyFixture.getShape(), car.body.getTransform(), offset, scale);
+        
+        // Draw headlights! I have too much free time.
+        switch (car.acceleration) {
+            case ACCELERATE:
+                drawHeadlight(g2, Color.YELLOW,
+                    new Vec2(-car.width / 2 + 0.5f, -car.length / 2),
+                    Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 50,
+                    car.body.getTransform(), offset, scale);
+                drawHeadlight(g2, Color.YELLOW,
+                    new Vec2(car.width / 2 - 0.5f, -car.length / 2),
+                    Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 50,
+                    car.body.getTransform(), offset, scale);
+                break;
+            case BRAKE:
+                drawHeadlight(g2, Color.RED,
+                    new Vec2(-car.width / 2 + 0.5f, car.length / 2),
+                    Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 10,
+                    car.body.getTransform(), offset, scale);
+                drawHeadlight(g2, Color.RED,
+                    new Vec2(car.width / 2 - 0.5f, car.length / 2),
+                    Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 10,
+                    car.body.getTransform(), offset, scale);
+                break;
+        }
         
         // And overlay the vision of the driver
         if (drawFOV) {
@@ -241,5 +266,39 @@ public class TrafficPanel extends JPanel {
         };
         
         g2.fillPolygon(xs, ys, xs.length);
+    }
+
+    private void drawHeadlight(Graphics2D g, Color lightColor, Vec2 position, int angleDeg, int angleWidth, int reach, Transform transform, Point offset, float scale) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        Vec2 worldPosition = new Vec2();
+        Transform.mulToOutUnsafe(transform, position, worldPosition);
+        
+        Point center = new Point(
+            Math.round(worldPosition.x * scale) + offset.x,
+            Math.round(worldPosition.y * scale) + offset.y);
+        
+        g2.translate(center.x, center.y);
+        g2.rotate(angleDeg * MathUtils.DEG2RAD);
+        
+        // First, draw the light box itself
+        g2.setColor(lightColor);
+        g2.fillRect(-2, 0, 4, 2);
+        
+        // Secondly, draw the light beam
+        
+        /*
+        angleDeg %= 360;
+        angleDeg *= -1;
+        */
+        angleDeg -= 90;
+        
+        float radius = reach / 2;
+        float[] dist = {0.0f, 1.0f};
+        Color[] colors = {lightColor, new Color(0.0f, 0.0f, 0.0f, 0.0f)};
+        RadialGradientPaint p = new RadialGradientPaint(new Point(0, 0), radius, dist, colors);
+        g2.setPaint(p);
+        g2.fillArc(-reach, -reach, reach * 2, reach * 2, -angleWidth / 2 + 90, angleWidth);
+        
+        g2.dispose();
     }
 }
