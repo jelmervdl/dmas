@@ -34,6 +34,9 @@ public class TrafficPanel extends JPanel {
     // Options (for now)
     boolean drawFOV = true;
     boolean drawDirection = true;
+    
+    Color headlightColor = new Color(1.0f, 1.0f, 0.6f);
+    Color taillightColor = new Color(1.0f, 0.0f, 0.0f);
 
     public TrafficPanel(Scenario scenarion) {
         this.scenario = scenarion;
@@ -126,21 +129,21 @@ public class TrafficPanel extends JPanel {
         for (Car car : cars) {
             switch (car.acceleration) {
                 case ACCELERATE:
-                    drawHeadlight(g2, Color.YELLOW,
+                    drawHeadlight(g2, headlightColor,
                         new Vec2(-car.width / 2 + 0.5f, -car.length / 2),
                         Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 50,
                         car.body.getTransform(), offset, scale);
-                    drawHeadlight(g2, Color.YELLOW,
+                    drawHeadlight(g2, headlightColor,
                         new Vec2(car.width / 2 - 0.5f, -car.length / 2),
                         Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 50,
                         car.body.getTransform(), offset, scale);
                     break;
                 case BRAKE:
-                    drawHeadlight(g2, Color.RED,
+                    drawHeadlight(g2, taillightColor,
                         new Vec2(-car.width / 2 + 0.5f, car.length / 2),
                         Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 10,
                         car.body.getTransform(), offset, scale);
-                    drawHeadlight(g2, Color.RED,
+                    drawHeadlight(g2, taillightColor,
                         new Vec2(car.width / 2 - 0.5f, car.length / 2),
                         Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 10,
                         car.body.getTransform(), offset, scale);
