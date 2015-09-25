@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
@@ -26,6 +27,8 @@ class Driver {
     
     // A set of all fixtures in the 
     Set<Fixture> fixturesInSight = new HashSet<>();
+    
+    int pathIndex = 0;
     
     public Driver(Scenario scenario) {
         this.scenario = scenario;
@@ -58,7 +61,9 @@ class Driver {
        
        direction.addLocal(steerToAvoidCars().mul(0.8f));
        
-       direction.addLocal(steerTowardsMouse().mul(0.2f));
+       //direction.addLocal(steerTowardsMouse().mul(0.2f));
+       
+       direction.addLocal(steerTowardsPath().mul(0.2f));
        
        setSteerDirection(direction);
     }
@@ -108,6 +113,24 @@ class Driver {
     private Vec2 steerTowardsMouse() {
         Vec2 worldMouse = (Vec2) scenario.commonKnowledge.get("mouse");
         return car.body.getLocalPoint(worldMouse);
+    }
+    
+    private Vec2 steerTowardsPath() {
+        CopyOnWriteArrayList<Vec2> path = (CopyOnWriteArrayList<Vec2>) scenario.commonKnowledge.get("path");
+        
+        if (path != null) {
+            while (pathIndex < path.size()) {
+                Vec2 directionToNextPoint = car.body.getLocalPoint(path.get(pathIndex));
+
+                if (directionToNextPoint.length() > 3.0f) {
+                    return directionToNextPoint;
+                } else {
+                    pathIndex += 1;
+                }
+            }
+        }
+            
+        return new Vec2(0, 0);
     }
     
     /**

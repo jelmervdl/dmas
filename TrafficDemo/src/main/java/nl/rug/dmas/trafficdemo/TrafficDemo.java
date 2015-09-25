@@ -10,9 +10,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.prefs.Preferences;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
@@ -22,6 +25,7 @@ import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import org.jbox2d.common.Vec2;
 
 /**
  *
@@ -30,7 +34,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 public class TrafficDemo {
     static final int hz = 60; // 60 fps
     
-    static final int numberOfCars = 15;
+    static final int numberOfCars = 1;
 
     static public void main(String[] args) {
         try {
@@ -44,6 +48,9 @@ public class TrafficDemo {
         
         // Create a scenario with two cars looping left and right (and colliiiddiiingg >:D )
         final Scenario scenario = new Scenario();
+        scenario.commonKnowledge.put("mouse", new Vec2(0, 0));
+        scenario.commonKnowledge.put("path", new CopyOnWriteArrayList<Vec2>());
+        
         for (int i = 0; i < numberOfCars; ++i) {
             scenario.add(new Car(new Driver(scenario), 2, 4, RandomUtil.nextRandomVec(-10, 10, -10, 10)));
         }
@@ -59,6 +66,14 @@ public class TrafficDemo {
         panel.drawFOV = prefs.getBoolean("drawFOV", panel.drawFOV); // prefer user stored preference
         panel.drawDirection = prefs.getBoolean("drawDirection", panel.drawDirection);
         window.add(panel);
+        
+        panel.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                CopyOnWriteArrayList<Vec2> path = (CopyOnWriteArrayList<Vec2>) scenario.commonKnowledge.get("path");
+                path.add(panel.getMouseWorldLocation());
+            }
+        });
         
         // Add a menu bar for some configuration toggles
         JMenuBar menuBar = new JMenuBar();

@@ -14,6 +14,7 @@ import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JPanel;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
@@ -89,6 +90,13 @@ public class TrafficPanel extends JPanel {
         // World position Vec2(0,0) is the center of the screen
         // Scale translates one world point to n pixels.
         Point center = getCenter();
+        
+        // Draw the path we paint for debugging purposes
+        CopyOnWriteArrayList<Vec2> path = (CopyOnWriteArrayList<Vec2>) scenario.commonKnowledge.get("path");
+        if (path != null) {
+            g2.setColor(Color.RED);
+            drawPath(g2, path, center, scale);
+        }
         
         scenario.readLock.lock();
         try {
@@ -333,5 +341,14 @@ public class TrafficPanel extends JPanel {
         g2.fillArc(-reach, -reach, reach * 2, reach * 2, -angleWidth / 2 + 90, angleWidth);
         
         g2.dispose();
+    }
+
+    private void drawPath(Graphics2D g2, List<Vec2> path, Point offset, float scale) {
+        for (Vec2 point : path) {
+            g2.fillOval(
+                Math.round(point.x * scale) + offset.x - 2,
+                Math.round(point.y * scale) + offset.y - 2,
+                4, 4);
+        }
     }
 }
