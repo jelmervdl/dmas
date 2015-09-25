@@ -133,9 +133,6 @@ public class TrafficDemo {
         // Once finished, it sleeps until the next frame.
         // Optional todo: replace this with a scheduled repeating executor
         // so we don't have to deal with the timing of the thread sleep?
-        // Other todo: SWING is not thread-safe, so we might need to add some
-        // checks that we are not painting a world that is currenly updating and
-        // inconsistent.
         final Thread mainLoop = new Thread(new Runnable() {
             @Override
             public void run() {
