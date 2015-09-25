@@ -58,7 +58,7 @@ public class TrafficDemo {
         // Pony up a simple window, our only entrypoint to the app
         JFrame window = new JFrame();
         window.setTitle("Traffic!");
-        window.setSize(500, 500);
+        window.setSize(800, 600);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         // The TrafficPanel draws the actual scenario (cars etc.)
