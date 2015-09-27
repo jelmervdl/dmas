@@ -1,0 +1,30 @@
+\pagestyle{empty}
+\usepackage{times}
+\usepackage[a4paper]{geometry}
+\geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=3cm,rmargin=3.5cm}
+
+\newcommand{\affila}{$^{\rm a}$}
+\newcommand{\affilb}{$^{\rm b}$}
+\newcommand{\affilc}{$^{\rm c}$}
+\newcommand{\affild}{$^{\rm d}$}
+\newcommand{\affile}{$^{\rm e}$}
+\newcommand{\affilf}{$^{\rm f}$}
+
+\makeatletter
+\def\@maketitle{%
+  \newpage
+  \null
+  \vskip 2em%
+  \begin{center}%
+  \vspace*{1cm}
+    {\huge  \textbf{\@title} \par}%
+    \vskip 3em%
+    {\large
+     \lineskip .75em%
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+  \end{center}%
+  \par
+  \vskip 1.5em}
+\makeatother  

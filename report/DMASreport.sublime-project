@@ -1,0 +1,44 @@
+{
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				"*.aux",
+				"*.log",
+				"*.out",
+				"*.synctex.gz",
+				"*.fdb_latexmk",
+				"*.m~",
+				"*-blx.bib",
+				"*.bbl",
+				"*.blg",
+				"*.run.xml"
+			],
+			"folder_exclude_patterns":
+			[
+				"img"
+			],
+			"follow_symlinks": true,
+			"name": "Report",
+			"path": "."
+		},
+		{
+			"file_exclude_patterns":
+			[
+				"*.ai"
+			],
+			"follow_symlinks": true,
+			"name": "Images",
+			"path": "./img"
+		}
+	],
+	"settings":
+	{
+		"FuzzyFilePath":
+		{
+		},
+		"dictionary": "Packages/Language - English/en_US.dic",
+		"spell_check": true
+	}
+}

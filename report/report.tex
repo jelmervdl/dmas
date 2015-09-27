@@ -1,0 +1,68 @@
+\documentclass[draft, twoside]{article}
+\usepackage{bnaic}
+
+\usepackage[english]{babel}
+
+% Floats
+\usepackage{float}
+
+%Images
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage[hang, small,labelfont=bf,up,textfont=sl,up, justification=raggedright]{caption}
+\usepackage{subcaption}
+\DeclareCaptionLabelFormat{opening}{(#2)}
+\captionsetup{subrefformat=opening}
+
+% Tables
+\usepackage{booktabs}
+
+% References within paper
+\usepackage{varioref}
+\usepackage{hyperref}
+\usepackage[noabbrev]{cleveref}
+
+
+% References to other papers
+\usepackage[backend=bibtex, citestyle=authoryear]{biblatex}
+\usepackage{csquotes}
+\bibliography{biblio}
+
+% Temp
+\usepackage[obeyDraft, colorinlistoftodos, figwidth=\textwidth]{todonotes}
+\usepackage{showlabels}
+
+% Other commands
+\renewcommand{\t}[1]{\texttt{#1}}
+
+\title{\todo[inline]{Bedenk een titel.}}
+\author{
+	Laura van de Braak (s2165341)\and
+    Jelmer van der Linde (s1772791)\and
+    Laura Baakman (s1869140)}
+
+\pagestyle{empty}
+
+\begin{document}
+\listoftodos
+\clearpage
+
+\maketitle
+
+\input{abstract}
+
+\section{Introduction}
+\input{intro.tex}
+
+\section{Method}
+\input{method.tex}
+
+\section{Results}
+\input{results.tex}
+
+\section{Conclusion}
+\input{conclusion.tex}
+
+\printbibliography
+
+\end{document}
