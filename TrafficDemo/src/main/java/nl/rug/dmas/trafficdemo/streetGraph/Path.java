@@ -11,10 +11,17 @@ public class Path {
 
     private LinkedList<Edge> path;
 
+    /**
+     *
+     */
     protected Path() {
         this.path = new LinkedList<>();
     }
 
+    /**
+     *
+     * @return
+     */
     public LinkedList<Edge> getPath() {
         return path;
     }
@@ -35,6 +42,10 @@ public class Path {
         this.path.removeLast();
     }
 
+    /**
+     *
+     * @return
+     */
     public Edge peek() {
         if (this.path.isEmpty()) {
             return null;
@@ -42,6 +53,10 @@ public class Path {
         return this.path.peekLast();
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isEmpty() {
         return this.path.isEmpty();
     }
