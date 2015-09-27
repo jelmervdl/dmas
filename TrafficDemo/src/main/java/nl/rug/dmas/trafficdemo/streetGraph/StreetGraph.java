@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import org.jbox2d.common.Vec2;
 
 /**
  * Class to represent a flow graph
@@ -32,7 +33,7 @@ public class StreetGraph {
         this.edges = new ArrayList<>();
     }
 
-    private void vertexHashSetToHashMap(HashSet<Integer> indices, HashMap<Integer, Vertex> map) {
+    private void vertexHashSetToHashMap(HashSet<Integer> indices, HashMap<Integer, Vertex> map) throws InputMismatchException {
         Iterator<Integer> iterator = indices.iterator();
         Integer currentIndex;
         Vertex currentVertex;
@@ -45,6 +46,15 @@ public class StreetGraph {
                 throw new InputMismatchException(String.format("The selected source/sink with index %d is not defined", currentIndex));
             }
 
+        }
+    }
+
+    protected void setVertexLocation(Vec2 location, Integer vertexName) throws InputMismatchException {
+        Vertex vertex = this.vertices.get(vertexName);
+        if (vertex != null) {
+            vertex.setLocation(location);
+        } else {
+            throw new InputMismatchException(String.format("Tried to set the location of vertex %d, but this vertex does not exist.", vertexName));
         }
     }
 

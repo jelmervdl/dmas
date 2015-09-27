@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import org.jbox2d.common.Vec2;
 
 /**
  *
@@ -23,7 +24,7 @@ public class GraphReader {
         }
     }
 
-    private static int readNaturalNumber(String descriptionOfInt) {
+    private static int readNaturalNumber(String descriptionOfInt) throws InputMismatchException {
         int naturalNumber = GraphReader.scanner.nextInt();
         if (naturalNumber <= 0) {
             throw new InputMismatchException(descriptionOfInt + "cannot be negative or zero.");
@@ -31,7 +32,7 @@ public class GraphReader {
         return naturalNumber;
     }
 
-    private static HashSet<Integer> readSetOfNaturalNumbersFromLine(int maximumElementHeight) {
+    private static HashSet<Integer> readSetOfNaturalNumbersFromLine(int maximumElementHeight) throws InputMismatchException {
         String line = GraphReader.scanner.nextLine();
         HashSet<Integer> naturalNumbers;
         try (Scanner lineScanner = new Scanner(line)) {
@@ -46,6 +47,20 @@ public class GraphReader {
             }
         }
         return naturalNumbers;
+    }
+
+    private static void readNodeLocations() throws InputMismatchException {
+        readHeaderRow();
+        float x, y;
+        try {
+            for (int nodeNumber = 0; nodeNumber < GraphReader.numNodes; nodeNumber++) {
+                x = GraphReader.scanner.nextFloat();
+                y = GraphReader.scanner.nextFloat();
+                GraphReader.graph.setVertexLocation(new Vec2(x, y), nodeNumber);
+            }
+        } catch (InputMismatchException e) {
+            throw e;
+        }
     }
 
     private static void readNumNodesAndEdges() {
@@ -100,6 +115,7 @@ public class GraphReader {
             GraphReader.graph.setSinks(sinks);
             GraphReader.graph.setSources(sources);
 
+            readNodeLocations();
         } catch (InputMismatchException ex) {
             ex.printStackTrace(System.err);
             System.exit(-1);
@@ -114,4 +130,10 @@ public class GraphReader {
         }
         return nodeIndex;
     }
+
+    public static void main(String[] args) {
+        File inputFile = new File("./input/graaf.txt");
+        StreetGraph graaf = GraphReader.read(inputFile);
+    }
+
 }

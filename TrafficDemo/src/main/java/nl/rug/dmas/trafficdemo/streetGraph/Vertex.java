@@ -3,6 +3,7 @@ package nl.rug.dmas.trafficdemo.streetGraph;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import org.jbox2d.common.Vec2;
 
 /**
  * Class to represent a vertex in a flow network using the adjacency list ADT.
@@ -14,6 +15,7 @@ public class Vertex {
     private final int vertexListIndex;
     private final ArrayList<Edge> outgoingEdges;
     private final ArrayList<Edge> incomingEdges;
+    private Vec2 location;
 
     /**
      * Constructor for a vertex.
@@ -24,6 +26,11 @@ public class Vertex {
         this.vertexListIndex = vertexListIndex;
         this.outgoingEdges = new ArrayList<>();
         this.incomingEdges = new ArrayList<>();
+        this.location = null;
+    }
+
+    public void setLocation(Vec2 location) {
+        this.location = location;
     }
 
     /**
