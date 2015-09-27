@@ -13,11 +13,14 @@
 				"*-blx.bib",
 				"*.bbl",
 				"*.blg",
-				"*.run.xml"
+				"*.run.xml",
+				"*.pdf",
+				"*.tdo"
 			],
 			"folder_exclude_patterns":
 			[
-				"img"
+				"img", 
+				"style"
 			],
 			"follow_symlinks": true,
 			"name": "Report",
@@ -26,12 +29,17 @@
 		{
 			"file_exclude_patterns":
 			[
-				"*.ai"
+				"*.ai",
+				".gitkeep"
 			],
 			"follow_symlinks": true,
 			"name": "Images",
 			"path": "./img"
-		}
+		},
+		{
+			"name": "Style Files",
+			"path": "./style"
+		}		
 	],
 	"settings":
 	{
