@@ -145,6 +145,12 @@ public class StreetGraph {
         queue.add(origin);
         visited.add(origin);
 
+        if (!this.vertices.containsValue(origin)) {
+            throw new NoPathException("The origin of your path could not be found in the graph.");
+        } else if (!this.vertices.containsValue(origin)) {
+            throw new NoPathException("The destination of your path could not be found in the graph.");
+        }
+
         while (!queue.isEmpty()) {
             currentVertex = queue.remove();
             if (visited.contains(destination)) {
