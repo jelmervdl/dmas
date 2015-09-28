@@ -1,19 +1,42 @@
+%!TEX root = report.tex
 \algemeen{Bespreek (een subset van) de volgende elementen, niet noodzakelijk in deze volgorde.}
 
-\paragraph{Emergence} \algemeen{Which system-level phenomena truly emerge from individual traits, and which phenomena are merely imposed?}
+\later{Hiervoor moet het model meer af zijn.}
 
-\paragraph{Adaption} \algemeen{What adaptive traits do the model individuals have which directly or indirectly can improve their potential fitness, in response to changes in themselves or their environment?}
+\paragraph{Emergence} 
+% \algemeen{Which system-level phenomena truly emerge from individual traits, and which phenomena are merely imposed?}
+There are no system-level phenomena that emerge from individual traits.
 
-\paragraph{Fitness} \algemeen{Is fitness-seeking modelled explicitly or implicitly? If explicitly, how do individuals calculate fitnes?}
+\paragraph{Adaptation} 
+% \algemeen{What adaptive traits do the model individuals have which directly or indirectly can improve their potential fitness, in response to changes in themselves or their environment?}
+The individuals have no adaptive traits.
 
-\paragraph{Prediction} \algemeen{In estimating future consequences of their deci- sions, how do individuals predict the future conditions they will experience?}
+\paragraph{Fitness} 
+% \algemeen{Is fitness-seeking modelled explicitly or implicitly? If explicitly, how do individuals calculate fitness?}
+Fitness-seeking is not modelled explicitly. 
 
-\paragraph{Sensing} \algemeen{What internal and environmental state variables are individualsassumedto sense or “know”and consider in their adaptive decisions?}
+\paragraph{Prediction} 
+% \algemeen{In estimating future consequences of their decisions, how do individuals predict the future conditions they will experience?}
+Individuals don't really predict the future conditions. They look around them so they don't crash into other agents or objects, but have no other means to look ahead. 
 
-\paragraph{Interaction} \algemeen{What kinds of interactions among individuals are assumed?}
+\paragraph{Sensing} 
+% \algemeen{What internal and environmental state variables are individuals assumed to sense or “know” and consider in their adaptive decisions?}
+Individual vehicles can sense other vehicles and other objects if they are close enough to `see' them. They cannot see into each other's state variables, or those of the simulation. 
 
-\paragraph{Stochasticity} \algemeen{Is stochasticicity part of the model? What are the reasons?}
+\paragraph{Interaction} 
+% \algemeen{What kinds of interactions among individuals are assumed?}
+Vehicles cannot interact with other vehicles. They see them in the simulation, and try not to crash into them, but to not actually interact with them.
 
-\paragraph{Collectives} \algemeen{Are individuals grouped into some kind of collec- tive, e.g. a social group? Observation:}
+\paragraph{Stochasticity} 
+% \algemeen{Is stochasticicity part of the model? What are the reasons?}
+In this simulation, everything is determined, there is no stochasticity.
 
-\paragraph{Observation} \algemeen{How are data collected from the IBM for testing, understanding, and analyzing it?}
+\paragraph{Collectives} 
+% \algemeen{Are individuals grouped into some kind of collective, e.g. a social group?}
+There are no collectives in this simulation, all the agents function for themselves.
+
+\paragraph{Observation} 
+% \algemeen{How are data collected from the IBM for testing, understanding, and analysing it?}
+The data we will collect is with regard to the delay encountered while driving from one point to another, and the number of crashes. This will be explained more completely in \cref{sub:method:design}.
+
+

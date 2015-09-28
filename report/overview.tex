@@ -1,3 +1,4 @@
+%!TEX root = report.tex
 \paragraph{Purpose}
 \label{par:method:model:overview:purpose}
 % \algemeen{A clear, concise and specific formulation of the model’s purpose. This element informs about why you need to build a complex model, and what, in general and in particular, you are going to do with your model.}
@@ -11,7 +12,7 @@ This model contains two different hierarchical levels, the Car/Driver level and 
 
 % The dimensions must be clearly defined for all parameters and variables in the tables.
 	\subparagraph{Low-level state variables}
-	The parameters described in table \ref{tab:par:method:model:overview:state:lowlevel:car} are those contained by all drivers. 
+	The parameters described in \cref{tab:par:method:model:overview:state:lowlevel:car} are those contained by all drivers. 
 
 	\later{Check that the low-level parameters are still accurate}
 
@@ -48,7 +49,7 @@ This model contains two different hierarchical levels, the Car/Driver level and 
 	\later{Check that the high-level parameters are still accurate}
 	\algemeen{Deze tekst slaat nog nergens op}
 
-	At the simulation level there are few parameters. These are necessary for running the simulation.
+	At the simulation level there are few parameters, shown in \cref{tab:par:method:model:overview:state:highlevel:sim}. These are necessary for running the simulation.
 	
 	\begin{table}[H]
 		\centering
@@ -84,7 +85,7 @@ The second process is the driving of the vehicle in the direction of the target.
 Every step, each agent first checks if there are other cars it could possibly crash into before continuing on towards the target. 
 
 % \algemeen{How is time modeled}
-Time is modeled through the time steps in which a vehicle can move ahead. 
+Time is modelled through the time steps in which a vehicle can move ahead. 
 
 % \algemeen{How are actions that happen concurrently IRL executed in the model}
 Actions that happen concurrently in real life are updating the position of every vehicle. In the simulation, this is done through choosing a small time step size, and updating every vehicle every time step. Because the time step is small enough, it will still approach a concurrent execution.
