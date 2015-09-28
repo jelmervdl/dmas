@@ -35,13 +35,12 @@
 % Other commands
 \renewcommand{\t}[1]{\texttt{#1}}
 
-\todo[inline]{Algemene taken}
-\todo[inline, color=yellow]{Kijken of dit aan het einde nog klopt ivm met groei en updaten programma}
-\todo[inline, color=green]{Laura Baakman}
-\todo[inline, color=cyan]{Laura van de Braak}
-\todo[inline, color=red]{Jelmer van der Linde}
-
-\todo[inline, color=green]{Macro's voor todo's maken.}
+% TODO commands
+\newcommand{\jelmer}[1]{\todo[inline, color=red]{\textbf{Jelmer:} #1}}
+\newcommand{\later}[1]{\todo[inline, color=yellow]{\textbf{Aan het eind:} #1}}
+\newcommand{\algemeen}[1]{\todo[inline]{#1}}
+\newcommand{\baakman}[1]{\todo[inline, color=green]{\textbf{Baakman:} #1}}
+\newcommand{\vdbraak}[1]{\todo[inline, color=cyan]{\textbf{Van de Braak:} #1}}
 
 \title{\todo[inline]{Bedenk een titel.}}
 \author{
@@ -52,6 +51,13 @@
 \pagestyle{empty}
 
 \begin{document}
+
+\algemeen{Algemene taken}
+\later{Kijken of dit aan het einde nog klopt ivm met groei en updaten programma}
+\baakman{Laura Baakman}
+\vdbraak{Laura van de Braak}
+\jelmer{Jelmer van der Linde}
+
 \listoftodos
 \clearpage
 
