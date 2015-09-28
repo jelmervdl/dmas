@@ -7,6 +7,8 @@ import java.util.InputMismatchException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+import nl.rug.dmas.trafficdemo.bezier.Bezier;
+import nl.rug.dmas.trafficdemo.bezier.LinearBezier;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -136,7 +138,7 @@ public class StreetGraph {
      * @return
      * @throws nl.rug.dmas.trafficdemo.streetGraph.NoPathException
      */
-    public ArrayList<Vertex> findBFSPath(Vertex origin, Vertex destination) throws NoPathException {
+    public LinkedList<Vertex> findBFSPath(Vertex origin, Vertex destination) throws NoPathException {
         LinkedList<Vertex> queue = new LinkedList<>();
         HashSet<Vertex> visited = new HashSet<>(this.vertices.size());
         HashMap<Vertex, Vertex> visitedFrom = new HashMap<>();
@@ -162,7 +164,7 @@ public class StreetGraph {
                     currentVertex = visitedFrom.get(currentVertex);
                 }
                 path.addFirst(origin);
-                return new ArrayList<>(path);
+                return path;
             } else {
                 //Add all nodes that we haven't tried yet to the queue
                 for (Vertex neighbour : currentVertex.getReachableVertices()) {
@@ -181,16 +183,31 @@ public class StreetGraph {
      * @param destination
      * @return
      */
-    public ArrayList<Vec2> generatePointPath(Vertex origin, Vertex destination) {
-        ArrayList<Vec2> points = new ArrayList<>();
-        throw new UnsupportedOperationException();
-//        return points;
+    public ArrayList<Vec2> generatePointPath(Vertex origin, Vertex destination) throws NoPathException {
+        LinkedList<Vertex> path = this.findBFSPath(origin, destination);
+        return generatePointPath(path);
     }
 
-    public ArrayList<Vec2> generatePointPath(ArrayList<Vertex> path) {
+    public ArrayList<Vec2> generatePointPath(LinkedList<Vertex> path) {
         ArrayList<Vec2> points = new ArrayList<>();
-        throw new UnsupportedOperationException();
-//        return points;
+        int numEdgesInpath = path.size() - 1;
+        Vertex intermediateOrigin = path.poll();
+        Vertex intermidiateDestination = path.poll();
+        int linearPathResolution = 3;
+        //TODO: Dubbele punten vermijden
+        for (int i = 0; i < numEdgesInpath; i++) {
+            points.addAll(
+                    new LinearBezier(
+                            intermediateOrigin.getLocation(),
+                            intermidiateDestination.getLocation()
+                    ).computePointsOnCurve(linearPathResolution)
+            );
+            intermediateOrigin = intermidiateDestination;
+            intermidiateDestination = path.poll();
+            //TODO in linear case: remove last elements from points
+        }
+        //TODO in linear case: add final destination location to points
+        return points;
     }
 
     @Override
