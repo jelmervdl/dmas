@@ -1,21 +1,72 @@
 %!TEX root = report.tex
-\todo[inline]{We use the protocol ODD proposed by \textcite{grimm2006standard} to describe our simulation model.}
+
+This model description follows the ODD format described in \textcite{grimm2006standard}. We start with a general overview of the agent-based model, followed by explanations of the design concepts, after which we will discuss the details of the model. 
 
 \subsubsection{Overview}
 \label{subsub:method:model:overview}
 
 	\paragraph{Purpose}
 	\label{par:method:model:overview:purpose}
-	\todo[inline]{A clear, concise and specific formulation of the model’s purpose. This element informs about why you need to build a complex model, and what, in general and in particular, you are going to do with your model.}
+	% \todo[inline]{A clear, concise and specific formulation of the model’s purpose. This element informs about why you need to build a complex model, and what, in general and in particular, you are going to do with your model.}
+
+	The purpose of this model is to have (build?) a traffic simulation in which we can test whether autonomous vehicles joining regular `human' traffic has an influence on the traffic delay experienced. To do this, we need a simulation in which we have different types of agents, the autonomous and the `human' ones, and a space that emulates a traffic simulation. In that simulation, we will let both types of agents drive over the roads, encounter intersections, and we will measure the delay an number of crashes. This we will do with different ratios of autonomous to human vehicles. 
 
 	\paragraph{State variables and scales}
 	\label{par:method:model:overview:state}
+
+	This model contains two different hierarchical levels, the Car/Driver level and the traffic level. The traffic level contains the possible roads and paths, and all the vehicles. The driver level contains all parameters necessary for the functioning of a vehicle.  
+
 	% The dimensions must be clearly defined for all parameters and variables in the tables.
 		\subparagraph{Low-level state variables}
-		\todo[inline]{low-level variables that characterize the low-level entities of the model, i.e. individuals, table?}
+		The parameters described in table \ref{tab:par:method:model:overview:state:lowlevel:car} are those contained by all drivers. 
+
+		\todo[inline]{low-level variables that characterize the low-level entities of the model, i.e. individuals, table? zie parameters Car en Driver}
+
+		\todo[inline, color=yellow]{Check that the parameters are still accurate}
+
+		\todo[inline, color=green]{Turn into book tabs table}
+
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{|l | p{10.5cm} |}
+				\hline
+				Parameter				& Purpose \\ \hline \hline
+				acceleration 			& Indicates if a vehicle has forward, backward, or no acceleration. \\ \hline
+				targetBodyAngle 		& The angle at which the target is located, relative to the body of the vehicle. \\ \hline
+				maxSteerAngleDeg 		& The maximum angle the wheels can turn. \\ \hline
+				power 					& The impulse power of a vehicle. \\ \hline
+				wheelAngleDeg 			& The current angle of the wheel, relative to the body of the vehicle. \\ \hline
+				steeringSpeed 			& The speed with which a vehicle can turn (the turning radius). \\ \hline
+				visionRange 			& The range of the vision of the vehicle. \\ \hline
+				width 					& The width of the vehicle. \\ \hline
+				length 					& The length of a vehicle. \\ \hline
+				% colour 				& The colour of a vehicle \\ \hline
+				driver 					& The driver agent. \\ \hline
+				initialPosition 		& The initial position of the agent at the start of the simulation. \\ \hline
+				% bodyFixture 			& The `fixture' of the bocy of a vehicle, used when viewing other vehicles\\ \hline
+				% visionFixture 		& The `fixture of the vision of the vehicle, describing what a vehicle can see'\\ \hline
+				targetSpeedKMH			& The maximum speed of a vehicle. \\ \hline
+				path					& The path the agent is going to follow. \\ \hline
+			\end{tabular}
+			\caption{Car-owned state parameters}
+			\label{tab:par:method:model:overview:state:lowlevel:car}
+		\end{table}
 
 		\subparagraph{Higher-level entities}
 		\todo[inline]{Aantal autos's en meer van dat soort blaat, dingen die hele model beïnvloed ipv een agent.}
+
+		\begin{table}[H]
+			\centering
+			\begin{tabular}{|l | p{10.5cm} |}
+				\hline
+				Parameter				& Purpose \\ \hline \hline
+				cars 					& A list of the cars in the simulation. \\ \hline
+				streetGraph		 		& A graph representation of the network of streets. \\ \hline
+			\end{tabular}
+			\caption{simulation-owned state parameters}
+			\label{tab:par:method:model:overview:state:highlevel:sim}
+		\end{table}
+
 
 		\subparagraph{Scales}
 		\todo[inline]{Length of time steps and time horizon. The reason why these scales have been selected should briefly be explained.}		
