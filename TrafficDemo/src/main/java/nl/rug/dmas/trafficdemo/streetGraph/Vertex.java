@@ -30,6 +30,10 @@ public class Vertex {
         this.location = null;
     }
 
+    public Vec2 getLocation() {
+        return location;
+    }
+
     /**
      * Set the location of this vertex to location.
      *
