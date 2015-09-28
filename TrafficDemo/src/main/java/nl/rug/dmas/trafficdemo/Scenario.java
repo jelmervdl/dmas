@@ -27,7 +27,11 @@ public class Scenario {
     World world;
     
     // A list of all cars in the simulation.
-    ArrayList<Car> cars = new ArrayList<>();
+    final ArrayList<Car> cars = new ArrayList<>();
+    
+    // A list of actors, agents or objects that can act, such as drivers
+    // and spawn points.
+    final ArrayList<Actor> actors = new ArrayList<>();
     
     // A map of locations known to all agents (such as the mouse ;) )
     Map<String, Object> commonKnowledge = new HashMap<>();
@@ -54,18 +58,18 @@ public class Scenario {
         world.setContactListener(new ContactListener() {
             @Override
             public void beginContact(Contact fixtureContact) {
-                DriverContact contact = new DriverContact(fixtureContact);
+                ObserverContact contact = new ObserverContact(fixtureContact);
                 
-                if (contact.driver != null && contact.driver.car != contact.fixture.getUserData())
-                    contact.driver.fixturesInSight.add(contact.fixture);
+                if (contact.observer != null)
+                    contact.observer.addFixtureInSight(contact.fixture);
             }
 
             @Override
             public void endContact(Contact fixtureContact) {
-                DriverContact contact = new DriverContact(fixtureContact);
+                ObserverContact contact = new ObserverContact(fixtureContact);
                 
-                if (contact.driver != null && contact.driver.car != contact.fixture.getUserData())
-                    contact.driver.fixturesInSight.remove(contact.fixture);
+                if (contact.observer != null)
+                    contact.observer.removeFixtureInSight(contact.fixture);
             }
 
             @Override
@@ -79,6 +83,10 @@ public class Scenario {
             }
             
         });
+    }
+
+    public World getWorld() {
+        return world;
     }
     
     /**
@@ -100,6 +108,7 @@ public class Scenario {
     private void addCarUnsafe(Car car) {
         car.initialize(world);
         cars.add(car);
+        actors.add(car.driver);
     }
     
     /**
@@ -122,6 +131,7 @@ public class Scenario {
     
     private void removeCarUnsafe(Car car) {
         car.destroy(world);
+        actors.remove(car.driver);
         cars.remove(car);
     }
     
@@ -133,11 +143,12 @@ public class Scenario {
         // For running the simulation we only need a read lock
         readLock.lock();
         try {
-            for (Car car : cars) {
-                car.driver.step();
+            for (Actor actor : actors)
+                actor.act();
+            
+            for (Car car : cars)
                 car.update(dt);
-            }
-
+            
             world.step(dt, 3, 8);
         } finally {
             readLock.unlock();

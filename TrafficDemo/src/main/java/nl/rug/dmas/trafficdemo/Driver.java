@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.jbox2d.collision.shapes.CircleShape;
-import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Fixture;
@@ -20,15 +19,15 @@ import org.jbox2d.dynamics.Fixture;
  *
  * @author jelmer
  */
-class Driver {
+public class Driver implements Actor, Observer {
     Scenario scenario;
     
     Car car;
     
     // A set of all fixtures in the 
-    Set<Fixture> fixturesInSight = new HashSet<>();
+    final private Set<Fixture> fixturesInSight = new HashSet<>();
     
-    int pathIndex = 0;
+    private int pathIndex = 0;
     
     public Driver(Scenario scenario) {
         this.scenario = scenario;
@@ -51,11 +50,22 @@ class Driver {
         shape.setRadius(8);
         return shape;
     }
+
+    @Override
+    public void addFixtureInSight(Fixture fixture) {
+        fixturesInSight.remove(fixture);
+    }
+
+    @Override
+    public void removeFixtureInSight(Fixture fixture) {
+        fixturesInSight.add(fixture);
+    }
     
     /**
      * Update the steering direction of the car we drive
      */
-    public void step()
+    @Override
+    public void act()
     {
        Vec2 direction = new Vec2();
        
@@ -134,13 +144,16 @@ class Driver {
     }
     
     /**
-     * Filters the list of fixtures in sight and only returns actual cars.
+     * Filters the list of fixtures in sight and only returns actual cars that
+     * are not my own car.
      * @return a list of cars inside the FOV.
      */
     private List<Car> getCarsInSight() {
         ArrayList<Car> cars = new ArrayList<>();
         for (Fixture fixture : fixturesInSight)
-            if (!fixture.isSensor() && fixture.getUserData() instanceof Car)
+            if (!fixture.isSensor()
+                    && fixture.getUserData() instanceof Car
+                    && fixture.getUserData() != car)
                 cars.add((Car) fixture.getUserData());
         
         return cars;

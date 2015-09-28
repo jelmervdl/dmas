@@ -12,17 +12,17 @@ import org.jbox2d.dynamics.contacts.Contact;
  *
  * @author jelmer
  */
-public class DriverContact {
-    Driver driver;
+public class ObserverContact {
+    Observer observer;
     Fixture fixture;
 
-    public DriverContact(Contact contact) {
-        if (contact.getFixtureA().getUserData() instanceof Driver) {
-            driver = (Driver) contact.getFixtureA().getUserData();
+    public ObserverContact(Contact contact) {
+        if (contact.getFixtureA().getUserData() instanceof Observer) {
+            observer = (Observer) contact.getFixtureA().getUserData();
             fixture = contact.getFixtureB();
         }
-        else if (contact.getFixtureB().getUserData() instanceof Driver) {
-            driver = (Driver) contact.getFixtureB().getUserData();
+        else if (contact.getFixtureB().getUserData() instanceof Observer) {
+            observer = (Observer) contact.getFixtureB().getUserData();
             fixture = contact.getFixtureA();
         }
     }
