@@ -2,22 +2,23 @@
 \paragraph{Initialisation}
 \label{par:method:model:details:initialization}
 % \algemeen{How are the environment and the individuals created at the start of a simulation run, i.e. what are the initial values of the state variables? Is initialisation always the same, or was it varied among simulations? Were the initial values chosen arbitrarily or based on data? References to those data should be provided}
+The initial variables are partly fixed, partly variable, an overview of all variables relating to cars and their initial values is presented in \cref{tab:par:method:model:details:init:car:value}. The variability is between agents, but not necessarily between simulations. These varying values are chosen arbitrarily for each run of the simulation.
 
-The initial variables are partly fixed, partly variable. The variability is between agents, but not necessarily between simulations. These values were chosen arbitrarily.
-
-\begin{table}[H]
+\algemeen{Eenheden toevoegen aan \cref{tab:par:method:model:details:init:car:value}?}
+\algemeen{En voor de random meuk even uitleggen hoe we ze bepalen, samled from a x distribution with mean blah.}
+\begin{table}
 	\centering
 	\begin{tabular}{ >{\ttfamily}l  p{10.5cm} }
 		\toprule
 		\normalfont{Parameter}	& Value \\  
 		\midrule
 		acceleration 			& NONE \\ 
-		targetBodyAngle 		& 0f \\ 
+		targetBodyAngle 		& 0 \\ 
 		maxSteerAngleDeg 		& 40 \\ 
 		power 					& 250 \\ 
 		wheelAngleDeg 			& 0 \\ 
-		steeringSpeed 			& 5f \\ 
-		visionRange 			& 8f \\ 
+		steeringSpeed 			& 5 \\ 
+		visionRange 			& 8 \\ 
 		width 					& differs per vehicle \\ 
 		length 					& differs per vehicle \\ 
 		% colour 				& differs per driver type \\ 
@@ -25,14 +26,15 @@ The initial variables are partly fixed, partly variable. The variability is betw
 		initialPosition 		& differs per vehicle \\ 
 		% bodyFixture 			& \\ 
 		% visionFixture 		& \\ 
-		targetSpeedKMH			& 0f \\ 
+		targetSpeedKMH			& 0 \\ 
 		path					& differs per vehicle \\ 
 		\bottomrule
 	\end{tabular}
-	\caption{Car-owned state parameters initialisation settings}
+	\caption{An overview of the initialisation of car-owned state parameters.}
 	\label{tab:par:method:model:details:init:car:value}
 \end{table} 
 
+\algemeen{Hebben we geen vaste init parameters voor de simulatie?}
 The simulation variables differ per simulation, and so have no fixed initialisation settings.
 
 

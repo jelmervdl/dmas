@@ -2,19 +2,21 @@
 \paragraph{Purpose}
 \label{par:method:model:overview:purpose}
 % \algemeen{A clear, concise and specific formulation of the model’s purpose. This element informs about why you need to build a complex model, and what, in general and in particular, you are going to do with your model.}
-
-The purpose of this model is to have (build?) a traffic simulation in which we can test whether autonomous vehicles joining regular `human' traffic has an influence on the traffic delay experienced. To do this, we need a simulation in which we have different types of agents, the autonomous and the `human' ones, and a space that emulates a traffic simulation. In that simulation, we will let both types of agents drive over the roads, encounter intersections, and we will measure the delay an number of crashes. This we will do with different ratios of autonomous to human vehicles. 
+The aim of this model is to be able to test whether autonomous vehicles joining regular `human' traffic has an influence on the traffic delay. To do this, we need a simulation in which we have different types of agents, namely autonomous and `human' agents, and a set of roads. In our simulation, we let both types of agents drive over the roads, encounter intersections, and we  measure the delay an number of crashes. By doing this with different ratios of autonomous to human vehicles we can get an idea of when the presences of self-driving cars starts to influence the flow of traffic.
 
 \paragraph{State variables and scales}
 \label{par:method:model:overview:state}
-
-This model contains two different hierarchical levels, the Car/Driver level and the traffic level. The traffic level contains the possible roads and paths, and all the vehicles. The driver level contains all parameters necessary for the functioning of a vehicle.  
+This model contains two different hierarchical levels, the car/driver level and the traffic level. The traffic level contains the roads, and thus all possible paths, and all the vehicles. The car/driver level consists of all parameters necessary for the functioning of a vehicle.  
 
 % The dimensions must be clearly defined for all parameters and variables in the tables.
-	\subparagraph{Low-level state variables}
-	The parameters described in \cref{tab:par:method:model:overview:state:lowlevel:car} are those contained by all drivers. 
 
 	\later{Check that the low-level parameters are still accurate}
+	\subparagraph{Low-level state variables}
+	\Cref{tab:par:method:model:overview:state:lowlevel:car} provides an overview of all parameters that influence the behaviour of a car.
+
+	\algemeen{Moeten aan de tabelen met parameters geen parameters toegevoegd?}
+	\jelmer{De parameter \t{driver} is nog een beetje vaag, zou jij die verder kunne toelichten?}
+	\algemeen{Onder purpose hebben we het over twee hierarische lagen, komen die overeen met deze twee tabellen? Zo ja, moet de eerste tabel dan niet over drivers en cars gaan, in plaats van alleen over cars, zoals nu gemodelleerd? Of is het handiger om de eigenschappen van drivers in een aparte tabel te zetten, aangezien die nogal uit de hand kunnen lopen en de tabel dan wel heel groot wordt.}
 
 	\begin{table}[H]
 		\centering
@@ -22,7 +24,7 @@ This model contains two different hierarchical levels, the Car/Driver level and 
 			\toprule
 			\normalfont{Parameter}	& Purpose \\ 
 			\midrule
-			acceleration 			& Indicates if a vehicle has forward, backward, or no acceleration. \\ 
+			acceleration 			& The acceleration of the vehicle, may be negative to indicate breaking.\\ 
 			targetBodyAngle 		& The angle at which the target is located, relative to the body of the vehicle. \\ 
 			maxSteerAngleDeg 		& The maximum angle the wheels can turn. \\ 
 			power 					& The impulse power of a vehicle. \\ 
@@ -30,25 +32,23 @@ This model contains two different hierarchical levels, the Car/Driver level and 
 			steeringSpeed 			& The speed with which a vehicle can turn (the turning radius). \\ 
 			visionRange 			& The range of the vision of the vehicle. \\ 
 			width 					& The width of the vehicle. \\ 
-			length 					& The length of a vehicle. \\ 
+			length 					& The length of the vehicle. \\ 
 			% colour 				& The colour of a vehicle \\ 
 			driver 					& The driver agent. \\ 
 			initialPosition 		& The initial position of the agent at the start of the simulation. \\ 
 			% bodyFixture 			& The `fixture' of the bocy of a vehicle, used when viewing other vehicles\\ 
 			% visionFixture 		& The `fixture of the vision of the vehicle, describing what a vehicle can see'\\ 
-			targetSpeedKMH			& The maximum speed of a vehicle. \\ 
+			targetSpeedKMH			& The maximum speed of the agent. \\ 
 			path					& The path the agent is going to follow. \\ 
 			\bottomrule
 		\end{tabular}
-		\caption{Car-owned state parameters}
+		\caption{Parameters that indicate the state of a car.}
 		\label{tab:par:method:model:overview:state:lowlevel:car}
 	\end{table}
 
-	\subparagraph{Higher-level entities}
-	
 	\later{Check that the high-level parameters are still accurate}
-
-	At the simulation level there are a few parameters, shown in \cref{tab:par:method:model:overview:state:highlevel:sim}. These are necessary for running the simulation.
+	\subparagraph{Higher-level entities}
+	The parameters at the simulation level are shown in \cref{tab:par:method:model:overview:state:highlevel:sim}.
 	
 	\begin{table}[H]
 		\centering
@@ -60,36 +60,36 @@ This model contains two different hierarchical levels, the Car/Driver level and 
 			streetGraph		 		& A graph representation of the network of streets. \\ 
 			\bottomrule
 		\end{tabular}
-		\caption{Simulation-owned state parameters}
+		\caption{High-level parameters used by the simulation.}
 		\label{tab:par:method:model:overview:state:highlevel:sim}
 	\end{table}
 
 
 	\subparagraph{Scales}
+	Each time step is \si{33 \milli\second}. This frequent update rate makes the visualisation of the simulation run smoothly, without creating a too large computational stress. Furthermore this small time steps ensures that our simulation approach the continuous movement of real life vehicles.
+
+\algemeen{Een time horizon (hoe lang de simulatie draait?) kiezen en hier rapporteren.}
+\algemeen{Ik snap de motivatie hier niet helemaal.}
+	The time horizon is longer, because each agent tries to follow a predetermined path. However, each agent also has to react to the environment. 
 
 	\later{Als er iets in tijdsstappen of planning verandert moet dit geupdate}
-
-	Each time step is 33 ms. This was chosen because it is a frequent update rate that makes the visual of the simulation run smoothly, without creating a too large computational stress. Each step the agents get closer to their targets. The time horizon is longer, because each agent tries to follow a predetermined path. However, each agent also has to react to the environment. 
 
 
 
 \paragraph{Process overview and scheduling}
 \label{par:method:model:overview:process}
-% \algemeen{Welke processen zitten in het model, eventueel met tabel.}
+% \algemeen{Welkeb processen zitten in het model, eventueel met tabel.}
+The processes active in the model are \t{steerToAvoidCars} and \t{steerTowardsPath}. The first process checks if there is another vehicle in its vicinity and if it is going to hit it given its current driving angle. If a collision seems imminent, the vector describing the direction vector of the vehicle is negated, causing the vehicle to decelerate or turn.
 
-The processes active in the model are \t{steerToAvoidCars} and \t{steerTowardsPath}. 
-The first checks if there is another vehicle in its vicinity and if it is going to hit it with the current driving angle. If so, the vector describing the direction the vehicle is going in is negated, causing the vehicle to decelerate or turn.
-The second process is the driving of the vehicle in the direction of the target. The route towards this target has already been expressed in multiple points . A vehicle drives in the direction of the next point, and when it is close enough, drives to the one after that. Doing so, it will reach its goal, even when it gets diverted by other vehicles along the way.
+The process \t{steerTowardsPath} is the driving of the vehicle in the direction of the target. As a car is added to the simulation it is passed its path, which is defined as multiple discrete points.  A vehicle drives in the direction of the next point on its path, and when it is close enough, drives to its next target, the next point on its path. Eventually the agent will reach its goal, even when it gets diverted by other vehicles along the way.
 
 % \algemeen{Bespreek scheduling van processen, welke volgorde uitgevoerd?}
-Every step, each agent first checks if there are other cars it could possibly crash into before continuing on towards the target. 
+% \algemeen{Are some actions executed in a random order?}
+There are no actions that are executed in a random order.
+Every step, each agent first checks if there are other cars it could possibly crash into before continuing on towards the target. The agents are updated in the same order in every time step, nor are any other actions executed in a random order.
 
 % \algemeen{How is time modeled}
-Time is modelled through the time steps in which a vehicle can move ahead. 
-
 % \algemeen{How are actions that happen concurrently IRL executed in the model}
-Actions that happen concurrently in real life are updating the position of every vehicle. In the simulation, this is done through choosing a small time step size, and updating every vehicle every time step. Because the time step is small enough, it will still approach a concurrent execution.
+Time is modelled through the time steps in which a vehicle can move. In real life all vehicles move at the same time, whereas the cars in our simulation are updated sequentially. However our small time step ensures that our vehicles approach concurrent actions. 
 
-% \algemeen{Are some actions executed in a random order?}
 
-There are no actions that are executed in a random order.
