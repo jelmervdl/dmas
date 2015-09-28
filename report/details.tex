@@ -1,11 +1,48 @@
-%!TEX root = report.tex
-\paragraph{Initialization}
+%!TEX root = report.tex 
+\paragraph{Initialisation}
 \label{par:method:model:details:initialization}
-\algemeen{How are the environment and the individuals created at the start of a simulation run, i.e. what are the initial values of the state variables? Is initial- ization always the same, orwas it varied among simulations? Were the initial values chosen arbitrarily or based on data? References to those data should be provided}
+% \algemeen{How are the environment and the individuals created at the start of a simulation run, i.e. what are the initial values of the state variables? Is initialisation always the same, or was it varied among simulations? Were the initial values chosen arbitrarily or based on data? References to those data should be provided}
+
+The initial variables are partly fixed, partly variable. The variability is between agents, but not necessarily between simulations. These values were chosen arbitrarily.
+
+\baakman{Turn into book tabs table}
+\vdbraak{Apply \textbackslash t to the first column in every table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{|l | p{10.5cm} |}
+		\hline
+		\normalfont{Parameter}	& Value \\ \hline \hline
+		acceleration 			& NONE \\ \hline
+		targetBodyAngle 		& 0f \\ \hline
+		maxSteerAngleDeg 		& 40 \\ \hline
+		power 					& 250 \\ \hline
+		wheelAngleDeg 			& 0 \\ \hline
+		steeringSpeed 			& 5f \\ \hline
+		visionRange 			& 8f \\ \hline
+		width 					& differs per vehicle \\ \hline
+		length 					& differs per vehicle \\ \hline
+		% colour 				& differs per driver type \\ \hline
+		driver 					& a Driver object, determining the agent type \\ \hline
+		initialPosition 		& differs per vehicle \\ \hline
+		% bodyFixture 			& \\ \hline
+		% visionFixture 		& \\ \hline
+		targetSpeedKMH			& 0f \\ \hline
+		path					& differs per vehicle \\ \hline
+	\end{tabular}
+	\caption{Car-owned state parameters initialisation settings}
+	\label{tab:par:method:model:details:init:car:value}
+\end{table} 
+
+The simulation variables differ per simulation, and so have no fixed initialisation settings.
+
 
 \paragraph{Input}
 \label{par:method:model:details:input}
-\algemeen{The dynamics of many IBMs are driven by some environmental conditions which change over space and time. All these environmental conditions are “input”, i.e. imposed dynamics of certain state variables.}
+% \algemeen{The dynamics of many IBMs are driven by some environmental conditions which change over space and time. All these environmental conditions are “input”, i.e. imposed dynamics of certain state variables.}
+
+For this model the input is the graph of streets. The agents then get assigned a path to try to follow. 
+
 
 % \paragraph{Submodels}
 % \label{par:method:model:details:submodels}
