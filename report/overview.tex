@@ -17,12 +17,13 @@ This model contains two different hierarchical levels, the Car/Driver level and 
 	\later{Check that the low-level parameters are still accurate}
 
 	\baakman{Turn into book tabs table}
+	\vdbraak{Apply \textbackslash t to the first column in every table}
 
 	\begin{table}[H]
 		\centering
-		\begin{tabular}{|l | p{10.5cm} |}
+		\begin{tabular}{| l | p{10.5cm} |}
 			\hline
-			Parameter				& Purpose \\ \hline \hline
+			\normalfont{Parameter}	& Purpose \\ \hline \hline
 			acceleration 			& Indicates if a vehicle has forward, backward, or no acceleration. \\ \hline
 			targetBodyAngle 		& The angle at which the target is located, relative to the body of the vehicle. \\ \hline
 			maxSteerAngleDeg 		& The maximum angle the wheels can turn. \\ \hline
@@ -47,9 +48,8 @@ This model contains two different hierarchical levels, the Car/Driver level and 
 	\subparagraph{Higher-level entities}
 	
 	\later{Check that the high-level parameters are still accurate}
-	\algemeen{Deze tekst slaat nog nergens op}
 
-	At the simulation level there are few parameters, shown in \cref{tab:par:method:model:overview:state:highlevel:sim}. These are necessary for running the simulation.
+	At the simulation level there are a few parameters, shown in \cref{tab:par:method:model:overview:state:highlevel:sim}. These are necessary for running the simulation.
 	
 	\begin{table}[H]
 		\centering
@@ -59,7 +59,7 @@ This model contains two different hierarchical levels, the Car/Driver level and 
 			cars 					& A list of the cars in the simulation. \\ \hline
 			streetGraph		 		& A graph representation of the network of streets. \\ \hline
 		\end{tabular}
-		\caption{simulation-owned state parameters}
+		\caption{Simulation-owned state parameters}
 		\label{tab:par:method:model:overview:state:highlevel:sim}
 	\end{table}
 
@@ -75,9 +75,8 @@ This model contains two different hierarchical levels, the Car/Driver level and 
 \paragraph{Process overview and scheduling}
 \label{par:method:model:overview:process}
 % \algemeen{Welke processen zitten in het model, eventueel met tabel.}
-\algemeen{nadenken over hoe we variabelen/functies dingen gaan typesetten}
 
-The processes in the model are steerToAvoidCars and steerTowardsPath. 
+The processes active in the model are \t{steerToAvoidCars} and \t{steerTowardsPath}. 
 The first checks if there is another vehicle in its vicinity and if it is going to hit it with the current driving angle. If so, the vector describing the direction the vehicle is going in is negated, causing the vehicle to decelerate or turn.
 The second process is the driving of the vehicle in the direction of the target. The route towards this target has already been expressed in multiple points . A vehicle drives in the direction of the next point, and when it is close enough, drives to the one after that. Doing so, it will reach its goal, even when it gets diverted by other vehicles along the way.
 
