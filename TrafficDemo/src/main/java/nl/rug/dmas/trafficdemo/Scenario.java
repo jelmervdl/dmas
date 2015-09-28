@@ -8,9 +8,13 @@ package nl.rug.dmas.trafficdemo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import nl.rug.dmas.trafficdemo.actors.StreetGraphSink;
+import nl.rug.dmas.trafficdemo.actors.StreetGraphSource;
+import nl.rug.dmas.trafficdemo.streetGraph.StreetGraph;
+import nl.rug.dmas.trafficdemo.streetGraph.Vertex;
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
@@ -23,11 +27,15 @@ import org.jbox2d.dynamics.contacts.Contact;
  * cars and drivers from time step to time step.
  * @author jelmer
  */
-public class Scenario {
+public class Scenario extends Observable {
     World world;
     
     // A list of all cars in the simulation.
-    ArrayList<Car> cars = new ArrayList<>();
+    final ArrayList<Car> cars = new ArrayList<>();
+    
+    // A list of actors, agents or objects that can act, such as drivers
+    // and spawn points.
+    final ArrayList<Actor> actors = new ArrayList<>();
     
     // A map of locations known to all agents (such as the mouse ;) )
     Map<String, Object> commonKnowledge = new HashMap<>();
@@ -35,50 +43,48 @@ public class Scenario {
     final private ArrayList<Car> carsToRemove = new ArrayList<>();
     final private ArrayList<Car> carsToAdd = new ArrayList<>();
     
+    final StreetGraph streetGraph;
+    
     final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     final Lock readLock = lock.readLock();
     final Lock writeLock = lock.writeLock();
+    
+    final private Thread mainLoop;
     
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact
      * listener. This listener updates the fixturesInSight list of the drivers
      * throughout the simulation.
+     * @param graph Graph of the streets of the world
      */
-    public Scenario() {
+    public Scenario(StreetGraph graph) {
+        streetGraph = graph;
+        
         // Create a world without gravity (2d world seen from top, eh!)
         // The world is our physics simulation.
         world = new World(new Vec2(0, 0));
 
+        // Add actors for the spawn points and sinks of the street graph
+        for (Vertex source : streetGraph.getSources())
+            actors.add(new StreetGraphSource(this, source, 500));
+        
+        for (Vertex sink : streetGraph.getSinks())
+            actors.add(new StreetGraphSink(this, sink));
+        
         // Keep a contact listener that monitors whether cars are in sight of
         // drivers.
-        world.setContactListener(new ContactListener() {
-            @Override
-            public void beginContact(Contact fixtureContact) {
-                DriverContact contact = new DriverContact(fixtureContact);
-                
-                if (contact.driver != null && contact.driver.car != contact.fixture.getUserData())
-                    contact.driver.fixturesInSight.add(contact.fixture);
-            }
+        world.setContactListener(new ObserverContactListener());
+        
+        // Finally, init the main loop with a targeted 60 updates per second
+        mainLoop = new Thread(new MainLoop(60));
+    }
 
-            @Override
-            public void endContact(Contact fixtureContact) {
-                DriverContact contact = new DriverContact(fixtureContact);
-                
-                if (contact.driver != null && contact.driver.car != contact.fixture.getUserData())
-                    contact.driver.fixturesInSight.remove(contact.fixture);
-            }
-
-            @Override
-            public void preSolve(Contact contact, Manifold oldManifold) {
-                //
-            }
-
-            @Override
-            public void postSolve(Contact contact, ContactImpulse impulse) {
-               //
-            }
-            
-        });
+    public World getWorld() {
+        return world;
+    }
+    
+    public StreetGraph getStreetGraph() {
+        return streetGraph;
     }
     
     /**
@@ -100,6 +106,7 @@ public class Scenario {
     private void addCarUnsafe(Car car) {
         car.initialize(world);
         cars.add(car);
+        actors.add(car.driver);
     }
     
     /**
@@ -122,49 +129,128 @@ public class Scenario {
     
     private void removeCarUnsafe(Car car) {
         car.destroy(world);
+        actors.remove(car.driver);
         cars.remove(car);
     }
     
     /**
-     * Steps the simulation of dt seconds. This locks the simulation.
-     * @param dt delta time in seconds
+     * Start the main loop of the simulation.
+     * The simulation is executed in its own thread.
      */
-    public void step(float dt) {
-        // For running the simulation we only need a read lock
-        readLock.lock();
-        try {
-            for (Car car : cars) {
-                car.driver.step();
-                car.update(dt);
-            }
+    public void start() {
+        mainLoop.start();
+    }
+    
+    /**
+     * Stop the main loop of the simulation.
+     * Effectively interrupts the thread, nothing more.
+     */
+    public void stop() {
+        mainLoop.interrupt();
+    }
+    
+    private class ObserverContactListener implements ContactListener {
+        @Override
+        public void beginContact(Contact fixtureContact) {
+            ObserverContact contact = new ObserverContact(fixtureContact);
 
-            world.step(dt, 3, 8);
-        } finally {
-            readLock.unlock();
+            if (contact.observer != null)
+                contact.observer.addFixtureInSight(contact.fixture);
+        }
+
+        @Override
+        public void endContact(Contact fixtureContact) {
+            ObserverContact contact = new ObserverContact(fixtureContact);
+
+            if (contact.observer != null)
+                contact.observer.removeFixtureInSight(contact.fixture);
+        }
+
+        @Override
+        public void preSolve(Contact contact, Manifold oldManifold) {
+            //
+        }
+
+        @Override
+        public void postSolve(Contact contact, ContactImpulse impulse) {
+           //
+        }
+    }
+    
+    private class MainLoop implements Runnable {
+        
+        final private int hz;
+        
+        public MainLoop(int hz) {
+            this.hz = hz;
         }
         
-        // For altering the cars that need to be added or removed we want a
-        // complete lock.
-        writeLock.lock();
-        try {
-            // Process removals that were queued
-            if (!carsToRemove.isEmpty()) {
-                for (Car car : carsToRemove)
-                    removeCarUnsafe(car);
+        @Override
+        public void run() {
+            try {
+                float stepTime = 1.0f / (float) hz;
 
-                carsToRemove.clear();
-            }
+                while (!Thread.interrupted()) {
+                    long startTimeMS = System.currentTimeMillis();
 
-            // And process additions that were also queued
-            if (!carsToAdd.isEmpty()) {
-                for (Car car : carsToAdd)
-                    addCarUnsafe(car);
+                    step(stepTime);
 
-                carsToAdd.clear();
+                    long finishTimeMS = System.currentTimeMillis();
+                    long sleepTimeMS = (long) (stepTime * 1000) - (finishTimeMS - startTimeMS);
+                    if (sleepTimeMS > 0) {
+                        Thread.sleep(sleepTimeMS);
+                    }
+                }
+            } catch (InterruptedException e) {
+                // Just stop the mainloop
             }
         }
-        finally {
-            writeLock.unlock();
-        }       
+        
+        /**
+        * Steps the simulation of dt seconds. This locks the simulation.
+        * @param dt delta time in seconds
+        */
+        private void step(float dt) {
+            // For running the simulation we only need a read lock
+            readLock.lock();
+            try {
+                for (Actor actor : actors)
+                    actor.act();
+
+                for (Car car : cars)
+                    car.update(dt);
+
+                world.step(dt, 3, 8);
+            } finally {
+                readLock.unlock();
+            }
+
+            // For altering the cars that need to be added or removed we want a
+            // complete lock.
+            writeLock.lock();
+            try {
+                // Process removals that were queued
+                if (!carsToRemove.isEmpty()) {
+                    for (Car car : carsToRemove)
+                        removeCarUnsafe(car);
+
+                    carsToRemove.clear();
+                }
+
+                // And process additions that were also queued
+                if (!carsToAdd.isEmpty()) {
+                    for (Car car : carsToAdd)
+                        addCarUnsafe(car);
+
+                    carsToAdd.clear();
+                }
+            }
+            finally {
+                writeLock.unlock();
+            }
+
+            setChanged();
+            notifyObservers();
+        }
     }
 }

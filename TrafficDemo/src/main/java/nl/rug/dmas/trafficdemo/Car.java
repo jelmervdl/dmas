@@ -46,7 +46,7 @@ public class Car {
     Fixture bodyFixture;
     Fixture visionFixture;
     
-    private Vec2 initialPosition;
+    private final Vec2 initialPosition;
     
     public Car(Driver driver, float width, float length, Vec2 position) {
         this.driver = driver;
@@ -86,6 +86,7 @@ public class Car {
     /**
      * Destroys the internal representation of a car. This method is unsafe! Do
      * not call it during 
+     * @param world of the scenario
      */
     public void destroy(World world) {
         world.destroyBody(body);
@@ -122,6 +123,7 @@ public class Car {
     /**
      * Positions wheels at the front and the back based on the width and length
      * of the vehicle.
+     * @param world in which to create the wheels
      * @return a list of wheels
      */
     protected ArrayList<Wheel> createWheels(World world) {
@@ -204,8 +206,16 @@ public class Car {
         // Calculate the change in wheel's angle for this update, assuming the wheel will reach is maximum angle from zero in 200 ms
         //float increase = maxSteerAngleDeg * dt * steeringSpeed;
         
-        // TODO incorporate increase and steeringSpeed into this very simple hack that controls steering
-        wheelAngleDeg = MathUtils.clamp((targetBodyAngle - body.getAngle()) * MathUtils.RAD2DEG, -maxSteerAngleDeg, maxSteerAngleDeg);
+        float steerAngle = (targetBodyAngle - body.getAngle()) * MathUtils.RAD2DEG % 360;
+        
+        // I don't know why, but this prevents the car from steering left when
+        // the target is on its right side (but the angle is larger than 90deg
+        // to the right)
+        if (steerAngle < -180)
+            steerAngle = 360 - steerAngle;
+        
+        // Todo: incorporate increase and steeringSpeed into this very simple hack that controls steering
+        wheelAngleDeg = MathUtils.clamp(steerAngle, -maxSteerAngleDeg, maxSteerAngleDeg);
         
         // Apply force to wheels
         Vec2 baseVec = new Vec2(0, 0); //vector pointing in the direction force will be applied to a wheel ; relative to the wheel.
