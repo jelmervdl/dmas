@@ -2,6 +2,7 @@ package nl.rug.dmas.trafficdemo.streetGraph;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import org.jbox2d.common.Vec2;
 
@@ -38,11 +39,26 @@ public class Vertex {
     }
 
     /**
-     * Set the location of this part of the road network in world coordinates.
-     * @param location in world coordinates.
+     * Set the location of this vertex to location.
+     *
+     * @param location
      */
     public void setLocation(Vec2 location) {
         this.location = location;
+    }
+
+    /**
+     * Get the vertices that can be reached from his vertex by traversing one
+     * edge.
+     *
+     * @return
+     */
+    public ArrayList<Vertex> getReachableVertices() {
+        HashSet<Vertex> reachables = new HashSet<>();
+        for (Edge outgoingEdge : this.outgoingEdges) {
+            reachables.add(outgoingEdge.getDestination());
+        }
+        return new ArrayList<>(reachables);
     }
 
     /**

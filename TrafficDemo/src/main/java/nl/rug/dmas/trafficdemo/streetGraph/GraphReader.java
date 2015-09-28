@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.InputMismatchException;
+import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -134,6 +137,12 @@ public class GraphReader {
     public static void main(String[] args) {
         File inputFile = new File("./input/graaf.txt");
         StreetGraph graaf = GraphReader.read(inputFile);
+        try {
+            LinkedList<Vertex> path = graaf.findBFSPath(graaf.getSources().get(0), graaf.getSinks().get(0));
+            graaf.generatePointPath(path);
+        } catch (NoPathException ex) {
+            System.err.println(ex);
+        }
     }
 
 }

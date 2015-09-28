@@ -1,67 +1,16 @@
 %!TEX root = report.tex
-\todo[inline]{We use the protocol ODD proposed by \textcite{grimm2006standard} to describe our simulation model.}
+
+This model description follows the ODD format described in \textcite{grimm2006standard}. We start with a general overview of the agent-based model, followed by explanations of the design concepts, after which we will discuss the details of the model. 
+
 
 \subsubsection{Overview}
 \label{subsub:method:model:overview}
-
-	\paragraph{Purpose}
-	\label{par:method:model:overview:purpose}
-	\todo[inline]{A clear, concise and specific formulation of the model’s purpose. This element informs about why you need to build a complex model, and what, in general and in particular, you are going to do with your model.}
-
-	\paragraph{State variables and scales}
-	\label{par:method:model:overview:state}
-	% The dimensions must be clearly defined for all parameters and variables in the tables.
-		\subparagraph{Low-level state variables}
-		\todo[inline]{low-level variables that characterize the low-level entities of the model, i.e. individuals, table?}
-
-		\subparagraph{Higher-level entities}
-		\todo[inline]{Aantal autos's en meer van dat soort blaat, dingen die hele model beïnvloed ipv een agent.}
-
-		\subparagraph{Scales}
-		\todo[inline]{Length of time steps and time horizon. The reason why these scales have been selected should briefly be explained.}		
-
-	\paragraph{Process overview and scheduling}
-	\label{par:method:model:overview:process}
-	\todo[inline]{Welke processen zitten in het  model, eventueel met tabel. }
-	\todo[inline]{bespreek scheduling van processen, welke volgorde uitgevoerd?}
-	\todo[inline]{How is time modeled}
-	\todo[inline]{How are actions that happen concurrently IRL executed in the model}
-	\todo[inline]{Are some actions executed in a random order?}
-
+\input{overview.tex}
 
 \subsubsection{Design Concepts}
 \label{subsub:method:model:design}
-	\todo[inline]{Bespreek (een subset van) de volgende elementen, niet noodzakelijk in deze volgorde.}
-
-	\paragraph{Emergence} \todo[inline]{Which system-level phenomena truly emerge from individual traits, and which phenomena are merely imposed?}
-
-	\paragraph{Adaption} \todo[inline]{What adaptive traits do the model individuals have which directly or indirectly can improve their potential fitness, in response to changes in themselves or their environment?}
-
-	\paragraph{Fitness} \todo[inline]{Is fitness-seeking modelled explicitly or implicitly? If explicitly, how do individuals calculate fitnes?}
-
-	\paragraph{Prediction} \todo[inline]{In estimating future consequences of their deci- sions, how do individuals predict the future conditions they will experience?}
-
-	\paragraph{Sensing} \todo[inline]{What internal and environmental state variables are individualsassumedto sense or “know”and consider in their adaptive decisions?}
-
-	\paragraph{Interaction} \todo[inline]{What kinds of interactions among individuals are assumed?}
-
-	\paragraph{Stochasticity} \todo[inline]{Is stochasticicity part of the model? What are the reasons?}
-
-	\paragraph{Collectives} \todo[inline]{Are individuals grouped into some kind of collec- tive, e.g. a social group? Observation:}
-
-	\paragraph{Observation} \todo[inline]{How are data collected from the IBM for testing, understanding, and analyzing it?}
+\input{designConcepts.tex}
 
 \subsubsection{Details}
 \label{subsub:method:model:details}
-
-	\paragraph{Initialization}
-	\label{par:method:model:details:initialization}
-	\todo[inline]{How are the environment and the individuals created at the start of a simulation run, i.e. what are the initial values of the state variables? Is initial- ization always the same, orwas it varied among simulations? Were the initial values chosen arbitrarily or based on data? References to those data should be provided}
-
-	\paragraph{Input}
-	\label{par:method:model:details:input}
-	\todo[inline]{The dynamics of many IBMs are driven by some environmental conditions which change over space and time. All these environmental conditions are “input”, i.e. imposed dynamics of certain state variables.}
-
-	% \paragraph{Submodels}
-	% \label{par:method:model:details:submodels}
-	%  No clue
+\input{details.tex}
