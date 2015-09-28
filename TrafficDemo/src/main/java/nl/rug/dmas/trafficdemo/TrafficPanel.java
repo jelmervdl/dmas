@@ -167,21 +167,21 @@ public class TrafficPanel extends JPanel {
         for (Car car : cars) {
             switch (car.acceleration) {
                 case ACCELERATE:
-                    drawHeadlight(g2, headlightColor,
+                    drawLight(g2, headlightColor,
                         new Vec2(-car.width / 2 + 0.5f, -car.length / 2),
                         Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 50,
                         car.body.getTransform(), offset, scale);
-                    drawHeadlight(g2, headlightColor,
+                    drawLight(g2, headlightColor,
                         new Vec2(car.width / 2 - 0.5f, -car.length / 2),
                         Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 50,
                         car.body.getTransform(), offset, scale);
                     break;
                 case BRAKE:
-                    drawHeadlight(g2, taillightColor,
+                    drawLight(g2, taillightColor,
                         new Vec2(-car.width / 2 + 0.5f, car.length / 2),
                         Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 10,
                         car.body.getTransform(), offset, scale);
-                    drawHeadlight(g2, taillightColor,
+                    drawLight(g2, taillightColor,
                         new Vec2(car.width / 2 - 0.5f, car.length / 2),
                         Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 10,
                         car.body.getTransform(), offset, scale);
@@ -331,7 +331,7 @@ public class TrafficPanel extends JPanel {
      * @param offset in pixels of 0,0 in world space
      * @param scale to scale world space coordinates to pixels
      */
-    private void drawHeadlight(Graphics2D g, Color lightColor, Vec2 position, int angleDeg, int angleWidth, int reach, Transform transform, Point offset, float scale) {
+    private void drawLight(Graphics2D g, Color lightColor, Vec2 position, int angleDeg, int angleWidth, int reach, Transform transform, Point offset, float scale) {
         Graphics2D g2 = (Graphics2D) g.create();
         Vec2 worldPosition = new Vec2();
         Transform.mulToOutUnsafe(transform, position, worldPosition);
