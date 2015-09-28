@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import nl.rug.dmas.trafficdemo.Actor;
 import nl.rug.dmas.trafficdemo.Car;
-import nl.rug.dmas.trafficdemo.Driver;
 import nl.rug.dmas.trafficdemo.Observer;
 import nl.rug.dmas.trafficdemo.Scenario;
 import nl.rug.dmas.trafficdemo.streetGraph.NoPathException;

@@ -5,6 +5,7 @@
  */
 package nl.rug.dmas.trafficdemo;
 
+import nl.rug.dmas.trafficdemo.actors.Driver;
 import java.awt.Color;
 import java.util.ArrayList;
 import org.jbox2d.collision.shapes.CircleShape;
@@ -143,7 +144,25 @@ public class Car {
     public Vec2 getLocalVelocity() {
         return this.body.getLocalVector(this.body.getLinearVelocityFromLocalPoint(new Vec2(0, 0)));
     }
-
+    
+    /**
+     * Translate a point in the world to a position as seen from the car. E.g.
+     * a point in front of the car will be at Vec2(0, 1).
+     * @param worldPoint point in the world
+     * @return the same point but then in car space.
+     */
+    public Vec2 getLocalPoint(Vec2 worldPoint) {
+        return this.body.getLocalPoint(worldPoint);
+    }
+    
+    /**
+     * Position of the center of the car in world space.
+     * @return car position in world space.
+     */
+    public Vec2 getPosition() {
+        return this.body.getWorldCenter();
+    }
+    
     /**
      * Get the local velocity in speed.
      * @return speed of car
@@ -168,14 +187,34 @@ public class Car {
         this.body.setLinearVelocity(velocity.mul((speedInKMH * 1000) / 3600f));
     }
     
+    /**
+     * Set the steering direction. The angle is relative to the angle of the
+     * body. So if you steer 90deg and your car is pointed east, you are
+     * steering south.
+     * @param angle relative angle in degrees
+     */
     public void setSteeringDirection(float angle) {
         targetBodyAngle = body.getAngle() + angle * MathUtils.DEG2RAD;
     }
     
+    /**
+     * Set the steering direction. Direction as a vector relative to the angle
+     * of the car. Really, it just calculates the angle of the vector and then
+     * calls setSteeringDirection with that angle.
+     * @param direction as a vector relative to the body of the car.
+     */
     public void setSteeringDirection(Vec2 direction) {
         direction = direction.clone();
         direction.normalize();
         setSteeringDirection((MathUtils.atan2(direction.y, direction.x) - MathUtils.HALF_PI) * MathUtils.RAD2DEG);
+    }
+    
+    /**
+     * Set the pedal the driver is pushing
+     * @param acceleration Gas! Brake! Reverse?
+     */
+    public void setAcceleration(Acceleration acceleration) {
+        this.acceleration = acceleration;
     }
     
     /**

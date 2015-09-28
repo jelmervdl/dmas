@@ -5,6 +5,7 @@
  */
 package nl.rug.dmas.trafficdemo;
 
+import nl.rug.dmas.trafficdemo.actors.Driver;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

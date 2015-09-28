@@ -3,13 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.rug.dmas.trafficdemo;
+package nl.rug.dmas.trafficdemo.actors;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import nl.rug.dmas.trafficdemo.Acceleration;
+import nl.rug.dmas.trafficdemo.Actor;
+import nl.rug.dmas.trafficdemo.Car;
+import nl.rug.dmas.trafficdemo.Observer;
+import nl.rug.dmas.trafficdemo.Scenario;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Vec2;
@@ -33,7 +38,7 @@ public class Driver implements Actor, Observer {
     
     public Driver(Scenario scenario) {
         this.scenario = scenario;
-        this.path = (CopyOnWriteArrayList<Vec2>) scenario.commonKnowledge.get("path");
+        this.path = (CopyOnWriteArrayList<Vec2>) scenario.getCommonKnowledge().get("path");
     }
     
     public Driver(Scenario scenario, List<Vec2> path) {
@@ -97,9 +102,9 @@ public class Driver implements Actor, Observer {
         car.setSpeedKMH(direction.length() * 5);
 
         if (direction.length() > 0.5f)
-            car.acceleration = Acceleration.ACCELERATE;
+            car.setAcceleration(Acceleration.ACCELERATE);
         else
-            car.acceleration = Acceleration.NONE;
+            car.setAcceleration(Acceleration.NONE);
     }
     
     /**
@@ -110,7 +115,7 @@ public class Driver implements Actor, Observer {
         Vec2 direction = new Vec2(0, 0);
         
         for (Car other : getCarsInSight()) {
-            Vec2 directionTowardsCar = car.body.getLocalPoint(other.body.getWorldCenter());
+            Vec2 directionTowardsCar = car.getLocalPoint(other.getPosition());
             
             if (directionTowardsCar.length() < 5f) {
                 // todo: Right now, cars that are far away have more impact on
@@ -129,14 +134,14 @@ public class Driver implements Actor, Observer {
      * @return a vector direction (with length!)
      */
     private Vec2 steerTowardsMouse() {
-        Vec2 worldMouse = (Vec2) scenario.commonKnowledge.get("mouse");
-        return car.body.getLocalPoint(worldMouse);
+        Vec2 worldMouse = (Vec2) scenario.getCommonKnowledge().get("mouse");
+        return car.getLocalPoint(worldMouse);
     }
     
     private Vec2 steerTowardsPath() {
         if (path != null) {
             while (pathIndex < path.size()) {
-                Vec2 directionToNextPoint = car.body.getLocalPoint(path.get(pathIndex));
+                Vec2 directionToNextPoint = car.getLocalPoint(path.get(pathIndex));
 
                 if (directionToNextPoint.length() > 3.0f) {
                     return directionToNextPoint;
