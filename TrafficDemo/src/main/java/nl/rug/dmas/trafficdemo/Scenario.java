@@ -8,6 +8,7 @@ package nl.rug.dmas.trafficdemo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import nl.rug.dmas.trafficdemo.actors.StreetGraphSink;
@@ -26,7 +27,7 @@ import org.jbox2d.dynamics.contacts.Contact;
  * cars and drivers from time step to time step.
  * @author jelmer
  */
-public class Scenario {
+public class Scenario extends Observable {
     World world;
     
     // A list of all cars in the simulation.
@@ -191,6 +192,9 @@ public class Scenario {
         }
         finally {
             writeLock.unlock();
-        }       
+        }
+        
+        setChanged();
+        notifyObservers();
     }
 }
