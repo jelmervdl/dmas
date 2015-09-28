@@ -16,6 +16,8 @@ import java.awt.RenderingHints;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JPanel;
+import nl.rug.dmas.trafficdemo.streetGraph.Edge;
+import nl.rug.dmas.trafficdemo.streetGraph.Vertex;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
@@ -93,6 +95,27 @@ public class TrafficPanel extends JPanel {
         // Scale translates one world point to n pixels.
         Point center = getCenter();
         
+        // Draw the street-graph
+        // Todo: draw this once and store it in a buffer that we can blit,
+        // because it doesn't change that often
+        if (scenario.streetGraph != null) {
+            for (Edge edge : scenario.streetGraph.getEdges()) {
+                g2.setColor(Color.BLACK);
+                drawEdge(g2, edge, center, scale);
+            }
+            
+            for (Vertex vertex : scenario.streetGraph.getVertices()) {
+                if (scenario.streetGraph.isSink(vertex))
+                    g2.setColor(Color.RED);
+                else if (scenario.streetGraph.isSource(vertex))
+                    g2.setColor(Color.GREEN);
+                else
+                    g2.setColor(Color.BLUE);
+                
+                drawVertex(g2, vertex, center, scale);
+            }
+        }
+        
         // Draw the path we paint for debugging purposes
         CopyOnWriteArrayList<Vec2> path = (CopyOnWriteArrayList<Vec2>) scenario.commonKnowledge.get("path");
         if (path != null) {
@@ -102,8 +125,6 @@ public class TrafficPanel extends JPanel {
         
         scenario.readLock.lock();
         try {
-            // First we should draw (or blit, that would be awesome fast!) the
-            // roads. But there are no roads yet.
             // Then on top of those, we draw our cars.
             drawCars(g2, scenario.cars, center, scale);
             
@@ -346,6 +367,24 @@ public class TrafficPanel extends JPanel {
                 Math.round(point.y * scale) + offset.y - 2,
                 4, 4);
         }
+    }
+
+    private void drawVertex(Graphics2D g2, Vertex vertex, Point offset, float scale) {
+        int radius = 5;
+        
+        Vec2 point = vertex.getLocation();
+        
+        g2.fillOval(
+            Math.round(point.x * scale) + offset.x - radius,
+            Math.round(point.y * scale) + offset.y - radius,
+            radius * 2, radius * 2
+        );
+    }
+
+    private void drawEdge(Graphics2D g2, Edge edge, Point offset, float scale) {
+        Vec2 position = edge.getOrigin().getLocation();
+        Vec2 direction = edge.getDestination().getLocation().sub(position);
+        drawVec(g2, direction, position, offset, scale);
     }
 
     private void drawFOVs(Graphics2D g, Point offset, float scale) {

@@ -14,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.prefs.Preferences;
@@ -25,6 +26,8 @@ import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import nl.rug.dmas.trafficdemo.streetGraph.GraphReader;
+import nl.rug.dmas.trafficdemo.streetGraph.StreetGraph;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -46,15 +49,14 @@ public class TrafficDemo {
         
         final Preferences prefs = Preferences.userNodeForPackage(TrafficDemo.class);
         
+        // Get me a map of the world!
+        final StreetGraph streetGraph = GraphReader.read(new File("input/graaf.txt"));
+        
         // Create a scenario with two cars looping left and right (and colliiiddiiingg >:D )
-        final Scenario scenario = new Scenario();
+        final Scenario scenario = new Scenario(streetGraph);
         scenario.commonKnowledge.put("mouse", new Vec2(0, 0));
         scenario.commonKnowledge.put("path", new CopyOnWriteArrayList<Vec2>());
         
-        for (int i = 0; i < numberOfCars; ++i) {
-            scenario.add(new Car(new Driver(scenario), 2, 4, RandomUtil.nextRandomVec(-10, 10, -10, 10)));
-        }
-
         // Pony up a simple window, our only entrypoint to the app
         JFrame window = new JFrame();
         window.setTitle("Traffic!");

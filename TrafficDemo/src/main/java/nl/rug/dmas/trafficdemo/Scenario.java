@@ -9,8 +9,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import nl.rug.dmas.trafficdemo.actors.StreetGraphSink;
+import nl.rug.dmas.trafficdemo.actors.StreetGraphSource;
+import nl.rug.dmas.trafficdemo.streetGraph.StreetGraph;
+import nl.rug.dmas.trafficdemo.streetGraph.Vertex;
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
@@ -39,6 +42,8 @@ public class Scenario {
     final private ArrayList<Car> carsToRemove = new ArrayList<>();
     final private ArrayList<Car> carsToAdd = new ArrayList<>();
     
+    final StreetGraph streetGraph;
+    
     final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     final Lock readLock = lock.readLock();
     final Lock writeLock = lock.writeLock();
@@ -47,12 +52,22 @@ public class Scenario {
      * A scenario takes an instance of a JBox2D world and sets the contact
      * listener. This listener updates the fixturesInSight list of the drivers
      * throughout the simulation.
+     * @param graph Graph of the streets of the world
      */
-    public Scenario() {
+    public Scenario(StreetGraph graph) {
+        streetGraph = graph;
+        
         // Create a world without gravity (2d world seen from top, eh!)
         // The world is our physics simulation.
         world = new World(new Vec2(0, 0));
 
+        // Add actors for the spawn points and sinks of the street graph
+        for (Vertex source : streetGraph.getSources())
+            actors.add(new StreetGraphSource(this, source));
+        
+        for (Vertex sink : streetGraph.getSinks())
+            actors.add(new StreetGraphSink(this, sink));
+        
         // Keep a contact listener that monitors whether cars are in sight of
         // drivers.
         world.setContactListener(new ContactListener() {
