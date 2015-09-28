@@ -13,11 +13,16 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.prefs.Preferences;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -67,6 +72,14 @@ public class TrafficWindow extends JFrame {
             @Override
             public void update(Observable o, Object arg) {
                 repaint();
+            }
+        });
+        
+        // Always stop the scenario when this window is closed.
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                TrafficWindow.this.scenario.stop();
             }
         });
         

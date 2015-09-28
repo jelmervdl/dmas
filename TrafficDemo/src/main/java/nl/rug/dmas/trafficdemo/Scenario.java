@@ -49,6 +49,8 @@ public class Scenario extends Observable {
     final Lock readLock = lock.readLock();
     final Lock writeLock = lock.writeLock();
     
+    final private Thread mainLoop;
+    
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact
      * listener. This listener updates the fixturesInSight list of the drivers
@@ -71,34 +73,10 @@ public class Scenario extends Observable {
         
         // Keep a contact listener that monitors whether cars are in sight of
         // drivers.
-        world.setContactListener(new ContactListener() {
-            @Override
-            public void beginContact(Contact fixtureContact) {
-                ObserverContact contact = new ObserverContact(fixtureContact);
-                
-                if (contact.observer != null)
-                    contact.observer.addFixtureInSight(contact.fixture);
-            }
-
-            @Override
-            public void endContact(Contact fixtureContact) {
-                ObserverContact contact = new ObserverContact(fixtureContact);
-                
-                if (contact.observer != null)
-                    contact.observer.removeFixtureInSight(contact.fixture);
-            }
-
-            @Override
-            public void preSolve(Contact contact, Manifold oldManifold) {
-                //
-            }
-
-            @Override
-            public void postSolve(Contact contact, ContactImpulse impulse) {
-               //
-            }
-            
-        });
+        world.setContactListener(new ObserverContactListener());
+        
+        // Finally, init the main loop with a targeted 60 updates per second
+        mainLoop = new Thread(new MainLoop(60));
     }
 
     public World getWorld() {
@@ -152,49 +130,123 @@ public class Scenario extends Observable {
     }
     
     /**
-     * Steps the simulation of dt seconds. This locks the simulation.
-     * @param dt delta time in seconds
+     * Start the main loop of the simulation.
+     * The simulation is executed in its own thread.
      */
-    public void step(float dt) {
-        // For running the simulation we only need a read lock
-        readLock.lock();
-        try {
-            for (Actor actor : actors)
-                actor.act();
-            
-            for (Car car : cars)
-                car.update(dt);
-            
-            world.step(dt, 3, 8);
-        } finally {
-            readLock.unlock();
+    public void start() {
+        mainLoop.start();
+    }
+    
+    /**
+     * Stop the main loop of the simulation.
+     * Effectively interrupts the thread, nothing more.
+     */
+    public void stop() {
+        mainLoop.interrupt();
+    }
+    
+    private class ObserverContactListener implements ContactListener {
+        @Override
+        public void beginContact(Contact fixtureContact) {
+            ObserverContact contact = new ObserverContact(fixtureContact);
+
+            if (contact.observer != null)
+                contact.observer.addFixtureInSight(contact.fixture);
+        }
+
+        @Override
+        public void endContact(Contact fixtureContact) {
+            ObserverContact contact = new ObserverContact(fixtureContact);
+
+            if (contact.observer != null)
+                contact.observer.removeFixtureInSight(contact.fixture);
+        }
+
+        @Override
+        public void preSolve(Contact contact, Manifold oldManifold) {
+            //
+        }
+
+        @Override
+        public void postSolve(Contact contact, ContactImpulse impulse) {
+           //
+        }
+    }
+    
+    private class MainLoop implements Runnable {
+        
+        final private int hz;
+        
+        public MainLoop(int hz) {
+            this.hz = hz;
         }
         
-        // For altering the cars that need to be added or removed we want a
-        // complete lock.
-        writeLock.lock();
-        try {
-            // Process removals that were queued
-            if (!carsToRemove.isEmpty()) {
-                for (Car car : carsToRemove)
-                    removeCarUnsafe(car);
+        @Override
+        public void run() {
+            try {
+                float stepTime = 1.0f / (float) hz;
 
-                carsToRemove.clear();
+                while (!Thread.interrupted()) {
+                    long startTimeMS = System.currentTimeMillis();
+
+                    step(stepTime);
+
+                    long finishTimeMS = System.currentTimeMillis();
+                    long sleepTimeMS = (long) (stepTime * 1000) - (finishTimeMS - startTimeMS);
+                    if (sleepTimeMS > 0) {
+                        Thread.sleep(sleepTimeMS);
+                    }
+                }
+            } catch (InterruptedException e) {
+                // Just stop the mainloop
             }
-
-            // And process additions that were also queued
-            if (!carsToAdd.isEmpty()) {
-                for (Car car : carsToAdd)
-                    addCarUnsafe(car);
-
-                carsToAdd.clear();
-            }
-        }
-        finally {
-            writeLock.unlock();
         }
         
-        setChanged();
-        notifyObservers();
+        /**
+        * Steps the simulation of dt seconds. This locks the simulation.
+        * @param dt delta time in seconds
+        */
+        private void step(float dt) {
+            // For running the simulation we only need a read lock
+            readLock.lock();
+            try {
+                for (Actor actor : actors)
+                    actor.act();
+
+                for (Car car : cars)
+                    car.update(dt);
+
+                world.step(dt, 3, 8);
+            } finally {
+                readLock.unlock();
+            }
+
+            // For altering the cars that need to be added or removed we want a
+            // complete lock.
+            writeLock.lock();
+            try {
+                // Process removals that were queued
+                if (!carsToRemove.isEmpty()) {
+                    for (Car car : carsToRemove)
+                        removeCarUnsafe(car);
+
+                    carsToRemove.clear();
+                }
+
+                // And process additions that were also queued
+                if (!carsToAdd.isEmpty()) {
+                    for (Car car : carsToAdd)
+                        addCarUnsafe(car);
+
+                    carsToAdd.clear();
+                }
+            }
+            finally {
+                writeLock.unlock();
+            }
+
+            setChanged();
+            notifyObservers();
+        }
     }
 }
