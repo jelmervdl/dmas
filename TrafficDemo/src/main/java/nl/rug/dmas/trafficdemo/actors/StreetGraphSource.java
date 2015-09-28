@@ -29,12 +29,12 @@ public class StreetGraphSource implements Actor, Observer {
     private int fixturesInSight = 0;
     
     private long timeOfLastSpawn;
+    final private long timeoutInMS;
     
-    final private long timeoutInMS = 1000;
-    
-    public StreetGraphSource(Scenario scenario, Vertex vertex) {
+    public StreetGraphSource(Scenario scenario, Vertex vertex, long timeoutInMS) {
         this.scenario = scenario;
         this.vertex = vertex;
+        this.timeoutInMS = timeoutInMS;
         
         BodyDef def = new BodyDef();
         def.type = BodyType.STATIC;
@@ -61,11 +61,13 @@ public class StreetGraphSource implements Actor, Observer {
 
     @Override
     public void act() {
-        if (fixturesInSight == 0)
-            if (System.currentTimeMillis() - timeOfLastSpawn > timeoutInMS) {
+        if (fixturesInSight == 0) {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - timeOfLastSpawn > timeoutInMS) {
                 scenario.add(getMeACar());
-                timeOfLastSpawn = System.currentTimeMillis();
-            }   
+                timeOfLastSpawn = currentTime;
+            }
+        }
     }
 
     @Override
