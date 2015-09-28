@@ -17,11 +17,10 @@ This model contains two different hierarchical levels, the Car/Driver level and 
 	\later{Check that the low-level parameters are still accurate}
 
 	\baakman{Turn into book tabs table}
-	\vdbraak{Apply \textbackslash t to the first column in every table}
 
 	\begin{table}[H]
 		\centering
-		\begin{tabular}{| l | p{10.5cm} |}
+		\begin{tabular}{| >{\ttfamily}l | p{10.2cm} |}
 			\hline
 			\normalfont{Parameter}	& Purpose \\ \hline \hline
 			acceleration 			& Indicates if a vehicle has forward, backward, or no acceleration. \\ \hline
@@ -53,9 +52,9 @@ This model contains two different hierarchical levels, the Car/Driver level and 
 	
 	\begin{table}[H]
 		\centering
-		\begin{tabular}{|l | p{10.5cm} |}
+		\begin{tabular}{| >{\ttfamily}l | p{10.5cm} |}
 			\hline
-			Parameter				& Purpose \\ \hline \hline
+			\normalfont{Parameter}	& Purpose \\ \hline \hline
 			cars 					& A list of the cars in the simulation. \\ \hline
 			streetGraph		 		& A graph representation of the network of streets. \\ \hline
 		\end{tabular}
