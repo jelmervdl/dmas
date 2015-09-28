@@ -28,7 +28,19 @@ public class Vertex {
         this.incomingEdges = new ArrayList<>();
         this.location = null;
     }
+    
+    /**
+     * Get the location of this part of the road in world coordinates.
+     * @return location of this vertex in world coordinates
+     */
+    public Vec2 getLocation() {
+        return this.location;
+    }
 
+    /**
+     * Set the location of this part of the road network in world coordinates.
+     * @param location in world coordinates.
+     */
     public void setLocation(Vec2 location) {
         this.location = location;
     }

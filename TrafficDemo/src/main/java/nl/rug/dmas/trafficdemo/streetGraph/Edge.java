@@ -25,7 +25,7 @@ public class Edge {
      *
      * @return the value of destination
      */
-    protected Vertex getDestination() {
+    public Vertex getDestination() {
         return destination;
     }
 
@@ -34,7 +34,7 @@ public class Edge {
      *
      * @return the value of origin
      */
-    protected Vertex getOrigin() {
+    public Vertex getOrigin() {
         return origin;
     }
 

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import org.jbox2d.common.Vec2;
 
@@ -92,7 +93,23 @@ public class StreetGraph {
     public ArrayList<Vertex> getSinks() {
         return new ArrayList<>(sinks.values());
     }
+    
+    public List<Vertex> getVertices() {
+        return new ArrayList<>(vertices.values());
+    }
+    
+    public List<Edge> getEdges() {
+        return new ArrayList<>(edges);
+    }
 
+    public boolean isSource(Vertex vertex) {
+        return getSources().contains(vertex);
+    }
+    
+    public boolean isSink(Vertex vertex) {
+        return getSinks().contains(vertex);
+    }
+    
     /**
      *
      * @param origin the origin of the edge to be added, represented by its
