@@ -20,7 +20,7 @@ This model contains two different hierarchical levels, the car/driver level and 
 
 	\begin{table}[H]
 		\centering
-		\begin{tabular}{ >{\ttfamily}l  p{10.2cm} }
+		\begin{tabularx}{\textwidth}{>{\ttfamily}lX}
 			\toprule
 			\normalfont{Parameter}	& Purpose \\ 
 			\midrule
@@ -41,7 +41,7 @@ This model contains two different hierarchical levels, the car/driver level and 
 			targetSpeedKMH			& The maximum speed of the agent. \\ 
 			path					& The path the agent is going to follow. \\ 
 			\bottomrule
-		\end{tabular}
+		\end{tabularx}
 		\caption{Parameters that indicate the state of a car.}
 		\label{tab:par:method:model:overview:state:lowlevel:car}
 	\end{table}
@@ -52,14 +52,14 @@ This model contains two different hierarchical levels, the car/driver level and 
 	
 	\begin{table}[H]
 		\centering
-		\begin{tabular}{ >{\ttfamily}l  p{10.5cm} }
+		\begin{tabularx}{\textwidth}{>{\ttfamily}lX}
 			\toprule
 			\normalfont{Parameter}	& Purpose \\  
 			\midrule
 			cars 					& A list of the cars in the simulation. \\ 
 			streetGraph		 		& A graph representation of the network of streets. \\ 
 			\bottomrule
-		\end{tabular}
+		\end{tabularx}
 		\caption{High-level parameters used by the simulation.}
 		\label{tab:par:method:model:overview:state:highlevel:sim}
 	\end{table}
