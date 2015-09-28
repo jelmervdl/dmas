@@ -198,14 +198,15 @@ public class StreetGraph {
      * @param origin
      * @param destination
      * @return
+     * @throws nl.rug.dmas.trafficdemo.streetGraph.NoPathException
      */
     public ArrayList<Vec2> generatePointPath(Vertex origin, Vertex destination) throws NoPathException {
         LinkedList<Vertex> path = this.findBFSPath(origin, destination);
         return generatePointPath(path);
     }
 
-    public ArrayList<Vec2> generatePointPath(LinkedList<Vertex> path) {
-        ArrayList<Vec2> points = new ArrayList<>();
+    static public PointPath generatePointPath(LinkedList<Vertex> path) {
+        PointPath points = new PointPath();
         int numEdgesInpath = path.size() - 1;
         Vertex intermediateOrigin = path.poll();
         Vertex intermidiateDestination = path.poll();
