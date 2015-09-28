@@ -3,37 +3,27 @@ Drivers in California already have to share their roads with a few of the self-d
 
 \subsection{State of the Art}
 \label{sub:intro:state_of_the_art}
-
-% problem
-\baakman{Meer geblaat over dat files en botsingen naar zijn en geld kosten.}
-
-% state of the art
-\textcite{dresner2007sharing} do a follow-up of a couple other papers by the same authors, primarily \textcite{dresner2005traffic}, in which they propose a system for autonomous intersection management. They do this using a multi-agent reservation system, consisting of two types of agents: the intersection managers and the driver agents. The intersection managers each manage an intersection, and are responsible for directing the driver agents through their intersection. The driver agents control their vehicles and communicate with intersection managers to get through intersections safely. The intersection managers have an intersection control policy, which they use to determine if the space to pass through requested by a driver agent is free at that time. If so, they confirm the reservation, and if not, they decline. This system was shown to work well and decrease traffic delays. 
+\textcite{dresner2007sharing} propose a hybrid intersection control mechanism that allows for both human and autonomous drivers. This proposal is a follow-up of several earlier papers, primarily their earlier paper, \cite{dresner2005traffic}. In this paper they propose a new infrastructure for autonomous intersection management which uses a multi-agent reservation system, consisting of two types of agents: the intersection managers and the driver agents. The intersection managers each manage an intersection, and are responsible for directing the driver agents through their intersection. The driver agents control their vehicles and communicate with intersection managers to get through intersections safely. The intersection managers have an intersection control policy, which they use to determine if the space to pass through requested by a driver agent is free at that time. If so, they confirm the reservation, and if not, they decline. This system was shown to work well and decrease traffic delays. 
 
 % new idea
-However, they discovered that while the above system works well with all agents in the simulation being autonomous agents, it can not be easily implemented in the real world, because it is currently not the case that all vehicles are autonomous. So they looked into different policies concerning combining autonomous vehicles with human driven vehicles. The difference between the two types was that the autonomous vehicles had the reservation system described above, and the human driven vehicles were following traffic lights also installed in intersection. 
+However, they found that while system described above works well when all agents in the simulation are autonomous, it is not yet applicable to the real world, since currently hardly any vehicles are autonomous. To solve this problem they looked into different policies concerning combining autonomous vehicles with human driven vehicles. In this hybrid system human drivers used the traffic lights, and self-driving cars used the reservation system described above.
 
 % results
-It was shown that some of the policies also had decrease of delays in traffic. The largest part of the decrease was seen with a high autonomous vehicle to human ratio. Because humans follow the traffic lights, but autonomous vehicles can use their reservation system, autonomous vehicles encounter less delays than the human drivers. 
+\textcite{dresner2007sharing} showed that some of the policies also resulted in a decrease of delays in traffic. The largest decrease was found when the autonomous vehicle to human ratio was high, however the self-driving car in this scenario encountered significantly less delays than their human driven counterpart due their use of the reservation system.
 
 % relevance
-A future with self-driving cars is becoming more realistically believable. Our traffic system should try to use the high-precision abilities autonomous vehicles have to create more efficient, fast, and safe auto transportation.
+A future with self-driving cars is becoming more realistic. To fully benefit from the emergence of autonomous vehicles our traffic system should aim to use their high-precision abilities to create more efficient, fast, and safe auto transportation.
 
 
 \subsection{New Idea}
-\label{sub:intro:new_idea}
-
+\label{sub:intro:new_idea}	
 In stead of having to alter every intersection and every vehicle, we propose to change nothing and look at whether the presence of autonomous cars by themselves can make a difference in traffic delays and crashes. 
-We model several traffic situations where both self-driving cars and `normal' cars are part of the traffic. We will start with a simple intersection where normal traffic rules apply. As we are further along in the project we will add more complex situations such as traffic lights and stop signals. Furthermore we might also look into different acceleration speeds for the `normal' cars and different drivers such as those proposed by \textcite{paruchuri2002multi}, or cars with (adaptive) cruise control.
 
-We will base our model of autonomous cars on \textcite{jiang2010microscopic}, our human drivers will be based on \textcite{paruchuri2002multi}.
+\later{Updaten als we meer fancy shit in ons model hebben.}
+We model several traffic situations where both self-driving cars and `normal' cars are part of the traffic using a simple intersection, without any of the extra infrastructure propose d by earlier research. 
 
+% We start with a simple intersection where normal traffic rules apply. As we are further along in the project we will add more complex situations such as traffic lights and stop signals. Furthermore we might also look into different acceleration speeds for the `normal' cars and different drivers such as those proposed by \textcite{paruchuri2002multi}, or cars with (adaptive) cruise control.
 
+Our model of autonomous cars is based \textcite{jiang2010microscopic}, our human drivers are based on \textcite{paruchuri2002multi}.
 
-
-
-
-
-
-
-
+This text is organised as follows: the next section discusses the model and our experiment in detail. \Cref{sec:results} presents and discusses the results of our experiment and \cref{sec:conclusion} concludes the paper with the implications of our results.
