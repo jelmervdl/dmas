@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 import org.jbox2d.common.Vec2;
 
@@ -49,6 +50,12 @@ public class StreetGraph {
         }
     }
 
+    /**
+     *
+     * @param location
+     * @param vertexName
+     * @throws InputMismatchException
+     */
     protected void setVertexLocation(Vec2 location, Integer vertexName) throws InputMismatchException {
         Vertex vertex = this.vertices.get(vertexName);
         if (vertex != null) {
@@ -74,7 +81,7 @@ public class StreetGraph {
      *
      * @param indices The 'names' of the sinks
      */
-    public void setSinks(HashSet<Integer> indices) {
+    protected void setSinks(HashSet<Integer> indices) {
         vertexHashSetToHashMap(indices, this.sinks);
     }
 
@@ -100,7 +107,7 @@ public class StreetGraph {
      * @param destination the destination of the edge to be added, represented
      * by its name.
      */
-    public void addEdge(int origin, int destination) {
+    protected void addEdge(int origin, int destination) {
         Vertex destinationVertex = this.vertices.get(destination);
         if (destinationVertex == null) {
             //Create destination vertex because it doesn't exist yet
@@ -117,6 +124,67 @@ public class StreetGraph {
         this.edges.add(newEdge);
         originVertex.addOugoingEdge(newEdge);
         destinationVertex.addIncomingEdge(newEdge);
+    }
+
+    /**
+     * Find a path from @origin to @destination using breadth first search. If
+     * no path is found, either because no path exists or because the origin or
+     * destination are not part of the graph an exception is thrown.
+     *
+     * @param origin
+     * @param destination
+     * @return
+     * @throws nl.rug.dmas.trafficdemo.streetGraph.NoPathException
+     */
+    public ArrayList<Vertex> findBFSPath(Vertex origin, Vertex destination) throws NoPathException {
+        LinkedList<Vertex> queue = new LinkedList<>();
+        HashSet<Vertex> visited = new HashSet<>(this.vertices.size());
+        HashMap<Vertex, Vertex> visitedFrom = new HashMap<>();
+        Vertex currentVertex;
+
+        queue.add(origin);
+        visited.add(origin);
+
+        while (!queue.isEmpty()) {
+            currentVertex = queue.remove();
+            if (visited.contains(destination)) {
+                //We have found our path, convert it to a list of vertices
+                currentVertex = destination;
+                LinkedList<Vertex> path = new LinkedList<>();
+                while (!currentVertex.equals(origin)) {
+                    path.addFirst(currentVertex);
+                    currentVertex = visitedFrom.get(currentVertex);
+                }
+                path.addFirst(origin);
+                return new ArrayList<>(path);
+            } else {
+                //Add all nodes that we haven't tried yet to the queue
+                for (Vertex neighbour : currentVertex.getReachableVertices()) {
+                    queue.add(neighbour);
+                    visited.add(neighbour);
+                    visitedFrom.put(neighbour, currentVertex);
+                }
+            }
+        }
+        throw new NoPathException("No path found.");
+    }
+
+    /**
+     *
+     * @param origin
+     * @param destination
+     * @return
+     */
+    public ArrayList<Vec2> generatePointPath(Vertex origin, Vertex destination) {
+        ArrayList<Vec2> points = new ArrayList<>();
+
+        return points;
+    }
+
+    public ArrayList<Vec2> generatePointPath(ArrayList<Vertex> path) {
+        ArrayList<Vec2> points = new ArrayList<>();
+
+        return points;
     }
 
     @Override
