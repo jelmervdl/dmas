@@ -1,14 +1,41 @@
 %!TEX root = report.tex
-\todo[inline]{Introductie voor introductie}
+\todo[inline, color=green]{Introductie voor introductie}
 
 \subsection{Problem}
 \label{sub:intro:problem}
-\todo[inline]{Beschrijf het probleem}
+\todo[inline, color=green]{Beschrijf het probleem}
 
 \subsection{State of the Art}
 \label{sub:intro:state_of_the_art}
-\todo[inline]{Samenvatting van \textcite{dresner2007sharing}, misschien goed om bij \textcite{dresner2006traffic} te beginnen.}
+
+
+% problem
+\todo[inline, color=green]{Meer geblaat over dat files en botsingen naar zijn en geld kosten.}
+
+% state of the art
+\textcite{dresner2007sharing} do a follow-up of a couple other papers by the same authors, primarily \textcite{dresner2005traffic}, in which they propose a system for autonomous intersection management. They do this using a multi-agent reservation system, consisting of two types of agents: the intersection managers and the driver agents. The intersection managers each manage an intersection, and are responsible for directing the driver agents through their intersection. The driver agents control their vehicles and communicate with intersection managers to get through intersections safely. The intersection managers have an intersection control policy, which they use to determine if the space to pass through requested by a driver agent is free at that time. If so, they confirm the reservation, and if not, they decline. This system was shown to work well and decrease traffic delays. 
+% new idea
+However, they discovered that while the above system works well with all agents in the simulation being autonomous agents, it can not be easily implemented in the real world, because it is currently not the case that all vehicles are autonomous. So they looked into different policies concerning combining autonomous vehicles with human driven vehicles. The difference between the two types was that the autonomous vehicles had the reservation system described above, and the human driven vehicles were following traffic lights also installed in intersection. 
+% results
+It was shown that some of the policies also had decrease of delays in traffic. The largest part of the decrease was seen with a high autonomous vehicle to human ratio. Because humans follow the traffic lights, but autonomous vehicles can use their reservation system, autonomous vehicles encounter less delays than the human drivers. 
+% relevance
+A future with self-driving cars is becoming more realistically believable. Our traffic system should try to use the high-precision abilities autonomous vehicles have to create more efficient, fast, and safe auto transportation.
+
 
 \subsection{New Idea}
 \label{sub:intro:new_idea}
-\todo[inline]{Waarom zijn wij zulke bijzonder unieke sneeuwvlokjes}
+
+In stead of having to alter every intersection and every vehicle, we propose to change nothing and look at whether the presence of autonomous cars by themselves can make a difference in traffic delays and crashes. 
+We model several traffic situations where both self-driving cars and `normal' cars are part of the traffic. We will start with a simple intersection where normal traffic rules apply. As we are further along in the project we will add more complex situations such as traffic lights and stop signals. Furthermore we might also look into different acceleration speeds for the `normal' cars and different drivers such as those proposed by \textcite{paruchuri2002multi}, or cars with (adaptive) cruise control.
+
+We will base our model of autonomous cars on \textcite{jiang2010microscopic}, our human drivers will be based on \textcite{paruchuri2002multi}.
+
+
+
+
+
+
+
+
+
+
