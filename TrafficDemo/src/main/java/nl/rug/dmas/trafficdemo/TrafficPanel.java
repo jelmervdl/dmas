@@ -22,6 +22,8 @@ import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.MathUtils;
 import org.jbox2d.common.Transform;
 import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.Body;
+import org.jbox2d.dynamics.Fixture;
 
 /**
  * Draws cars.
@@ -79,7 +81,7 @@ public class TrafficPanel extends JPanel {
     public void paint(Graphics g) {
         paintComponent(g);
 
-        Graphics2D g2 = (Graphics2D) g;
+        Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
         
@@ -104,9 +106,14 @@ public class TrafficPanel extends JPanel {
             // roads. But there are no roads yet.
             // Then on top of those, we draw our cars.
             drawCars(g2, scenario.cars, center, scale);
+            
+            if (drawFOV)
+                drawFOVs(g2, center, scale);
         } finally {
             scenario.readLock.unlock();
         }
+        
+        g.dispose();
     }
 
     /**
@@ -117,8 +124,10 @@ public class TrafficPanel extends JPanel {
      * @param offset in pixels of 0,0 in world space
      * @param scale to scale world space coordinates to pixels
      */
-    private void drawCars(Graphics2D g2, List<Car> cars, Point offset, float scale) {
+    private void drawCars(Graphics2D g, List<Car> cars, Point offset, float scale) {
         // Draw all wheels
+        Graphics2D g2 = (Graphics2D) g.create();
+        
         g2.setColor(Color.BLACK);
         for (Car car : cars) {
             for (Wheel wheel : car.wheels) {
@@ -159,19 +168,6 @@ public class TrafficPanel extends JPanel {
             }
         }
         
-        // And overlay the vision of the driver
-        if (drawFOV) {
-            for (Car car : cars) {
-                if (car.driver.seesOtherCars())
-                    g2.setColor(Color.BLUE);
-                else
-                    g2.setColor(Color.YELLOW);
-
-                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
-                drawShape(g2, car.visionFixture.getShape(), car.body.getTransform(), offset, scale);
-            }
-        }
-
         // for testing, draw the angle the car tries to achieve
         if (drawDirection) {
             g2.setColor(Color.RED);
@@ -350,5 +346,22 @@ public class TrafficPanel extends JPanel {
                 Math.round(point.y * scale) + offset.y - 2,
                 4, 4);
         }
+    }
+
+    private void drawFOVs(Graphics2D g, Point offset, float scale) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
+        g2.setColor(Color.BLUE);
+
+        for (Body body = scenario.getWorld().getBodyList(); body != null; body = body.getNext()) {
+            for (Fixture fixture = body.getFixtureList(); fixture != null; fixture = fixture.getNext()) {
+                if (fixture.isSensor() && fixture.getUserData() instanceof Observer) {
+                    drawShape(g2, fixture.getShape(), body.getTransform(), offset, scale);
+                }
+            }
+        }
+        
+        g2.dispose();
     }
 }
