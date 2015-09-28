@@ -183,14 +183,14 @@ public class StreetGraph {
      */
     public ArrayList<Vec2> generatePointPath(Vertex origin, Vertex destination) {
         ArrayList<Vec2> points = new ArrayList<>();
-
-        return points;
+        throw new UnsupportedOperationException();
+//        return points;
     }
 
     public ArrayList<Vec2> generatePointPath(ArrayList<Vertex> path) {
         ArrayList<Vec2> points = new ArrayList<>();
-
-        return points;
+        throw new UnsupportedOperationException();
+//        return points;
     }
 
     @Override
