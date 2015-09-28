@@ -16,29 +16,29 @@ This model contains two different hierarchical levels, the Car/Driver level and 
 
 	\later{Check that the low-level parameters are still accurate}
 
-	\baakman{Turn into book tabs table}
-
 	\begin{table}[H]
 		\centering
-		\begin{tabular}{| >{\ttfamily}l | p{10.2cm} |}
-			\hline
-			\normalfont{Parameter}	& Purpose \\ \hline \hline
-			acceleration 			& Indicates if a vehicle has forward, backward, or no acceleration. \\ \hline
-			targetBodyAngle 		& The angle at which the target is located, relative to the body of the vehicle. \\ \hline
-			maxSteerAngleDeg 		& The maximum angle the wheels can turn. \\ \hline
-			power 					& The impulse power of a vehicle. \\ \hline
-			wheelAngleDeg 			& The current angle of the wheel, relative to the body of the vehicle. \\ \hline
-			steeringSpeed 			& The speed with which a vehicle can turn (the turning radius). \\ \hline
-			visionRange 			& The range of the vision of the vehicle. \\ \hline
-			width 					& The width of the vehicle. \\ \hline
-			length 					& The length of a vehicle. \\ \hline
-			% colour 				& The colour of a vehicle \\ \hline
-			driver 					& The driver agent. \\ \hline
-			initialPosition 		& The initial position of the agent at the start of the simulation. \\ \hline
-			% bodyFixture 			& The `fixture' of the bocy of a vehicle, used when viewing other vehicles\\ \hline
-			% visionFixture 		& The `fixture of the vision of the vehicle, describing what a vehicle can see'\\ \hline
-			targetSpeedKMH			& The maximum speed of a vehicle. \\ \hline
-			path					& The path the agent is going to follow. \\ \hline
+		\begin{tabular}{ >{\ttfamily}l  p{10.2cm} }
+			\toprule
+			\normalfont{Parameter}	& Purpose \\ 
+			\midrule
+			acceleration 			& Indicates if a vehicle has forward, backward, or no acceleration. \\ 
+			targetBodyAngle 		& The angle at which the target is located, relative to the body of the vehicle. \\ 
+			maxSteerAngleDeg 		& The maximum angle the wheels can turn. \\ 
+			power 					& The impulse power of a vehicle. \\ 
+			wheelAngleDeg 			& The current angle of the wheel, relative to the body of the vehicle. \\ 
+			steeringSpeed 			& The speed with which a vehicle can turn (the turning radius). \\ 
+			visionRange 			& The range of the vision of the vehicle. \\ 
+			width 					& The width of the vehicle. \\ 
+			length 					& The length of a vehicle. \\ 
+			% colour 				& The colour of a vehicle \\ 
+			driver 					& The driver agent. \\ 
+			initialPosition 		& The initial position of the agent at the start of the simulation. \\ 
+			% bodyFixture 			& The `fixture' of the bocy of a vehicle, used when viewing other vehicles\\ 
+			% visionFixture 		& The `fixture of the vision of the vehicle, describing what a vehicle can see'\\ 
+			targetSpeedKMH			& The maximum speed of a vehicle. \\ 
+			path					& The path the agent is going to follow. \\ 
+			\bottomrule
 		\end{tabular}
 		\caption{Car-owned state parameters}
 		\label{tab:par:method:model:overview:state:lowlevel:car}
@@ -52,11 +52,13 @@ This model contains two different hierarchical levels, the Car/Driver level and 
 	
 	\begin{table}[H]
 		\centering
-		\begin{tabular}{| >{\ttfamily}l | p{10.5cm} |}
-			\hline
-			\normalfont{Parameter}	& Purpose \\ \hline \hline
-			cars 					& A list of the cars in the simulation. \\ \hline
-			streetGraph		 		& A graph representation of the network of streets. \\ \hline
+		\begin{tabular}{ >{\ttfamily}l  p{10.5cm} }
+			\toprule
+			\normalfont{Parameter}	& Purpose \\  
+			\midrule
+			cars 					& A list of the cars in the simulation. \\ 
+			streetGraph		 		& A graph representation of the network of streets. \\ 
+			\bottomrule
 		\end{tabular}
 		\caption{Simulation-owned state parameters}
 		\label{tab:par:method:model:overview:state:highlevel:sim}
