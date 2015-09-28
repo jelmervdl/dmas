@@ -83,6 +83,10 @@ public class Scenario extends Observable {
         return world;
     }
     
+    public StreetGraph getStreetGraph() {
+        return streetGraph;
+    }
+    
     /**
      * Add a car to the simulation. If a car is added during a time step, the
      * addition is queued and the car is added once the time step has completed.

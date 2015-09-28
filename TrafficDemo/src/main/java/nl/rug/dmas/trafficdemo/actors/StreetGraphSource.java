@@ -5,14 +5,21 @@
  */
 package nl.rug.dmas.trafficdemo.actors;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import nl.rug.dmas.trafficdemo.Actor;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.Driver;
 import nl.rug.dmas.trafficdemo.Observer;
 import nl.rug.dmas.trafficdemo.Scenario;
+import nl.rug.dmas.trafficdemo.streetGraph.NoPathException;
 import nl.rug.dmas.trafficdemo.streetGraph.Vertex;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.Shape;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
@@ -55,17 +62,43 @@ public class StreetGraphSource implements Actor, Observer {
         return shape;
     }
     
-    protected Car getMeACar() {
-        return new Car(new Driver(scenario), 2, 4, vertex.getLocation());
+    protected Driver getMeADriver() throws NoPathException {
+        List<Vertex> destinations = scenario.getStreetGraph().getSinks();
+        Collections.shuffle(destinations);
+        
+        Iterator<Vertex> destIter = destinations.iterator();
+        List<Vec2> path = null;
+        
+        while (path == null && destIter.hasNext()) {
+            try {
+                path = scenario.getStreetGraph().generatePointPath(vertex, destIter.next());
+            } catch (NoPathException e) {
+                // Try the next one
+            }
+        }
+        
+        if (path == null)
+            throw new NoPathException();
+        
+        return new Driver(scenario, path);
+    }
+    
+    protected Car getMeACar(Driver driver) {
+        return new Car(driver, 2, 4, vertex.getLocation());
     }
 
     @Override
     public void act() {
         if (fixturesInSight == 0) {
-            long currentTime = System.currentTimeMillis();
-            if (currentTime - timeOfLastSpawn > timeoutInMS) {
-                scenario.add(getMeACar());
-                timeOfLastSpawn = currentTime;
+            try {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - timeOfLastSpawn > timeoutInMS) {
+                    Driver driver = getMeADriver();
+                    scenario.add(getMeACar(driver));
+                    timeOfLastSpawn = currentTime;
+                }
+            } catch (NoPathException e) {
+                System.err.println("Cannot spawn car because there is no destination that can be reached");
             }
         }
     }

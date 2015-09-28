@@ -27,10 +27,18 @@ public class Driver implements Actor, Observer {
     // A set of all fixtures in the 
     final private Set<Fixture> fixturesInSight = new HashSet<>();
     
+    final private List<Vec2> path;
+    
     private int pathIndex = 0;
     
     public Driver(Scenario scenario) {
         this.scenario = scenario;
+        this.path = (CopyOnWriteArrayList<Vec2>) scenario.commonKnowledge.get("path");
+    }
+    
+    public Driver(Scenario scenario, List<Vec2> path) {
+        this.scenario = scenario;
+        this.path = path;
     }
     
     /**
@@ -126,8 +134,6 @@ public class Driver implements Actor, Observer {
     }
     
     private Vec2 steerTowardsPath() {
-        CopyOnWriteArrayList<Vec2> path = (CopyOnWriteArrayList<Vec2>) scenario.commonKnowledge.get("path");
-        
         if (path != null) {
             while (pathIndex < path.size()) {
                 Vec2 directionToNextPoint = car.body.getLocalPoint(path.get(pathIndex));
@@ -139,7 +145,7 @@ public class Driver implements Actor, Observer {
                 }
             }
         }
-            
+        
         return new Vec2(0, 0);
     }
     
