@@ -1,23 +1,21 @@
 %!TEX root = report.tex
-\baakman{Introductie voor introductie}
-
-\subsection{Problem}
-\label{sub:intro:problem}
-\baakman{Beschrijf het probleem}
+Drivers in California already have to share their roads with a few of the self-driving cars that are being tested there. It will not be long before autonomous cars are ubiquitous. One might wonder how these changes in traffic influence the flow of traffic. A lot of research has been done on how one might regulate traffic differently given that most or all of the cars are autonomous. However this research generally proposes changes in infrastructure, and then models the influence of changing the ratio of autonomous cars versus human drivers. This paper focusses on the question of how adding autonomous cars to `normal traffic' without changing the infrastructure influences the flow of traffic. Before discussing our model and our results we first introduce the current state of the art in \cref{sub:intro:state_of_the_art} and further expand the contribution of this paper in \cref{sub:intro:new_idea}.
 
 \subsection{State of the Art}
 \label{sub:intro:state_of_the_art}
-
 
 % problem
 \baakman{Meer geblaat over dat files en botsingen naar zijn en geld kosten.}
 
 % state of the art
 \textcite{dresner2007sharing} do a follow-up of a couple other papers by the same authors, primarily \textcite{dresner2005traffic}, in which they propose a system for autonomous intersection management. They do this using a multi-agent reservation system, consisting of two types of agents: the intersection managers and the driver agents. The intersection managers each manage an intersection, and are responsible for directing the driver agents through their intersection. The driver agents control their vehicles and communicate with intersection managers to get through intersections safely. The intersection managers have an intersection control policy, which they use to determine if the space to pass through requested by a driver agent is free at that time. If so, they confirm the reservation, and if not, they decline. This system was shown to work well and decrease traffic delays. 
+
 % new idea
 However, they discovered that while the above system works well with all agents in the simulation being autonomous agents, it can not be easily implemented in the real world, because it is currently not the case that all vehicles are autonomous. So they looked into different policies concerning combining autonomous vehicles with human driven vehicles. The difference between the two types was that the autonomous vehicles had the reservation system described above, and the human driven vehicles were following traffic lights also installed in intersection. 
+
 % results
 It was shown that some of the policies also had decrease of delays in traffic. The largest part of the decrease was seen with a high autonomous vehicle to human ratio. Because humans follow the traffic lights, but autonomous vehicles can use their reservation system, autonomous vehicles encounter less delays than the human drivers. 
+
 % relevance
 A future with self-driving cars is becoming more realistically believable. Our traffic system should try to use the high-precision abilities autonomous vehicles have to create more efficient, fast, and safe auto transportation.
 
