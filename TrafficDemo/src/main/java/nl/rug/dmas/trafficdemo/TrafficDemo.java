@@ -11,8 +11,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import nl.rug.dmas.trafficdemo.streetGraph.GraphReader;
-import nl.rug.dmas.trafficdemo.streetGraph.StreetGraph;
+import nl.rug.dmas.trafficdemo.streetgraph.GraphReader;
+import nl.rug.dmas.trafficdemo.streetgraph.StreetGraph;
 import org.jbox2d.common.Vec2;
 
 /**

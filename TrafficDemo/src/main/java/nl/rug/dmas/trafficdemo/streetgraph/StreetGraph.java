@@ -1,4 +1,4 @@
-package nl.rug.dmas.trafficdemo.streetGraph;
+package nl.rug.dmas.trafficdemo.streetgraph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -152,7 +152,7 @@ public class StreetGraph {
      * @param origin
      * @param destination
      * @return
-     * @throws nl.rug.dmas.trafficdemo.streetGraph.NoPathException
+     * @throws nl.rug.dmas.trafficdemo.streetgraph.NoPathException
      */
     public LinkedList<Vertex> findBFSPath(Vertex origin, Vertex destination) throws NoPathException {
         LinkedList<Vertex> queue = new LinkedList<>();
@@ -198,7 +198,7 @@ public class StreetGraph {
      * @param origin
      * @param destination
      * @return
-     * @throws nl.rug.dmas.trafficdemo.streetGraph.NoPathException
+     * @throws nl.rug.dmas.trafficdemo.streetgraph.NoPathException
      */
     public ArrayList<Vec2> generatePointPath(Vertex origin, Vertex destination) throws NoPathException {
         LinkedList<Vertex> path = this.findBFSPath(origin, destination);

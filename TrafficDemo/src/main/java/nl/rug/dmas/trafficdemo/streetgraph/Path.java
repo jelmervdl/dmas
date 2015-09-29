@@ -1,4 +1,4 @@
-package nl.rug.dmas.trafficdemo.streetGraph;
+package nl.rug.dmas.trafficdemo.streetgraph;
 
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
@@ -9,7 +9,7 @@ import java.util.NoSuchElementException;
  */
 public class Path {
 
-    private LinkedList<Edge> path;
+    final private LinkedList<Edge> path;
 
     /**
      *

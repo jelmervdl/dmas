@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.rug.dmas.trafficdemo.streetGraph;
+package nl.rug.dmas.trafficdemo.streetgraph;
 
 import java.util.ArrayList;
 import java.util.Collection;

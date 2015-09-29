@@ -1,4 +1,4 @@
-package nl.rug.dmas.trafficdemo.streetGraph;
+package nl.rug.dmas.trafficdemo.streetgraph;
 
 /**
  * Class to represent an edge in a flow network using the adjacency list ADT.
