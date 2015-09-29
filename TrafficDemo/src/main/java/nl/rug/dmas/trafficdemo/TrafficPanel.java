@@ -421,18 +421,22 @@ public class TrafficPanel extends JPanel {
         
         PointPath points = StreetGraph.generatePointPath(path);
         
-        Stroke roadStroke = new BasicStroke(3 * scale, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
-        g2.setStroke(roadStroke); 
-        g2.setColor(Color.LIGHT_GRAY);
-        
-        drawLine(g2, points.iterator(), offset, scale);
-        
-        Stroke roadSideStroke = new BasicStroke(0.1f * scale);
+        // First draw the road side
+        Stroke roadSideStroke = new BasicStroke(0.3f * scale);
         g2.setStroke(roadSideStroke);
         g2.setColor(Color.DARK_GRAY);
         
+        // Both left and right side
         drawLine(g2, points.translate(1.5f).iterator(), offset, scale);        
         drawLine(g2, points.translate(-1.5f).iterator(), offset, scale);
+        
+        // Then draw the road itself so it overlays all the road side drawing
+        // glitches which occur at the intersections
+        Stroke roadStroke = new BasicStroke(3 * scale, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+        g2.setStroke(roadStroke);
+        g2.setColor(Color.LIGHT_GRAY);
+        
+        drawLine(g2, points.iterator(), offset, scale);
         
         g2.dispose();
     }
