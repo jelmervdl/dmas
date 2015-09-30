@@ -10,5 +10,15 @@ package nl.rug.dmas.trafficdemo;
  * @author jelmer
  */
 public interface Actor {
+    
+    /**
+     * Determines how often the actor gets a chance to act
+     * @return The time between act calls in milliseconds
+     */
+    public int getActPeriod();
+    
+    /**
+     * If it is time for the actor to act, then that should happen here.
+     */
     public void act();
 }

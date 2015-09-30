@@ -48,6 +48,11 @@ public class StreetGraphSink implements Actor, Observer {
         body.createFixture(fovDef);
     }
     
+    @Override
+    public int getActPeriod() {
+        return 0;
+    }
+    
     private Shape getFOVShape() {
         Shape shape = new CircleShape();
         shape.setRadius(4);

@@ -24,6 +24,11 @@ public class TestDriver extends Driver {
         setSteerDirection(steerTowardsMouse());
     }
     
+    @Override
+    public int getActPeriod() {
+        return 0;
+    }
+    
     /**
      * Behaviour that determines the direction towards the mouse. The mouse
      * location is written to the scenario's common knowledge table every update

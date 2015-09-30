@@ -16,7 +16,6 @@ import nl.rug.dmas.trafficdemo.actors.AutonomousDriver;
 import nl.rug.dmas.trafficdemo.actors.Driver;
 import nl.rug.dmas.trafficdemo.actors.StreetGraphSink;
 import nl.rug.dmas.trafficdemo.actors.StreetGraphSource;
-import nl.rug.dmas.trafficdemo.actors.TestDriver;
 import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
 import nl.rug.dmas.trafficdemo.streetgraph.StreetGraph;
 import nl.rug.dmas.trafficdemo.streetgraph.Vertex;
@@ -40,7 +39,7 @@ public class Scenario extends Observable {
     
     // A list of actors, agents or objects that can act, such as drivers
     // and spawn points.
-    final ArrayList<Actor> actors = new ArrayList<>();
+    final Map<Actor, Long> actors = new HashMap<>();
     
     // A map of locations known to all agents (such as the mouse ;) )
     Map<String, Object> commonKnowledge = new HashMap<>();
@@ -71,10 +70,10 @@ public class Scenario extends Observable {
 
         // Add actors for the spawn points and sinks of the street graph
         for (Vertex source : streetGraph.getSources())
-            actors.add(new StreetGraphSource(this, source, 3000));
+            actors.put(new StreetGraphSource(this, source, 3000), 0l);
         
         for (Vertex sink : streetGraph.getSinks())
-            actors.add(new StreetGraphSink(this, sink));
+            actors.put(new StreetGraphSink(this, sink), 0l);
         
         // Keep a contact listener that monitors whether cars are in sight of
         // drivers.
@@ -137,7 +136,7 @@ public class Scenario extends Observable {
     private void addCarUnsafe(Car car) {
         car.initialize(world);
         cars.add(car);
-        actors.add(car.driver);
+        actors.put(car.driver, 0l);
     }
     
     /**
@@ -224,7 +223,7 @@ public class Scenario extends Observable {
                 while (!Thread.interrupted()) {
                     long startTimeMS = System.currentTimeMillis();
 
-                    step(stepTime);
+                    step(startTimeMS, stepTime);
 
                     long finishTimeMS = System.currentTimeMillis();
                     long sleepTimeMS = (long) (stepTime * 1000) - (finishTimeMS - startTimeMS);
@@ -241,12 +240,16 @@ public class Scenario extends Observable {
         * Steps the simulation of dt seconds. This locks the simulation.
         * @param dt delta time in seconds
         */
-        private void step(float dt) {
+        private void step(long t, float dt) {
             // For running the simulation we only need a read lock
             readLock.lock();
             try {
-                for (Actor actor : actors)
-                    actor.act();
+                for (Map.Entry<Actor,Long> entry : actors.entrySet()) {
+                    if (entry.getValue() + entry.getKey().getActPeriod() < t) {
+                        entry.getKey().act();
+                        entry.setValue(t);
+                    }
+                }
 
                 for (Car car : cars)
                     car.update(dt);
@@ -279,7 +282,7 @@ public class Scenario extends Observable {
             finally {
                 writeLock.unlock();
             }
-
+            
             setChanged();
             notifyObservers();
         }

@@ -34,6 +34,11 @@ public class AutonomousDriver extends Driver {
     }
     
     @Override
+    public int getActPeriod() {
+        return 100;
+    }
+    
+    @Override
     public Shape getFOVShape() {
         Shape shape = new CircleShape();
         shape.setRadius(12);
