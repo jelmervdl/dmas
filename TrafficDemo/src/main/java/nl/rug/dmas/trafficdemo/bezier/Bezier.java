@@ -43,7 +43,7 @@ public abstract class Bezier {
      * the Bezier curve, i.e. the quadratic Bezier curve has one control point.
      * @return A point on the Bezier curve a t
      */
-    protected abstract Vec2 interpolate(float t, Vec2... controlPoints);
+    public abstract Vec2 interpolate(float t, Vec2... controlPoints);
 
     /**
      * Compute a list of resolution points representing the Bezier curve from
