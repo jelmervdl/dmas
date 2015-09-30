@@ -200,7 +200,7 @@ public class StreetGraph {
      * @return
      * @throws nl.rug.dmas.trafficdemo.streetgraph.NoPathException
      */
-    public ArrayList<Vec2> generatePointPath(Vertex origin, Vertex destination) throws NoPathException {
+    public PointPath generatePointPath(Vertex origin, Vertex destination) throws NoPathException {
         LinkedList<Vertex> path = this.findBFSPath(origin, destination);
         return generatePointPath(path);
     }

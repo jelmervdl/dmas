@@ -5,16 +5,15 @@
  */
 package nl.rug.dmas.trafficdemo.actors;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import nl.rug.dmas.trafficdemo.Actor;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.Observer;
 import nl.rug.dmas.trafficdemo.Scenario;
 import nl.rug.dmas.trafficdemo.streetgraph.NoPathException;
+import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
 import nl.rug.dmas.trafficdemo.streetgraph.Vertex;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.Shape;
@@ -66,7 +65,7 @@ public class StreetGraphSource implements Actor, Observer {
         Collections.shuffle(destinations);
         
         Iterator<Vertex> destIter = destinations.iterator();
-        List<Vec2> path = null;
+        PointPath path = null;
         
         while (path == null && destIter.hasNext()) {
             try {
@@ -79,7 +78,7 @@ public class StreetGraphSource implements Actor, Observer {
         if (path == null)
             throw new NoPathException();
         
-        return new Driver(scenario, path);
+        return scenario.createDriver(path);
     }
     
     protected Car getMeACar(Driver driver) {

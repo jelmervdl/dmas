@@ -56,13 +56,13 @@ public class TrafficWindow extends JFrame {
         panel.addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                CopyOnWriteArrayList<Vec2> path = (CopyOnWriteArrayList<Vec2>) TrafficWindow.this.scenario.commonKnowledge.get("path");
+                CopyOnWriteArrayList<Vec2> path = (CopyOnWriteArrayList<Vec2>) TrafficWindow.this.scenario.getCommonKnowledge().get("path");
                 path.add(panel.getMouseWorldLocation());
             }
             
             @Override
             public void mouseMoved(MouseEvent e) {
-                TrafficWindow.this.scenario.commonKnowledge.put("mouse", panel.getMouseWorldLocation());
+                TrafficWindow.this.scenario.getCommonKnowledge().put("mouse", panel.getMouseWorldLocation());
             }
         });
         
@@ -160,6 +160,6 @@ public class TrafficWindow extends JFrame {
     }
     
     private Car generateCar() {
-        return new Car(new Driver(scenario), 2, 4, RandomUtil.nextRandomVec(-10, 10, -10, 10));
+        return new Car(scenario.createDriver(), 2, 4, RandomUtil.nextRandomVec(-10, 10, -10, 10));
     }
 }

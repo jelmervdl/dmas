@@ -11,8 +11,12 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import nl.rug.dmas.trafficdemo.actors.AutonomousDriver;
+import nl.rug.dmas.trafficdemo.actors.Driver;
 import nl.rug.dmas.trafficdemo.actors.StreetGraphSink;
 import nl.rug.dmas.trafficdemo.actors.StreetGraphSource;
+import nl.rug.dmas.trafficdemo.actors.TestDriver;
+import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
 import nl.rug.dmas.trafficdemo.streetgraph.StreetGraph;
 import nl.rug.dmas.trafficdemo.streetgraph.Vertex;
 import org.jbox2d.callbacks.ContactImpulse;
@@ -89,6 +93,14 @@ public class Scenario extends Observable {
     
     public Map<String, Object> getCommonKnowledge() {
         return commonKnowledge;
+    }
+    
+    public Driver createDriver() {
+        return new TestDriver(this);
+    }
+    
+    public Driver createDriver(PointPath path) {
+        return new AutonomousDriver(this, path);
     }
     
     /**

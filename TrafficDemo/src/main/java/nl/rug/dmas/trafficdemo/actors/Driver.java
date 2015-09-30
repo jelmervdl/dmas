@@ -24,26 +24,20 @@ import org.jbox2d.dynamics.Fixture;
  *
  * @author jelmer
  */
-public class Driver implements Actor, Observer {
-    Scenario scenario;
+abstract public class Driver implements Actor, Observer {
+    final protected Scenario scenario;
     
-    Car car;
+    protected Car car;
     
     // A set of all fixtures in the 
-    final private Set<Fixture> fixturesInSight = new HashSet<>();
+    final protected Set<Fixture> fixturesInSight = new HashSet<>();
     
-    final private List<Vec2> path;
-    
-    private int pathIndex = 0;
-    
+    /**
+     * Create a blank driver in a scenario.
+     * @param scenario scenario in which the driver is driving.
+     */
     public Driver(Scenario scenario) {
         this.scenario = scenario;
-        this.path = (CopyOnWriteArrayList<Vec2>) scenario.getCommonKnowledge().get("path");
-    }
-    
-    public Driver(Scenario scenario, List<Vec2> path) {
-        this.scenario = scenario;
-        this.path = path;
     }
     
     /**
@@ -75,28 +69,11 @@ public class Driver implements Actor, Observer {
     }
     
     /**
-     * Update the steering direction of the car we drive
-     */
-    @Override
-    public void act()
-    {
-       Vec2 direction = new Vec2();
-       
-       direction.addLocal(steerToAvoidCars().mul(0.8f));
-       
-       //direction.addLocal(steerTowardsMouse().mul(0.2f));
-       
-       direction.addLocal(steerTowardsPath().mul(0.2f));
-       
-       setSteerDirection(direction);
-    }
-    
-    /**
      * Set the speed and steering direction. This implementation right now uses
      * a vector with a length and an angle to determine the speed and direction.
      * @param direction vector from the current location to the goal location
      */
-    private void setSteerDirection(Vec2 direction) {
+    protected void setSteerDirection(Vec2 direction) {
         car.setSteeringDirection(direction.mul(-1f));
         
         car.setSpeedKMH(direction.length() * 5);
@@ -108,58 +85,11 @@ public class Driver implements Actor, Observer {
     }
     
     /**
-     * Behavior that determines the optimal direction to avoid other cars
-     * @return a vector direction
-     */
-    private Vec2 steerToAvoidCars() {
-        Vec2 direction = new Vec2(0, 0);
-        
-        for (Car other : getCarsInSight()) {
-            Vec2 directionTowardsCar = car.getLocalPoint(other.getPosition());
-            
-            if (directionTowardsCar.length() < 5f) {
-                // todo: Right now, cars that are far away have more impact on
-                // the direction sum than cars close by. Maybe that should be
-                // turned around.
-                direction.addLocal(directionTowardsCar.negate());
-            }
-        }
-        
-        return direction;
-    }
-    
-    /**
-     * Behavior that determines the direction towards the mouse. The mouse
-     * location is written to the scenario's common knowledge table every update
-     * @return a vector direction (with length!)
-     */
-    private Vec2 steerTowardsMouse() {
-        Vec2 worldMouse = (Vec2) scenario.getCommonKnowledge().get("mouse");
-        return car.getLocalPoint(worldMouse);
-    }
-    
-    private Vec2 steerTowardsPath() {
-        if (path != null) {
-            while (pathIndex < path.size()) {
-                Vec2 directionToNextPoint = car.getLocalPoint(path.get(pathIndex));
-
-                if (directionToNextPoint.length() > 3.0f) {
-                    return directionToNextPoint;
-                } else {
-                    pathIndex += 1;
-                }
-            }
-        }
-        
-        return new Vec2(0, 0);
-    }
-    
-    /**
      * Filters the list of fixtures in sight and only returns actual cars that
      * are not my own car.
      * @return a list of cars inside the FOV.
      */
-    private List<Car> getCarsInSight() {
+    protected List<Car> getCarsInSight() {
         ArrayList<Car> cars = new ArrayList<>();
         for (Fixture fixture : fixturesInSight)
             if (!fixture.isSensor()
@@ -168,14 +98,5 @@ public class Driver implements Actor, Observer {
                 cars.add((Car) fixture.getUserData());
         
         return cars;
-    }
-    
-    /**
-     * Utility function that returns true if this cars sees other cars. Used by
-     * TrafficPanel to change the color of the FOV (if turned on).
-     * @return whether this car has other cars in its FOV.
-     */
-    public boolean seesOtherCars() {
-        return !getCarsInSight().isEmpty();
     }
 }
