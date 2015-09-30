@@ -106,12 +106,15 @@ public class TrafficPanel extends JPanel {
         // Todo: draw this once and store it in a buffer that we can blit,
         // because it doesn't change that often
         if (scenario.streetGraph != null) {
-            for (Edge edge : scenario.streetGraph.getEdges()) {
-                g2.setColor(Color.BLACK);
-                //drawEdge(g2, edge, center, scale);
+            // First draw the actual road
+            for (Edge edge : scenario.streetGraph.getEdges())
                 drawRoad(g2, edge, center, scale);
-            }
             
+            // Then draw the graph as an overlay
+            g2.setColor(Color.BLACK);
+            for (Edge edge : scenario.streetGraph.getEdges())
+                drawEdge(g2, edge, center, scale);
+                
             for (Vertex vertex : scenario.streetGraph.getVertices()) {
                 if (scenario.streetGraph.isSink(vertex))
                     g2.setColor(Color.RED);
@@ -387,6 +390,13 @@ public class TrafficPanel extends JPanel {
             Math.round(point.y * scale) + offset.y - radius,
             radius * 2, radius * 2
         );
+        
+        Color background = g2.getColor();
+        g2.setColor(Color.WHITE);
+        g2.drawString(Integer.toString(vertex.getVertexListIndex()),
+            Math.round(point.x * scale) + offset.x,
+            Math.round(point.y * scale) + offset.y);
+        g2.setColor(background);
     }
 
     private void drawEdge(Graphics2D g2, Edge edge, Point offset, float scale) {

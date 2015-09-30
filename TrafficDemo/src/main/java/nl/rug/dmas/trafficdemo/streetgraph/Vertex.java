@@ -73,7 +73,7 @@ public class Vertex {
      *
      * @return the value of vertexListIndex
      */
-    protected int getVertexListIndex() {
+    public int getVertexListIndex() {
         return vertexListIndex;
     }
 
