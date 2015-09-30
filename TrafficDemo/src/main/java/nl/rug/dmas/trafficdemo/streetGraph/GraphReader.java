@@ -139,7 +139,7 @@ public class GraphReader {
         StreetGraph graaf = GraphReader.read(inputFile);
         try {
             LinkedList<Vertex> path = graaf.findBFSPath(graaf.getSources().get(0), graaf.getSinks().get(0));
-            graaf.generatePointPath(path);
+            graaf.generatePointPath(path, 3);
         } catch (NoPathException ex) {
             System.err.println(ex);
         }
