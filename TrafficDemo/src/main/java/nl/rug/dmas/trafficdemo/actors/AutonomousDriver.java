@@ -60,6 +60,8 @@ public class AutonomousDriver extends Driver {
     }
     
     private float speedAdjustmentToAvoidCars() {
+        Intersection mostImportant = null;
+        
         for (Car other : getCarsInSight()) {
             // If that car is driving towards me, well, shit!
             
@@ -69,26 +71,26 @@ public class AutonomousDriver extends Driver {
             if (intersection == null)
                 continue;
             
-            // Time until I reach the intersection minus the time the other
-            // reaches the intersection
-            float d = intersection.u - intersection.v;
-            
-            // If there is enough time to pass safely, ignore this car
-            // Todo: determine 3 using the length of our and the other car and
-            // their speed. Hard math ahead?
-            if (Math.abs(d) > 3)
-                continue;
-            
-            // d < 0: I'm there first, we should speed up a bit maybe?
-            if (d < 0)
-                return d;
-            
-            // d > 0: other is there first, we should brake?
-            if (d > 0)
-                return d;
+            if (mostImportant == null || Math.abs(mostImportant.u - mostImportant.v) > Math.abs(intersection.u - intersection.v))
+                mostImportant = intersection;
         }
+         
+        if (mostImportant == null)
+            return 0;
         
-        return 0;
+        // Time until I reach the intersection minus the time the other
+        // reaches the intersection
+        float d = mostImportant.u - mostImportant.v;
+
+        // If there is enough time to pass safely, ignore this car
+        // Todo: determine 3 using the length of our and the other car and
+        // their speed. Hard math ahead?
+        if (Math.abs(d) > 4)
+            return 0;
+        
+        // d < 0: I'm there first, we should speed up a bit maybe?
+        // d > 0: other is there first, we should brake?
+        return d;
     }
     
     static private class Intersection
