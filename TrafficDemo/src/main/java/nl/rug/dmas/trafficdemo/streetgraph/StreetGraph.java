@@ -23,7 +23,7 @@ public class StreetGraph {
     private final ArrayList<Edge> edges;
     private final HashMap<Integer, Vertex> sources;
     private final HashMap<Integer, Vertex> sinks;
-    private static int resolution = 3;
+    private static int resolution = 50;
 
     /**
      * A graph representing streets, vertices represent intersections, edges
@@ -220,16 +220,15 @@ public class StreetGraph {
         PointPath segmentPoints;
         //TODO: Dubbele punten vermijden
         while (!origin.equals(pathDestination)) {
-            if (pathHasCurve(origin, intermediate, destination)) {
-                segmentPoints = generatePointCurve(origin, intermediate, destination);
-                origin = destination;
-                intermediate = path.poll().getLocation();
-                destination = path.poll().getLocation();
-            } else {
-                //Drive a straight line
+            if (pathIsStraight(origin, intermediate, destination)) {
                 segmentPoints = generatePointLineSegment(origin, intermediate);
                 origin = intermediate;
                 intermediate = destination;
+                destination = path.poll().getLocation();
+            } else {
+                segmentPoints = generatePointCurve(origin, intermediate, destination);
+                origin = destination;
+                intermediate = path.poll().getLocation();
                 destination = path.poll().getLocation();
             }
             points.addAll(segmentPoints);
@@ -237,23 +236,25 @@ public class StreetGraph {
         return points;
     }
 
-    private static boolean pathHasCurve(Vec2 origin, Vec2 intermediate, Vec2 destination) {
-        return destination != null && Vec2.dot(origin.sub(intermediate), intermediate.sub(destination)) != 0;
+    private static boolean pathIsStraight(Vec2 origin, Vec2 intermediate, Vec2 destination) {
+        //TODO If the lines are parallel their cross product is zero, since three points can't define two parallel lines the three points must lie on one line.
+        Vec2 originIntermediate = intermediate.sub(origin);
+        Vec2 intermediateDestination = destination.sub(intermediate);
+        double cross = Vec2.cross(originIntermediate, intermediateDestination);
+        return cross == 0;
     }
 
     private static PointPath generatePointCurve(Vec2 origin, Vec2 intermediate, Vec2 destination) {
         float turningRadius = 7.0f;
         Vec2 controlPoint = intermediate.add(new Vec2(turningRadius, turningRadius));
-        PointPath temp = new PointPath(new QuadraticBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution, controlPoint));
-        return temp;
+        return new PointPath(new QuadraticBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution, controlPoint));
     }
 
     public static PointPath generatePointLineSegment(Vec2 origin, Vec2 destination) throws NoPathException {
         if (origin == null || destination == null) {
             throw new NoPathException("Need at least to locations to draw a path.");
         }
-        PointPath temp = new PointPath(new LinearBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution));
-        return temp;
+        return new PointPath(new LinearBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution));
     }
 
     public static PointPath generatePointLineSegment(Edge edge) throws NoPathException {
