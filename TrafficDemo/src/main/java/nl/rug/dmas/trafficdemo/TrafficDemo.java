@@ -4,6 +4,8 @@
  */
 package nl.rug.dmas.trafficdemo;
 
+import java.awt.FileDialog;
+import java.awt.Frame;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -12,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.prefs.Preferences;
-import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import nl.rug.dmas.trafficdemo.streetgraph.GraphReader;
@@ -50,14 +51,14 @@ public class TrafficDemo {
     }
     
     static public void openFile() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setSelectedFile(getLastOpenedFile());
-
-        switch (fileChooser.showOpenDialog(null)) {
-            case JFileChooser.APPROVE_OPTION:
-                prefs.put("lastOpenedFile", fileChooser.getSelectedFile().getPath());
-                runFile(fileChooser.getSelectedFile());
-                break;
+        FileDialog fileChooser = new FileDialog((Frame) null, "Open a graph…", FileDialog.LOAD);
+        File lastOpenedFile = getLastOpenedFile();
+        if (lastOpenedFile != null)
+            fileChooser.setDirectory(lastOpenedFile.getParent());
+        fileChooser.setVisible(true);
+        for (File file : fileChooser.getFiles()) {
+            prefs.put("lastOpenedFile", file.getPath());
+            runFile(file);
         }
     }
     
