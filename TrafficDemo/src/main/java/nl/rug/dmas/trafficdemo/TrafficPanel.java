@@ -19,8 +19,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JPanel;
 import nl.rug.dmas.trafficdemo.streetgraph.Edge;
+import nl.rug.dmas.trafficdemo.streetgraph.NoPathException;
 import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
 import nl.rug.dmas.trafficdemo.streetgraph.StreetGraph;
 import nl.rug.dmas.trafficdemo.streetgraph.Vertex;
@@ -434,26 +437,32 @@ public class TrafficPanel extends JPanel {
         path.add(edge.getOrigin());
         path.add(edge.getDestination());
 
-        PointPath points = StreetGraph.generatePointPath(path);
+        //Todo er is een methode StreetGraph.generatePointLineSegment die een edge accepteert
+        //Todo catch errors enzo
+        PointPath points;
+        try {
+            points = StreetGraph.generatePointPath(path);
+            // First draw the road side
+            Stroke roadSideStroke = new BasicStroke(0.3f * scale);
+            g2.setStroke(roadSideStroke);
+            g2.setColor(Color.DARK_GRAY);
 
-        // First draw the road side
-        Stroke roadSideStroke = new BasicStroke(0.3f * scale);
-        g2.setStroke(roadSideStroke);
-        g2.setColor(Color.DARK_GRAY);
+            // Both left and right side
+            drawLine(g2, points.translate(1.5f).iterator(), offset, scale);
+            drawLine(g2, points.translate(-1.5f).iterator(), offset, scale);
 
-        // Both left and right side
-        drawLine(g2, points.translate(1.5f).iterator(), offset, scale);
-        drawLine(g2, points.translate(-1.5f).iterator(), offset, scale);
+            // Then draw the road itself so it overlays all the road side drawing
+            // glitches which occur at the intersections
+            Stroke roadStroke = new BasicStroke(3 * scale, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+            g2.setStroke(roadStroke);
+            g2.setColor(Color.LIGHT_GRAY);
 
-        // Then draw the road itself so it overlays all the road side drawing
-        // glitches which occur at the intersections
-        Stroke roadStroke = new BasicStroke(3 * scale, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
-        g2.setStroke(roadStroke);
-        g2.setColor(Color.LIGHT_GRAY);
-
-        drawLine(g2, points.iterator(), offset, scale);
-
-        g2.dispose();
+            drawLine(g2, points.iterator(), offset, scale);
+        } catch (NoPathException ex) {
+            Logger.getLogger(TrafficPanel.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            g2.dispose();
+        }
     }
 
     private void drawLine(Graphics2D g2, Iterator<Vec2> pointIter, Point offset, float scale) {
