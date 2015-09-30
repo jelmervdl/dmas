@@ -16,15 +16,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.prefs.Preferences;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -91,6 +89,24 @@ public class TrafficWindow extends JFrame {
     private void initMenuBar() {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
+        
+        JMenu fileMenu = new JMenu("File");
+        menuBar.add(fileMenu);
+        
+        final JMenuItem openScenario = new JMenuItem("Open…");
+        fileMenu.add(openScenario);
+        openScenario.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        openScenario.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                switch (fileChooser.showOpenDialog(TrafficWindow.this)) {
+                    case JFileChooser.APPROVE_OPTION:
+                        TrafficDemo.runFile(fileChooser.getSelectedFile());
+                        break;
+                }
+            }
+        });
         
         JMenu simulationMenu = new JMenu("Simulation");
         menuBar.add(simulationMenu);

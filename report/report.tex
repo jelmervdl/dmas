@@ -14,8 +14,14 @@
 \DeclareCaptionLabelFormat{opening}{(#2)}
 \captionsetup{subrefformat=opening}
 
+% Units
+\usepackage{siunitx}
+
 % Tables
 \usepackage{booktabs}
+\usepackage{tabularx}
+% \usepackage{array} %ttfamily in table column
+
 
 % References within paper
 \usepackage{varioref}
@@ -42,7 +48,7 @@
 \newcommand{\baakman}[1]{\todo[inline, color=green]{\textbf{Baakman:} #1}}
 \newcommand{\vdbraak}[1]{\todo[inline, color=cyan]{\textbf{Van de Braak:} #1}}
 
-\title{\algemeen{Bedenk een titel.}}
+\title{Simulating Autonomous and Human-Driven Vehicles in Traffic Intersections}
 \author{
 	Laura van de Braak (s2165341)\and
     Jelmer van der Linde (s1772791)\and
@@ -65,16 +71,23 @@
 
 \input{abstract}
 
+\algemeen{Ik mis nog dingen over wat de auto's precies doen in het model, dus dat ze op punt x aangemaakt worden, dan een random destination toegwezen krijgen, en hoe het pad naar de destination gevonden wordt. Weet ook niet zo goed waar we dat zouden moeten plaatsen.}
+\algemeen{Bart had het heel erg over een voorspelling van resultaten, die moet ook nog ergens erin, denk in de inleiding, ofzo.}
+
 \section{Introduction}
+\label{sec:introduction}
 \input{intro.tex}
 
 \section{Method}
+\label{sec:method}
 \input{method.tex}
 
 \section{Results}
+\label{sec:results}
 \input{results.tex}
 
 \section{Conclusion}
+\label{sec:conclusion}
 \input{conclusion.tex}
 
 \printbibliography

@@ -1,4 +1,4 @@
-package nl.rug.dmas.trafficdemo.streetGraph;
+package nl.rug.dmas.trafficdemo.streetgraph;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.bezier.LinearBezier;
 import nl.rug.dmas.trafficdemo.bezier.QuadraticBezier;
 import org.jbox2d.common.Vec2;
@@ -154,7 +153,7 @@ public class StreetGraph {
      * @param origin
      * @param destination
      * @return
-     * @throws nl.rug.dmas.trafficdemo.streetGraph.NoPathException
+     * @throws nl.rug.dmas.trafficdemo.streetgraph.NoPathException
      */
     public LinkedList<Vertex> findBFSPath(Vertex origin, Vertex destination) throws NoPathException {
         LinkedList<Vertex> queue = new LinkedList<>();
@@ -195,54 +194,25 @@ public class StreetGraph {
         throw new NoPathException("No path found.");
     }
 
-    public ArrayList<Vec2> generatePointPath(Vertex origin, Vertex destination) throws NoPathException {
-        throw new UnsupportedOperationException("Call generatePointPaths with some fixed turning radius");
+    public static PointPath generatePointPath(Vertex origin, Vertex destination) throws UnsupportedOperationException, NoPathException {
+        throw new UnsupportedOperationException("To Be Implemented");
     }
 
-    /**
-     *
-     * @param origin
-     * @param destination
-     * @return
-     */
-    public ArrayList<Vec2> generatePointPath(Vertex origin, Vertex destination, Car car) throws NoPathException {
-        LinkedList<Vertex> path = this.findBFSPath(origin, destination);
-        throw new UnsupportedOperationException();
-//        return generatePointPath(path, turningPath);
-    }
-
-    public ArrayList<Vec2> generatePointPath(LinkedList<Vertex> path, Car car) {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean pathSegementArePerpendicular(Vec2 origin, Vec2 intermediate, Vec2 destination) {
-        return Vec2.dot(origin.sub(intermediate), intermediate.sub(destination)) == 0;
-    }
-
-    public ArrayList<Vec2> generatePointPath(LinkedList<Vertex> path, float turningRadius) {
-        ArrayList<Vec2> points = new ArrayList<>();
+    public static PointPath generatePointPath(LinkedList<Vertex> path) {
+        PointPath points = new PointPath();
         int numEdgesInpath = path.size() - 1;
+
+        //TODO: Check dat dat kan met de huidige lengtes
         Vec2 pointA = path.poll().getLocation();
         Vec2 pointB = path.poll().getLocation();
-        //TODO: Check dat dat kan met de huidige lengte
         Vec2 pointC = path.poll().getLocation();
+
         int linearPathResolution = 3;
         //TODO: Dubbele punten vermijden
-        ArrayList<Vec2> segmentPoints;
-        Vec2 controlPoint;
         for (int i = 0; i < numEdgesInpath; i++) {
-            //If pointC is null we have only two points left, i.e. a line.
-            if (pointC != null && pathSegementArePerpendicular(pointA, pointB, pointC)) {
-                controlPoint = pointB.add(new Vec2(turningRadius, turningRadius));
-                segmentPoints = new QuadraticBezier(
-                        pointA, pointB
-                ).computePointsOnCurve(linearPathResolution, controlPoint);
-            } else {
-                segmentPoints = new LinearBezier(
-                        pointA, pointB
-                ).computePointsOnCurve(linearPathResolution);
-            }
-            points.addAll(segmentPoints);
+            points.addAll(
+                    generatePointPathSegment(pointA, pointB, pointC, linearPathResolution)
+            );
             pointA = pointB;
             pointB = pointC;
             pointC = path.poll().getLocation();
@@ -250,6 +220,27 @@ public class StreetGraph {
         }
         //TODO in linear case: add final destination location to points
         return points;
+    }
+
+    private static boolean pathSegementArePerpendicular(Vec2 origin, Vec2 intermediate, Vec2 destination) {
+        return Vec2.dot(origin.sub(intermediate), intermediate.sub(destination)) == 0;
+    }
+
+    private static ArrayList<Vec2> generatePointPathSegment(Vec2 pointA, Vec2 pointB, Vec2 pointC, int linearPathResolution) {
+        ArrayList<Vec2> segmentPoints;
+        float turningRadius = (float) 3.0;
+        //If pointC is null we have only two points left, i.e. a line.
+        if (pointC != null && pathSegementArePerpendicular(pointA, pointB, pointC)) {
+            Vec2 controlPoint = pointB.add(new Vec2(turningRadius, turningRadius));
+            segmentPoints = new QuadraticBezier(
+                    pointA, pointB
+            ).computePointsOnCurve(linearPathResolution, controlPoint);
+        } else {
+            segmentPoints = new LinearBezier(
+                    pointA, pointB
+            ).computePointsOnCurve(linearPathResolution);
+        }
+        return segmentPoints;
     }
 
     @Override

@@ -11,8 +11,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import nl.rug.dmas.trafficdemo.streetGraph.GraphReader;
-import nl.rug.dmas.trafficdemo.streetGraph.StreetGraph;
+import nl.rug.dmas.trafficdemo.streetgraph.GraphReader;
+import nl.rug.dmas.trafficdemo.streetgraph.StreetGraph;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -31,6 +31,20 @@ public class TrafficDemo {
         
         return scenario;
     }
+    
+    static public void runFile(File file) {
+        Scenario scenario = readScenarioFromFile(file);
+        
+        // Pony up a simple window, our only entrypoint to the app
+        TrafficWindow window = new TrafficWindow(scenario);
+        window.setSize(800, 600);
+        window.setTitle(file.getName());
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        // Show the window, and start the loop!
+        window.setVisible(true);
+        scenario.start();
+    }
 
     static public void main(String[] args) {
         try {
@@ -40,15 +54,6 @@ public class TrafficDemo {
             // Could not initialize awesome Mac-specific UI, but Java UI will be sort of fine, I guess.
         }
         
-        Scenario scenario = readScenarioFromFile(new File("input/graaf.txt"));
-        
-        // Pony up a simple window, our only entrypoint to the app
-        TrafficWindow window = new TrafficWindow(scenario);
-        window.setSize(800, 600);
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        // Show the window, and start the loop!
-        window.setVisible(true);
-        scenario.start();
+        runFile(new File("input/graaf.txt"));
     }
 }

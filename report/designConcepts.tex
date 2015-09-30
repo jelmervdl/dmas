@@ -13,23 +13,23 @@ The individuals have no adaptive traits.
 
 \paragraph{Fitness} 
 % \algemeen{Is fitness-seeking modelled explicitly or implicitly? If explicitly, how do individuals calculate fitness?}
-Fitness-seeking is not modelled explicitly. 
+Fitness-seeking is not modelled explicitly. \todo[inline]{Ook niet echt impliciet toch?}
 
 \paragraph{Prediction} 
 % \algemeen{In estimating future consequences of their decisions, how do individuals predict the future conditions they will experience?}
-Individuals don't really predict the future conditions. They look around them so they don't crash into other agents or objects, but have no other means to look ahead. 
+Agents are purely reactive, they do not not consider future conditions when deciding on their next action.  
 
 \paragraph{Sensing} 
 % \algemeen{What internal and environmental state variables are individuals assumed to sense or “know” and consider in their adaptive decisions?}
-Individual vehicles can sense other vehicles and other objects if they are close enough to `see' them. They cannot see into each other's state variables, or those of the simulation. 
+Individual vehicles can sense other vehicles and other objects if they are close enough to `see' them. They cannot see into each other's state variables, or those of the simulation. What is actual perceived by an agent depends on its type, self-driving versus human driver, and in the case of the human agent its state.
 
 \paragraph{Interaction} 
 % \algemeen{What kinds of interactions among individuals are assumed?}
-Vehicles cannot interact with other vehicles. They see them in the simulation, and try not to crash into them, but to not actually interact with them.
+Vehicles can observer other vehicles, but they cannot interact.
 
 \paragraph{Stochasticity} 
 % \algemeen{Is stochasticicity part of the model? What are the reasons?}
-In this simulation, everything is determined, there is no stochasticity.
+In this simulation everything is determined, there is no stochasticity.
 
 \paragraph{Collectives} 
 % \algemeen{Are individuals grouped into some kind of collective, e.g. a social group?}
@@ -37,6 +37,6 @@ There are no collectives in this simulation, all the agents function for themsel
 
 \paragraph{Observation} 
 % \algemeen{How are data collected from the IBM for testing, understanding, and analysing it?}
-The data we will collect is with regard to the delay encountered while driving from one point to another, and the number of crashes. This will be explained more completely in \cref{sub:method:design}.
+The data we collect is with regard to the delay encountered while driving from one point to another, and the number of crashes. These measurements are discussed extensively in \cref{sub:method:design}.
 
 

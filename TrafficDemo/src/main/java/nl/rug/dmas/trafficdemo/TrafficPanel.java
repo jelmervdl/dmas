@@ -6,6 +6,7 @@
 package nl.rug.dmas.trafficdemo;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -13,11 +14,17 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JPanel;
-import nl.rug.dmas.trafficdemo.streetGraph.Edge;
-import nl.rug.dmas.trafficdemo.streetGraph.Vertex;
+import nl.rug.dmas.trafficdemo.streetgraph.Edge;
+import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
+import nl.rug.dmas.trafficdemo.streetgraph.StreetGraph;
+import nl.rug.dmas.trafficdemo.streetgraph.Vertex;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
@@ -101,7 +108,8 @@ public class TrafficPanel extends JPanel {
         if (scenario.streetGraph != null) {
             for (Edge edge : scenario.streetGraph.getEdges()) {
                 g2.setColor(Color.BLACK);
-                drawEdge(g2, edge, center, scale);
+                //drawEdge(g2, edge, center, scale);
+                drawRoad(g2, edge, center, scale);
             }
             
             for (Vertex vertex : scenario.streetGraph.getVertices()) {
@@ -386,7 +394,7 @@ public class TrafficPanel extends JPanel {
         Vec2 direction = edge.getDestination().getLocation().sub(position);
         drawVec(g2, direction, position, offset, scale);
     }
-
+    
     private void drawFOVs(Graphics2D g, Point offset, float scale) {
         Graphics2D g2 = (Graphics2D) g.create();
         
@@ -403,4 +411,50 @@ public class TrafficPanel extends JPanel {
         
         g2.dispose();
     }
+    
+    private void drawRoad(Graphics2D g, Edge edge, Point offset, float scale) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        
+        LinkedList<Vertex> path = new LinkedList<>();
+        path.add(edge.getOrigin());
+        path.add(edge.getDestination());
+        
+        PointPath points = StreetGraph.generatePointPath(path);
+        
+        // First draw the road side
+        Stroke roadSideStroke = new BasicStroke(0.3f * scale);
+        g2.setStroke(roadSideStroke);
+        g2.setColor(Color.DARK_GRAY);
+        
+        // Both left and right side
+        drawLine(g2, points.translate(1.5f).iterator(), offset, scale);        
+        drawLine(g2, points.translate(-1.5f).iterator(), offset, scale);
+        
+        // Then draw the road itself so it overlays all the road side drawing
+        // glitches which occur at the intersections
+        Stroke roadStroke = new BasicStroke(3 * scale, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+        g2.setStroke(roadStroke);
+        g2.setColor(Color.LIGHT_GRAY);
+        
+        drawLine(g2, points.iterator(), offset, scale);
+        
+        g2.dispose();
+    }
+    
+    private void drawLine(Graphics2D g2, Iterator<Vec2> pointIter, Point offset, float scale) {
+        Vec2 segmentStart;
+        Vec2 segmentEnd = pointIter.next();
+        
+        while (pointIter.hasNext()) {
+            segmentStart = segmentEnd;
+            segmentEnd = pointIter.next();
+            
+            g2.drawLine(
+                Math.round(segmentStart.x * scale) + offset.x,
+                Math.round(segmentStart.y * scale) + offset.y,
+                Math.round(segmentEnd.x * scale) + offset.x,
+                Math.round(segmentEnd.y * scale) + offset.y);
+        }
+    }
+
 }
