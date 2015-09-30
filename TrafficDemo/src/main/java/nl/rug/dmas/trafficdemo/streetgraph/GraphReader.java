@@ -1,4 +1,4 @@
-package nl.rug.dmas.trafficdemo.streetGraph;
+package nl.rug.dmas.trafficdemo.streetgraph;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.LinkedList;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jbox2d.common.Vec2;
 
 /**
