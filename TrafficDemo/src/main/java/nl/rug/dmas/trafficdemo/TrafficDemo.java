@@ -67,14 +67,15 @@ public class TrafficDemo {
         // Pony up a simple window, our only entrypoint to the app
         TrafficWindow window = new TrafficWindow(scenario);
         window.setSize(800, 600);
+        
         window.setTitle(file.getName());
+        window.getRootPane().putClientProperty("Window.documentFile", file);
         
         windows.add(window);
         
         window.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                System.out.println("Window closed");
                 windows.remove(e.getWindow());
                 
                 if (windows.isEmpty())
