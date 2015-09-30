@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.bezier.LinearBezier;
+import nl.rug.dmas.trafficdemo.bezier.QuadraticBezier;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -214,22 +215,37 @@ public class StreetGraph {
         throw new UnsupportedOperationException();
     }
 
-    public ArrayList<Vec2> generatePointPath(LinkedList<Vertex> path, double turningRadius) {
+    public boolean pathSegementArePerpendicular(Vec2 origin, Vec2 intermediate, Vec2 destination) {
+        return Vec2.dot(origin.sub(intermediate), intermediate.sub(destination)) == 0;
+    }
+
+    public ArrayList<Vec2> generatePointPath(LinkedList<Vertex> path, float turningRadius) {
         ArrayList<Vec2> points = new ArrayList<>();
         int numEdgesInpath = path.size() - 1;
-        Vertex intermediateOrigin = path.poll();
-        Vertex intermidiateDestination = path.poll();
+        Vec2 pointA = path.poll().getLocation();
+        Vec2 pointB = path.poll().getLocation();
+        //TODO: Check dat dat kan met de huidige lengte
+        Vec2 pointC = path.poll().getLocation();
         int linearPathResolution = 3;
         //TODO: Dubbele punten vermijden
+        ArrayList<Vec2> segmentPoints;
+        Vec2 controlPoint;
         for (int i = 0; i < numEdgesInpath; i++) {
-            points.addAll(
-                    new LinearBezier(
-                            intermediateOrigin.getLocation(),
-                            intermidiateDestination.getLocation()
-                    ).computePointsOnCurve(linearPathResolution)
-            );
-            intermediateOrigin = intermidiateDestination;
-            intermidiateDestination = path.poll();
+            //If pointC is null we have only two points left, i.e. a line.
+            if (pointC != null && pathSegementArePerpendicular(pointA, pointB, pointC)) {
+                controlPoint = pointB.add(new Vec2(turningRadius, turningRadius));
+                segmentPoints = new QuadraticBezier(
+                        pointA, pointB
+                ).computePointsOnCurve(linearPathResolution, controlPoint);
+            } else {
+                segmentPoints = new LinearBezier(
+                        pointA, pointB
+                ).computePointsOnCurve(linearPathResolution);
+            }
+            points.addAll(segmentPoints);
+            pointA = pointB;
+            pointB = pointC;
+            pointC = path.poll().getLocation();
             //TODO in linear case: remove last elements from points
         }
         //TODO in linear case: add final destination location to points
