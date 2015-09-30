@@ -32,7 +32,7 @@ public class Driver implements Actor, Observer {
     // A set of all fixtures in the 
     final private Set<Fixture> fixturesInSight = new HashSet<>();
     
-    final private List<Vec2> path;
+    public final List<Vec2> path;
     
     private int pathIndex = 0;
     

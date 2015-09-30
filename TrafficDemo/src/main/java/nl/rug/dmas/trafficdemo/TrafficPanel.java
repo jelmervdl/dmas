@@ -214,6 +214,11 @@ public class TrafficPanel extends JPanel {
             }
         }
 
+        for (Car car : cars) {
+            g2.setColor(Color.red);
+            drawPath(g2, car.driver.path, offset, scale);
+        }
+
         g2.dispose();
     }
 
