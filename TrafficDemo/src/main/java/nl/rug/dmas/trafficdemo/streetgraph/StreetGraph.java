@@ -23,6 +23,7 @@ public class StreetGraph {
     private final ArrayList<Edge> edges;
     private final HashMap<Integer, Vertex> sources;
     private final HashMap<Integer, Vertex> sinks;
+    private static int resolution = 3;
 
     /**
      * A graph representing streets, vertices represent intersections, edges
@@ -200,11 +201,16 @@ public class StreetGraph {
     }
 
     public static PointPath generatePointPath(LinkedList<Vertex> path) throws NoPathException {
-        int pathResolution = 3;
         PointPath points = new PointPath();
         if (path.size() == 2) {
-            return generatePointLineSegment(path.poll().getLocation(), path.poll().getLocation(), pathResolution);
+            return generatePointLineSegment(path.poll().getLocation(), path.poll().getLocation());
         }
+
+        //Todo Ugly hack to avoid null pointer exceptions due to getLocation()
+        Vertex destinationVertex = path.getLast();
+        path.addLast(destinationVertex);
+        path.addLast(destinationVertex);
+
         Vec2 pathDestination = path.peekLast().getLocation();
 
         Vec2 origin = path.poll().getLocation();
@@ -215,13 +221,13 @@ public class StreetGraph {
         //TODO: Dubbele punten vermijden
         while (!origin.equals(pathDestination)) {
             if (pathHasCurve(origin, intermediate, destination)) {
-                segmentPoints = generatePointCurve(origin, intermediate, destination, pathResolution);
+                segmentPoints = generatePointCurve(origin, intermediate, destination);
                 origin = destination;
                 intermediate = path.poll().getLocation();
                 destination = path.poll().getLocation();
             } else {
                 //Drive a straight line
-                segmentPoints = generatePointLineSegment(origin, intermediate, pathResolution);
+                segmentPoints = generatePointLineSegment(origin, intermediate);
                 origin = intermediate;
                 intermediate = destination;
                 destination = path.poll().getLocation();
@@ -232,20 +238,28 @@ public class StreetGraph {
     }
 
     private static boolean pathHasCurve(Vec2 origin, Vec2 intermediate, Vec2 destination) {
-        return destination != null && Vec2.dot(origin.sub(intermediate), intermediate.sub(destination)) == 0;
+        return destination != null && Vec2.dot(origin.sub(intermediate), intermediate.sub(destination)) != 0;
     }
 
-    private static PointPath generatePointCurve(Vec2 origin, Vec2 intermediate, Vec2 destination, int resolution) {
+    private static PointPath generatePointCurve(Vec2 origin, Vec2 intermediate, Vec2 destination) {
         float turningRadius = 7.0f;
         Vec2 controlPoint = intermediate.add(new Vec2(turningRadius, turningRadius));
-        return (PointPath) new QuadraticBezier(origin, destination).computePointsOnCurve(resolution, controlPoint);
+        PointPath temp = new PointPath(new QuadraticBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution, controlPoint));
+        return temp;
     }
 
-    public static PointPath generatePointLineSegment(Vec2 origin, Vec2 destination, int resolution) throws NoPathException {
+    public static PointPath generatePointLineSegment(Vec2 origin, Vec2 destination) throws NoPathException {
         if (origin == null || destination == null) {
             throw new NoPathException("Need at least to locations to draw a path.");
         }
-        return (PointPath) new LinearBezier(origin, destination).computePointsOnCurve(resolution);
+        PointPath temp = new PointPath(new LinearBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution));
+        return temp;
+    }
+
+    public static PointPath generatePointLineSegment(Edge edge) throws NoPathException {
+        return StreetGraph.generatePointLineSegment(
+                edge.getOrigin().getLocation(),
+                edge.getDestination().getLocation());
     }
 
     @Override
