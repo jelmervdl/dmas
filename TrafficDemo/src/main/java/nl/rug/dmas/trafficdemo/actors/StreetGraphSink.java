@@ -5,6 +5,8 @@
  */
 package nl.rug.dmas.trafficdemo.actors;
 
+import java.util.HashSet;
+import java.util.Set;
 import nl.rug.dmas.trafficdemo.Actor;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.Observer;
@@ -26,6 +28,8 @@ public class StreetGraphSink implements Actor, Observer {
     private final Vertex vertex;
     
     private final Scenario scenario;
+    
+    private final Set<Car> carsInSight = new HashSet<>();
     
     public StreetGraphSink(Scenario scenario, Vertex vertex) {
         this.scenario = scenario;
@@ -52,17 +56,20 @@ public class StreetGraphSink implements Actor, Observer {
     
     @Override
     public void act() {
-        // Nothing for now, we just remove what we see :O
+        for (Car car : carsInSight)
+            if (car.getDriver() != null && car.getDriver().reachedDestination())
+                scenario.remove(car);
     }
 
     @Override
     public void addFixtureInSight(Fixture fixture) {
         if (fixture.getUserData() instanceof Car)
-            scenario.remove((Car) fixture.getUserData());
+            carsInSight.add((Car) fixture.getUserData());
     }
 
     @Override
     public void removeFixtureInSight(Fixture fixture) {
-        //
+        if (fixture.getUserData() instanceof Car)
+            carsInSight.remove((Car) fixture.getUserData());
     }
 }

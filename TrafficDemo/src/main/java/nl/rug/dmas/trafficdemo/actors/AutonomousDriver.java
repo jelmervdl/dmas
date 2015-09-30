@@ -81,4 +81,9 @@ public class AutonomousDriver extends Driver {
         
         return new Vec2(0, 0);
     }
+
+    @Override
+    public boolean reachedDestination() {
+        return path != null && pathIndex == path.size();
+    }
 }

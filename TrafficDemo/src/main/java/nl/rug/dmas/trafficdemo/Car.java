@@ -94,6 +94,17 @@ public class Car {
     }
     
     /**
+     * Get the driver driving this car. You should probably be careful with
+     * using this method, because it is not really realistic to have access to
+     * other drivers their innards. However, sometimes you just want to ask
+     * the driver whether they have reached their destination.
+     * @return current driver
+     */
+    public Driver getDriver() {
+        return driver;
+    }
+    
+    /**
      * Creates a Fixture recipe based on the width and length of the vehicle.
      * @return a FixtureDef for the collision body
      */
@@ -217,19 +228,6 @@ public class Car {
         this.acceleration = acceleration;
     }
     
-    /**
-     * Returns the shape of the field of view the car has. Any other fixture in
-     * the world that is positioned inside this shape will be available through
-     * the fixturesInSight set of the driver.
-     * @return a JBox2D shape representing the FOV
-     */
-    public Shape getSight()
-    {
-        CircleShape sight = new CircleShape();
-        sight.setRadius(5);
-        return sight;
-    }
-
     /**
      * Updates the simulation of the car. Typically called indirectly by
      * Scenario.update(dt).

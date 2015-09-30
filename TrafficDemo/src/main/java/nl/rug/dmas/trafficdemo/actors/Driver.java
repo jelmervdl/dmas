@@ -81,6 +81,13 @@ abstract public class Driver implements Actor, Observer {
     }
     
     /**
+     * Test whether the destination is reached. This method is used by the sinks
+     * to determine whether a car can be removed from the scenario.
+     * @return whether the destination is reached right now
+     */
+    abstract public boolean reachedDestination();
+    
+    /**
      * Set the speed and steering direction. This implementation right now uses
      * a vector with a length and an angle to determine the speed and direction.
      * @param direction vector from the current location to the goal location

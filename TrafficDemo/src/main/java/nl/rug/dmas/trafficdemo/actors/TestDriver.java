@@ -32,4 +32,9 @@ public class TestDriver extends Driver {
         Vec2 worldMouse = (Vec2) scenario.getCommonKnowledge().get("mouse");
         return car.getLocalPoint(worldMouse);
     }
+
+    @Override
+    public boolean reachedDestination() {
+        return false;
+    }
 }
