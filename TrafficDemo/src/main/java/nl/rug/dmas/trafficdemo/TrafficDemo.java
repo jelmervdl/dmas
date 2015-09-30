@@ -22,7 +22,7 @@ import org.jbox2d.common.Vec2;
 public class TrafficDemo {
     static public Scenario readScenarioFromFile(File file) {
         // Get me a map of the world!
-        StreetGraph streetGraph = GraphReader.read(new File("input/graaf.txt"));
+        StreetGraph streetGraph = GraphReader.read(file);
         
         // Create a scenario with two cars looping left and right (and colliiiddiiingg >:D )
         Scenario scenario = new Scenario(streetGraph);
