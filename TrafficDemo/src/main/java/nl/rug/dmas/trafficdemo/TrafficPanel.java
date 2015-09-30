@@ -48,8 +48,9 @@ public class TrafficPanel extends JPanel {
     boolean drawDirection = true;
     boolean drawDriverThoughts = false;
     
-    Color headlightColor = new Color(1.0f, 1.0f, 0.6f);
-    Color taillightColor = new Color(1.0f, 0.0f, 0.0f);
+    final Color headlightColor = new Color(1.0f, 1.0f, 0.6f);
+    final Color taillightColor = new Color(1.0f, 0.0f, 0.0f);
+    final Color reverselightColor = new Color(1.0f, 1.0f, 1.0f);
 
     public TrafficPanel(Scenario scenarion) {
         this.scenario = scenarion;
@@ -177,6 +178,16 @@ public class TrafficPanel extends JPanel {
                     drawLight(g2, taillightColor,
                         new Vec2(car.width / 2 - 0.5f, car.length / 2),
                         Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 10,
+                        car.body.getTransform(), offset, scale);
+                    break;
+                case REVERSE:
+                    drawLight(g2, reverselightColor,
+                        new Vec2(-car.width / 2 + 0.5f, car.length / 2),
+                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 5,
+                        car.body.getTransform(), offset, scale);
+                    drawLight(g2, reverselightColor,
+                        new Vec2(car.width / 2 - 0.5f, car.length / 2),
+                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 5,
                         car.body.getTransform(), offset, scale);
                     break;
             }

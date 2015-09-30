@@ -25,21 +25,22 @@ import org.jbox2d.dynamics.World;
  * @author jelmer
  */
 public class Car {
-    Driver driver;
+    final float maxSteerAngleDeg = 40;
+    final float power = 250;
+    final float brakePower = 100;
+    final float steeringSpeed = 5f;
+    
+    final float width;
+    final float length;
+    final Color color;
+
+    final Driver driver;
     
     float targetSpeedKMH = 0f;
     Acceleration acceleration =  Acceleration.NONE;
 
     float targetBodyAngle = 0f;
-    float maxSteerAngleDeg = 40;
-    float power = 250;
     float wheelAngleDeg = 0;
-    float steeringSpeed = 5f;
-    float visionRange = 8f;
-
-    float width;
-    float length;
-    Color color;
 
     Body body;
     ArrayList<Wheel> wheels;
@@ -47,7 +48,7 @@ public class Car {
     Fixture bodyFixture;
     Fixture visionFixture;
     
-    private final Vec2 initialPosition;
+    final private Vec2 initialPosition;
     
     public Car(Driver driver, float width, float length, Vec2 position) {
         this.driver = driver;
@@ -259,27 +260,24 @@ public class Car {
         wheelAngleDeg = MathUtils.clamp(steerAngle, -maxSteerAngleDeg, maxSteerAngleDeg);
         
         // Apply force to wheels
-        Vec2 baseVec = new Vec2(0, 0); //vector pointing in the direction force will be applied to a wheel ; relative to the wheel.
+        Vec2 forceVec = new Vec2(0, 0); //vector pointing in the direction force will be applied to a wheel ; relative to the wheel.
 
         switch (this.acceleration) {
             case ACCELERATE:
                 if (this.getSpeedKMH() < this.targetSpeedKMH)
-                    baseVec = new Vec2(0, -10); // Note: this represents the engine power!
+                    forceVec = new Vec2(0, -1).mul(power); // Note: this represents the engine power!
                 break;
 
             case BRAKE:
-                // braking, but still moving forwards - increased force
                 if (getLocalVelocity().y < 0)
-                    baseVec = new Vec2(0, 1.3f);
-                //going in reverse - less force
-                else
-                    baseVec = new Vec2(0, 0.7f);
+                    forceVec = new Vec2(0, getLocalVelocity().x).mul(brakePower);
+                break;
+            
+            case REVERSE:
+                forceVec = new Vec2(0, 1).mul(power);
                 break;
         }
 
-        // multiply by engine power, which gives us a force vector relative to the wheel
-        Vec2 forceVec = baseVec.mul(power);
-        
         // apply force and steering to each wheel
         // Assume the powered wheels are the first two wheels
         for (Wheel wheel : wheels) { // Update revolving wheels

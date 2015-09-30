@@ -10,5 +10,5 @@ package nl.rug.dmas.trafficdemo;
  * @author jelmer
  */
 public enum Acceleration {
-    NONE, ACCELERATE, BRAKE
+    NONE, ACCELERATE, BRAKE, REVERSE
 }
