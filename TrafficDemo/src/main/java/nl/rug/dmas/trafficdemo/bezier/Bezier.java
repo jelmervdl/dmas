@@ -53,7 +53,6 @@ public abstract class Bezier {
      * @param controlPoints The control points for th e Bezier curve, the number
      * of control points is equal to the degree of the Bezier curve, i.e. the
      * quadratic Bezier curve has one control point.
-     * @return A point on the Bezier curve a t
      * @return ArrayList of Vec2 representing a Bezier curve.
      */
     public ArrayList<Vec2> computePointsOnCurve(int resolution, Vec2... controlPoints) {
@@ -66,7 +65,7 @@ public abstract class Bezier {
         }
         return curvePoints;
     }
-    
+
     public static void main(String[] args) {
         Vec2 source = new Vec2((float) 1.0, (float) 0.0);
         Vec2 control = new Vec2((float) 0.0, (float) 2.0);
@@ -82,5 +81,5 @@ public abstract class Bezier {
         }
         System.out.println("];");
     }
-    
+
 }
