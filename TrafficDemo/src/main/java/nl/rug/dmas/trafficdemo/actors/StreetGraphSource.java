@@ -5,11 +5,9 @@
  */
 package nl.rug.dmas.trafficdemo.actors;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import nl.rug.dmas.trafficdemo.Actor;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.Observer;
@@ -30,44 +28,45 @@ import org.jbox2d.dynamics.FixtureDef;
  * @author jelmer
  */
 public class StreetGraphSource implements Actor, Observer {
+
     private final Vertex vertex;
     private final Scenario scenario;
     private int fixturesInSight = 0;
-    
+
     private long timeOfLastSpawn;
     final private long timeoutInMS;
-    
+
     public StreetGraphSource(Scenario scenario, Vertex vertex, long timeoutInMS) {
         this.scenario = scenario;
         this.vertex = vertex;
         this.timeoutInMS = timeoutInMS;
-        
+
         BodyDef def = new BodyDef();
         def.type = BodyType.STATIC;
         def.position = vertex.getLocation();
-        
+
         FixtureDef fovDef = new FixtureDef();
         fovDef.shape = getFOVShape();
         fovDef.isSensor = true;
         fovDef.userData = this;
-        
+
         Body body = scenario.getWorld().createBody(def);
         body.createFixture(fovDef);
     }
-    
+
     private Shape getFOVShape() {
         Shape shape = new CircleShape();
         shape.setRadius(4);
         return shape;
     }
-    
+
     protected Driver getMeADriver() throws NoPathException {
         List<Vertex> destinations = scenario.getStreetGraph().getSinks();
         Collections.shuffle(destinations);
-        
+
         Iterator<Vertex> destIter = destinations.iterator();
         List<Vec2> path = null;
-        
+
         while (path == null && destIter.hasNext()) {
             try {
                 path = scenario.getStreetGraph().generatePointPath(vertex, destIter.next());
@@ -75,13 +74,14 @@ public class StreetGraphSource implements Actor, Observer {
                 // Try the next one
             }
         }
-        
-        if (path == null)
+
+        if (path == null) {
             throw new NoPathException();
-        
+        }
+
         return new Driver(scenario, path);
     }
-    
+
     protected Car getMeACar(Driver driver) {
         return new Car(driver, 2, 4, vertex.getLocation());
     }
