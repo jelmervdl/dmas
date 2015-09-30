@@ -7,6 +7,7 @@ package nl.rug.dmas.trafficdemo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.concurrent.locks.Lock;
@@ -95,10 +96,24 @@ public class Scenario extends Observable {
         return commonKnowledge;
     }
     
+    /**
+     * Create a clueless driver. Mostly used when you add a car through the
+     * menu, this factory method will give you a driver that drives along the
+     * drawn path.
+     * @return 
+     */
     public Driver createDriver() {
-        return new TestDriver(this);
+        return new AutonomousDriver(this, (List<Vec2>) commonKnowledge.get("path"));
     }
     
+    /**
+     * Create a purposeful driver. This driver will try to drive along the path
+     * you pass to this factory method.
+     * Todo: here we should create drivers randomly according to the ratio human
+     * vs autonomous we want to test.
+     * @param path
+     * @return a driver!
+     */
     public Driver createDriver(PointPath path) {
         return new AutonomousDriver(this, path);
     }

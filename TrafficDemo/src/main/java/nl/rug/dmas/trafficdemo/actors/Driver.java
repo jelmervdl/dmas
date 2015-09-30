@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 import nl.rug.dmas.trafficdemo.Acceleration;
 import nl.rug.dmas.trafficdemo.Actor;
 import nl.rug.dmas.trafficdemo.Car;
@@ -21,7 +20,10 @@ import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Fixture;
 
 /**
- *
+ * Abstract class that represents a driver. Missing is the act() method that
+ * controls the actual behaviour. This abstract implementation offers a few
+ * utilities such as setSteerDirection() and getCarsInSight() for the
+ * implementations.
  * @author jelmer
  */
 abstract public class Driver implements Actor, Observer {
@@ -58,14 +60,24 @@ abstract public class Driver implements Actor, Observer {
         return shape;
     }
 
+    /**
+     * Called when a Fixture enters our FOV shape in the world.
+     * Callback for the Observer interface.
+     * @param fixture
+     */
     @Override
     public void addFixtureInSight(Fixture fixture) {
-        fixturesInSight.remove(fixture);
+        fixturesInSight.add(fixture);
     }
 
+    /**
+     * Called when a Fixture leaves our FOV shape in the world.
+     * Callback for the Observer interface.
+     * @param fixture
+     */
     @Override
     public void removeFixtureInSight(Fixture fixture) {
-        fixturesInSight.add(fixture);
+        fixturesInSight.remove(fixture);
     }
     
     /**
