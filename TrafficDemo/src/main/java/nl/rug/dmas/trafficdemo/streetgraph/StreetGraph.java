@@ -194,54 +194,58 @@ public class StreetGraph {
         throw new NoPathException("No path found.");
     }
 
-    public PointPath generatePointPath(Vertex origin, Vertex destination) throws UnsupportedOperationException, NoPathException {
+    public PointPath generatePointPath(Vertex origin, Vertex destination) throws NoPathException {
         LinkedList<Vertex> path = this.findBFSPath(origin, destination);
         return StreetGraph.generatePointPath(path);
     }
 
-    public static PointPath generatePointPath(LinkedList<Vertex> path) {
+    public static PointPath generatePointPath(LinkedList<Vertex> path) throws NoPathException {
+        int pathResolution = 3;
         PointPath points = new PointPath();
-        int numEdgesInpath = path.size() - 1;
-
-        //TODO: Check dat dat kan met de huidige lengtes
-        Vec2 pointA = path.poll().getLocation();
-        Vec2 pointB = path.poll().getLocation();
-        Vec2 pointC = path.poll().getLocation();
-
-        int linearPathResolution = 3;
-        //TODO: Dubbele punten vermijden
-        for (int i = 0; i < numEdgesInpath; i++) {
-            points.addAll(
-                    generatePointPathSegment(pointA, pointB, pointC, linearPathResolution)
-            );
-            pointA = pointB;
-            pointB = pointC;
-            pointC = path.poll().getLocation();
-            //TODO in linear case: remove last elements from points
+        if (path.size() == 2) {
+            return generatePointLineSegment(path.poll().getLocation(), path.poll().getLocation(), pathResolution);
         }
-        //TODO in linear case: add final destination location to points
+        Vec2 pathDestination = path.peekLast().getLocation();
+
+        Vec2 origin = path.poll().getLocation();
+        Vec2 intermediate = path.poll().getLocation();
+        Vec2 destination = path.poll().getLocation();
+
+        PointPath segmentPoints;
+        //TODO: Dubbele punten vermijden
+        while (!origin.equals(pathDestination)) {
+            if (pathHasCurve(origin, intermediate, destination)) {
+                segmentPoints = generatePointCurve(origin, intermediate, destination, pathResolution);
+                origin = destination;
+                intermediate = path.poll().getLocation();
+                destination = path.poll().getLocation();
+            } else {
+                //Drive a straight line
+                segmentPoints = generatePointLineSegment(origin, intermediate, pathResolution);
+                origin = intermediate;
+                intermediate = destination;
+                destination = path.poll().getLocation();
+            }
+            points.addAll(segmentPoints);
+        }
         return points;
     }
 
-    private static boolean pathSegementArePerpendicular(Vec2 origin, Vec2 intermediate, Vec2 destination) {
-        return Vec2.dot(origin.sub(intermediate), intermediate.sub(destination)) == 0;
+    private static boolean pathHasCurve(Vec2 origin, Vec2 intermediate, Vec2 destination) {
+        return destination != null && Vec2.dot(origin.sub(intermediate), intermediate.sub(destination)) == 0;
     }
 
-    private static ArrayList<Vec2> generatePointPathSegment(Vec2 pointA, Vec2 pointB, Vec2 pointC, int linearPathResolution) {
-        ArrayList<Vec2> segmentPoints;
-        float turningRadius = (float) 3.0;
-        //If pointC is null we have only two points left, i.e. a line.
-        if (pointC != null && pathSegementArePerpendicular(pointA, pointB, pointC)) {
-            Vec2 controlPoint = pointB.add(new Vec2(turningRadius, turningRadius));
-            segmentPoints = new QuadraticBezier(
-                    pointA, pointB
-            ).computePointsOnCurve(linearPathResolution, controlPoint);
-        } else {
-            segmentPoints = new LinearBezier(
-                    pointA, pointB
-            ).computePointsOnCurve(linearPathResolution);
+    private static PointPath generatePointCurve(Vec2 origin, Vec2 intermediate, Vec2 destination, int resolution) {
+        float turningRadius = 7.0f;
+        Vec2 controlPoint = intermediate.add(new Vec2(turningRadius, turningRadius));
+        return (PointPath) new QuadraticBezier(origin, destination).computePointsOnCurve(resolution, controlPoint);
+    }
+
+    public static PointPath generatePointLineSegment(Vec2 origin, Vec2 destination, int resolution) throws NoPathException {
+        if (origin == null || destination == null) {
+            throw new NoPathException("Need at least to locations to draw a path.");
         }
-        return segmentPoints;
+        return (PointPath) new LinearBezier(origin, destination).computePointsOnCurve(resolution);
     }
 
     @Override
