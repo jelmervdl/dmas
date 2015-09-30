@@ -71,7 +71,7 @@ public class Scenario extends Observable {
 
         // Add actors for the spawn points and sinks of the street graph
         for (Vertex source : streetGraph.getSources())
-            actors.add(new StreetGraphSource(this, source, 500));
+            actors.add(new StreetGraphSource(this, source, 3000));
         
         for (Vertex sink : streetGraph.getSinks())
             actors.add(new StreetGraphSink(this, sink));

@@ -12,6 +12,7 @@ import java.util.Set;
 import nl.rug.dmas.trafficdemo.Acceleration;
 import nl.rug.dmas.trafficdemo.Actor;
 import nl.rug.dmas.trafficdemo.Car;
+import nl.rug.dmas.trafficdemo.DebugGraphicsQueue;
 import nl.rug.dmas.trafficdemo.Observer;
 import nl.rug.dmas.trafficdemo.Scenario;
 import org.jbox2d.collision.shapes.CircleShape;
@@ -32,6 +33,8 @@ abstract public class Driver implements Actor, Observer {
     
     // A set of all fixtures in the 
     final protected Set<Fixture> fixturesInSight = new HashSet<>();
+    
+    final public DebugGraphicsQueue debugDraw = new DebugGraphicsQueue();
     
     /**
      * Create a blank driver in a scenario.

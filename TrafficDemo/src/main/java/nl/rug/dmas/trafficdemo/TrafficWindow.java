@@ -99,7 +99,9 @@ public class TrafficWindow extends JFrame {
             }
         });
         
-        final JMenuItem closeWindow = new JMenuItem("Close window");
+        fileMenu.addSeparator();
+        
+        final JMenuItem closeWindow = new JMenuItem("Close Window");
         fileMenu.add(closeWindow);
         closeWindow.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         closeWindow.addActionListener(new ActionListener() {
@@ -113,7 +115,7 @@ public class TrafficWindow extends JFrame {
         JMenu simulationMenu = new JMenu("Simulation");
         menuBar.add(simulationMenu);
         
-        final JMenuItem addCar = new JMenuItem("Add a car");
+        final JMenuItem addCar = new JMenuItem("Add a Car");
         simulationMenu.add(addCar);
         addCar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         addCar.addActionListener(new ActionListener() {
@@ -123,7 +125,7 @@ public class TrafficWindow extends JFrame {
             }
         });
         
-        final JMenuItem removeCar = new JMenuItem("Remove a car");
+        final JMenuItem removeCar = new JMenuItem("Remove a Car");
         simulationMenu.add(removeCar);
         removeCar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         removeCar.addActionListener(new ActionListener() {
@@ -157,6 +159,16 @@ public class TrafficWindow extends JFrame {
             public void itemStateChanged(ItemEvent e) {
                 panel.drawDirection = drawDirection.isSelected();
                 TrafficDemo.getPreferences().putBoolean("drawDirection", panel.drawDirection);
+            }
+        });
+        
+        final JCheckBoxMenuItem drawDriverThoughts = new JCheckBoxMenuItem("Show Driver Thoughts", panel.drawDriverThoughts);
+        viewMenu.add(drawDriverThoughts);
+        drawDriverThoughts.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                panel.drawDriverThoughts = drawDriverThoughts.isSelected();
+                TrafficDemo.getPreferences().putBoolean("drawDriverThoughts", panel.drawDriverThoughts);
             }
         });
     }

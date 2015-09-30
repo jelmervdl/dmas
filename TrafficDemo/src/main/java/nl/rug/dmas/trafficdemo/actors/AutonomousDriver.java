@@ -10,6 +10,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import nl.rug.dmas.trafficdemo.Acceleration;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.Scenario;
+import org.jbox2d.collision.shapes.CircleShape;
+import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -31,12 +33,21 @@ public class AutonomousDriver extends Driver {
         this.path = path;
     }
     
+    @Override
+    public Shape getFOVShape() {
+        Shape shape = new CircleShape();
+        shape.setRadius(12);
+        return shape;
+    }
+    
     /**
      * Update the steering direction of the car we drive
      */
     @Override
     public void act()
     {
+        debugDraw.clear();
+        
         car.setSteeringDirection(steerTowardsPath().negate());
        
         car.setSpeedKMH(15 + speedAdjustmentToAvoidCars() * 5);
@@ -62,8 +73,12 @@ public class AutonomousDriver extends Driver {
     private float speedAdjustmentToAvoidCars() {
         Intersection mostImportant = null;
         
+//        debugDraw.draw(car.getPosition(), car.getAbsoluteVelocity());
+            
         for (Car other : getCarsInSight()) {
             // If that car is driving towards me, well, shit!
+            
+            debugDraw.draw(other.getPosition(), other.getAbsoluteVelocity());
             
             Intersection intersection = intersect(car.getPosition(), car.getAbsoluteVelocity(),
                 other.getPosition(), other.getAbsoluteVelocity());
@@ -71,10 +86,12 @@ public class AutonomousDriver extends Driver {
             if (intersection == null)
                 continue;
             
+            debugDraw.draw(intersection.position);
+            
             if (mostImportant == null || Math.abs(mostImportant.u - mostImportant.v) > Math.abs(intersection.u - intersection.v))
                 mostImportant = intersection;
         }
-         
+        
         if (mostImportant == null)
             return 0;
         
@@ -85,8 +102,8 @@ public class AutonomousDriver extends Driver {
         // If there is enough time to pass safely, ignore this car
         // Todo: determine 3 using the length of our and the other car and
         // their speed. Hard math ahead?
-        if (Math.abs(d) > 4)
-            return 0;
+        //if (Math.abs(d) > 4)
+        //    return 0;
         
         // d < 0: I'm there first, we should speed up a bit maybe?
         // d > 0: other is there first, we should brake?
@@ -95,15 +112,26 @@ public class AutonomousDriver extends Driver {
     
     static private class Intersection
     {
-        public float u, v;
+        final public float u, v;
         
-        public Intersection(float u, float v) {
+        final public Vec2 position;
+        
+        public Intersection(float u, float v, Vec2 position) {
             this.u = u;
             this.v = v;
+            this.position = position;
         }
     }
     
-    private Intersection intersect(Vec2 as, Vec2 bs, Vec2 ad, Vec2 bd) {
+    /**
+     * Calculate whether two moving objects are going to intersect, and when.
+     * @param as Position of a
+     * @param ad Velocity of a
+     * @param bs Position of b
+     * @param bd Velocity of b
+     * @return the moment and position of intersection, or null if there is no intersection
+     */
+    private Intersection intersect(Vec2 as, Vec2 ad, Vec2 bs, Vec2 bd) {
         // Let's try to solve:
         // p = as + ad * u
         // p = bs + bd * v
@@ -115,7 +143,7 @@ public class AutonomousDriver extends Driver {
         float v = (dy * ad.x - dx * ad.y) / det;
         
         if (u > 0 && v > 0)
-            return new Intersection(u, v);
+            return new Intersection(u, v, as.mul(u));
         else
             return null;
     }

@@ -15,12 +15,12 @@ import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JPanel;
+import nl.rug.dmas.trafficdemo.actors.Driver;
 import nl.rug.dmas.trafficdemo.streetgraph.Edge;
 import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
 import nl.rug.dmas.trafficdemo.streetgraph.StreetGraph;
@@ -46,6 +46,7 @@ public class TrafficPanel extends JPanel {
     // Options (for now)
     boolean drawFOV = true;
     boolean drawDirection = true;
+    boolean drawDriverThoughts = false;
     
     Color headlightColor = new Color(1.0f, 1.0f, 0.6f);
     Color taillightColor = new Color(1.0f, 0.0f, 0.0f);
@@ -105,27 +106,8 @@ public class TrafficPanel extends JPanel {
         // Draw the street-graph
         // Todo: draw this once and store it in a buffer that we can blit,
         // because it doesn't change that often
-        if (scenario.streetGraph != null) {
-            // First draw the actual road
-            for (Edge edge : scenario.streetGraph.getEdges())
-                drawRoad(g2, edge, center, scale);
-            
-            // Then draw the graph as an overlay
-            g2.setColor(Color.BLACK);
-            for (Edge edge : scenario.streetGraph.getEdges())
-                drawEdge(g2, edge, center, scale);
-                
-            for (Vertex vertex : scenario.streetGraph.getVertices()) {
-                if (scenario.streetGraph.isSink(vertex))
-                    g2.setColor(Color.RED);
-                else if (scenario.streetGraph.isSource(vertex))
-                    g2.setColor(Color.GREEN);
-                else
-                    g2.setColor(Color.BLUE);
-                
-                drawVertex(g2, vertex, center, scale);
-            }
-        }
+        if (scenario.streetGraph != null)
+            drawEnvironment(g2, scenario.streetGraph, center, scale);
         
         // Draw the path we paint for debugging purposes
         CopyOnWriteArrayList<Vec2> path = (CopyOnWriteArrayList<Vec2>) scenario.commonKnowledge.get("path");
@@ -206,6 +188,13 @@ public class TrafficPanel extends JPanel {
             for (Car car : cars) {
                 drawAngle(g2, car.targetBodyAngle, car.body.getPosition(), offset, scale);
             }
+        }
+        
+        // for gaining insight, draw the stored drawing calls that the car AI made
+        if (drawDriverThoughts) {
+            g2.setColor(Color.GREEN);
+            for (Car car : cars)
+                drawDriverDebug(g2, car.driver, offset, scale);
         }
         
         g2.dispose();
@@ -385,11 +374,7 @@ public class TrafficPanel extends JPanel {
         
         Vec2 point = vertex.getLocation();
         
-        g2.fillOval(
-            Math.round(point.x * scale) + offset.x - radius,
-            Math.round(point.y * scale) + offset.y - radius,
-            radius * 2, radius * 2
-        );
+        drawPosition(g2, point, radius, offset, scale);
         
         Color background = g2.getColor();
         g2.setColor(Color.WHITE);
@@ -465,6 +450,57 @@ public class TrafficPanel extends JPanel {
                 Math.round(segmentEnd.x * scale) + offset.x,
                 Math.round(segmentEnd.y * scale) + offset.y);
         }
+    }
+
+    private void drawPosition(Graphics2D g2, Vec2 point, int radius, Point offset, float scale) {
+        g2.fillOval(
+            Math.round(point.x * scale) + offset.x - radius,
+            Math.round(point.y * scale) + offset.y - radius,
+            radius * 2, radius * 2
+        );
+    }
+
+    /**
+     * Draw the environment (aka roads)
+     * @param g2
+     * @param streetGraph
+     * @param center
+     * @param scale 
+     */
+    private void drawEnvironment(Graphics2D g2, StreetGraph streetGraph, Point center, float scale) {
+        // First draw the actual road
+        for (Edge edge : streetGraph.getEdges())
+            drawRoad(g2, edge, center, scale);
+
+        // Then draw the graph as an overlay
+        g2.setColor(Color.BLACK);
+        for (Edge edge : streetGraph.getEdges())
+            drawEdge(g2, edge, center, scale);
+
+        for (Vertex vertex : streetGraph.getVertices()) {
+            if (streetGraph.isSink(vertex))
+                g2.setColor(Color.RED);
+            else if (streetGraph.isSource(vertex))
+                g2.setColor(Color.GREEN);
+            else
+                g2.setColor(Color.BLUE);
+
+            drawVertex(g2, vertex, center, scale);
+        }
+    }
+
+    private void drawDriverDebug(final Graphics2D g2, final Driver driver, final Point offset, final float scale) {
+        driver.debugDraw.renderTo(new DebugGraphicsQueue.Renderer() {
+            @Override
+            public void drawPositionVelocity(Vec2 position, Vec2 velocity) {
+                TrafficPanel.this.drawVec(g2, velocity, position, offset, scale);
+            }
+
+            @Override
+            public void drawPosition(Vec2 position) {
+                TrafficPanel.this.drawPosition(g2, position, 3, offset, scale);
+            }
+        });
     }
 
 }
