@@ -194,8 +194,9 @@ public class StreetGraph {
         throw new NoPathException("No path found.");
     }
 
-    public static PointPath generatePointPath(Vertex origin, Vertex destination) throws UnsupportedOperationException, NoPathException {
-        throw new UnsupportedOperationException("To Be Implemented");
+    public PointPath generatePointPath(Vertex origin, Vertex destination) throws UnsupportedOperationException, NoPathException {
+        LinkedList<Vertex> path = this.findBFSPath(origin, destination);
+        return StreetGraph.generatePointPath(path);
     }
 
     public static PointPath generatePointPath(LinkedList<Vertex> path) {
