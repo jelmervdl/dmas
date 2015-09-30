@@ -5,7 +5,6 @@
  */
 package nl.rug.dmas.trafficdemo;
 
-import nl.rug.dmas.trafficdemo.actors.Driver;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,9 +19,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.prefs.Preferences;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -35,8 +32,6 @@ import org.jbox2d.common.Vec2;
  * @author jelmer
  */
 public class TrafficWindow extends JFrame {
-    private final Preferences prefs = Preferences.userNodeForPackage(TrafficDemo.class);
-    
     private final Scenario scenario;
     
     private final TrafficPanel panel;
@@ -45,11 +40,12 @@ public class TrafficWindow extends JFrame {
         this.scenario = scenario;
         
         setTitle("Traffic!");
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
         // The TrafficPanel draws the actual scenario (cars etc.)
         panel = new TrafficPanel(scenario);
-        panel.drawFOV = prefs.getBoolean("drawFOV", panel.drawFOV); // prefer user stored preference
-        panel.drawDirection = prefs.getBoolean("drawDirection", panel.drawDirection);
+        panel.drawFOV = TrafficDemo.getPreferences().getBoolean("drawFOV", panel.drawFOV); // prefer user stored preference
+        panel.drawDirection = TrafficDemo.getPreferences().getBoolean("drawDirection", panel.drawDirection);
         add(panel);
         
         // Allow us to draw on the canvas to create a path for the steerAlongPath behavior of drivers.
@@ -99,14 +95,20 @@ public class TrafficWindow extends JFrame {
         openScenario.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                switch (fileChooser.showOpenDialog(TrafficWindow.this)) {
-                    case JFileChooser.APPROVE_OPTION:
-                        TrafficDemo.runFile(fileChooser.getSelectedFile());
-                        break;
-                }
+                TrafficDemo.openFile();
             }
         });
+        
+        final JMenuItem closeWindow = new JMenuItem("Close window");
+        fileMenu.add(closeWindow);
+        closeWindow.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        closeWindow.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TrafficWindow.this.dispose();
+            }
+        });
+                
         
         JMenu simulationMenu = new JMenu("Simulation");
         menuBar.add(simulationMenu);
@@ -144,7 +146,7 @@ public class TrafficWindow extends JFrame {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 panel.drawFOV = drawFOV.isSelected();
-                prefs.putBoolean("drawFOV", panel.drawFOV);
+                TrafficDemo.getPreferences().putBoolean("drawFOV", panel.drawFOV);
             }
         });
         
@@ -154,7 +156,7 @@ public class TrafficWindow extends JFrame {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 panel.drawDirection = drawDirection.isSelected();
-                prefs.putBoolean("drawDirection", panel.drawDirection);
+                TrafficDemo.getPreferences().putBoolean("drawDirection", panel.drawDirection);
             }
         });
     }
