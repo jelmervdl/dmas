@@ -15,8 +15,8 @@ This model contains two different hierarchical levels, the car/driver level and 
 	\Cref{tab:par:method:model:overview:state:lowlevel:car} provides an overview of all parameters that influence the behaviour of a car.
 
 	\algemeen{Moeten aan de tabelen met parameters geen parameters toegevoegd?}
-	\jelmer{De parameter \t{driver} is nog een beetje vaag, zou jij die verder kunne toelichten?}
-	\algemeen{Onder purpose hebben we het over twee hierarische lagen, komen die overeen met deze twee tabellen? Zo ja, moet de eerste tabel dan niet over drivers en cars gaan, in plaats van alleen over cars, zoals nu gemodelleerd? Of is het handiger om de eigenschappen van drivers in een aparte tabel te zetten, aangezien die nogal uit de hand kunnen lopen en de tabel dan wel heel groot wordt.}
+	\jelmer{De parameter \t{driver} is nog een beetje vaag, zou jij die verder kunnen toelichten?}
+	\later{Als dat straks is toegevoegd is het een idee om de \t{driver} als aparte hierarchische laag toe te voegen. Dan krijgt die ook een eigen tabel met parameters, maar dat heeft nu nog niet heel veel nut, want die is nog niet af.}
 
 	\begin{table}[H]
 		\centering
@@ -79,6 +79,9 @@ This model contains two different hierarchical levels, the car/driver level and 
 \paragraph{Process overview and scheduling}
 \label{par:method:model:overview:process}
 % \algemeen{Welkeb processen zitten in het model, eventueel met tabel.}
+
+\algemeen{Hier wordt in het kort uitgelegd wat de auto's doen.}
+
 The processes active in the model are \t{steerToAvoidCars} and \t{steerTowardsPath}. The first process checks if there is another vehicle in its vicinity and if it is going to hit it given its current driving angle. If a collision seems imminent, the vector describing the direction vector of the vehicle is negated, causing the vehicle to decelerate or turn.
 
 The process \t{steerTowardsPath} is the driving of the vehicle in the direction of the target. As a car is added to the simulation it is passed its path, which is defined as multiple discrete points.  A vehicle drives in the direction of the next point on its path, and when it is close enough, drives to its next target, the next point on its path. Eventually the agent will reach its goal, even when it gets diverted by other vehicles along the way.
