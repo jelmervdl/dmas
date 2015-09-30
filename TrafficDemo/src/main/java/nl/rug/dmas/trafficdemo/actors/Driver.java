@@ -22,8 +22,7 @@ import org.jbox2d.dynamics.Fixture;
 /**
  * Abstract class that represents a driver. Missing is the act() method that
  * controls the actual behaviour. This abstract implementation offers a few
- * utilities such as setSteerDirection() and getCarsInSight() for the
- * implementations.
+ * utilities such as getCarsInSight() for the implementations.
  * @author jelmer
  */
 abstract public class Driver implements Actor, Observer {
@@ -86,22 +85,6 @@ abstract public class Driver implements Actor, Observer {
      * @return whether the destination is reached right now
      */
     abstract public boolean reachedDestination();
-    
-    /**
-     * Set the speed and steering direction. This implementation right now uses
-     * a vector with a length and an angle to determine the speed and direction.
-     * @param direction vector from the current location to the goal location
-     */
-    protected void setSteerDirection(Vec2 direction) {
-        car.setSteeringDirection(direction.mul(-1f));
-        
-        car.setSpeedKMH(direction.length() * 5);
-
-        if (direction.length() > 0.5f)
-            car.setAcceleration(Acceleration.ACCELERATE);
-        else
-            car.setAcceleration(Acceleration.NONE);
-    }
     
     /**
      * Filters the list of fixtures in sight and only returns actual cars that

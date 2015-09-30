@@ -7,6 +7,7 @@ package nl.rug.dmas.trafficdemo.actors;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import nl.rug.dmas.trafficdemo.Acceleration;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.Scenario;
 import org.jbox2d.common.Vec2;
@@ -36,34 +37,85 @@ public class AutonomousDriver extends Driver {
     @Override
     public void act()
     {
-       Vec2 direction = new Vec2();
+        car.setSteeringDirection(steerTowardsPath().negate());
        
-       direction.addLocal(steerToAvoidCars().mul(0.8f));
-       
-       direction.addLocal(steerTowardsPath().mul(0.2f));
-       
-       setSteerDirection(direction);
+        car.setSpeedKMH(15 + speedAdjustmentToAvoidCars() * 5);
+        
+        if (steerTowardsPath().length() == 0)
+            car.setAcceleration(Acceleration.NONE);
+        else if (speedAdjustmentToAvoidCars() < 0)
+            car.setAcceleration(Acceleration.BRAKE);
+        else
+            car.setAcceleration(Acceleration.ACCELERATE);
     }
     
     /**
-     * Behavior that determines the optimal direction to avoid other cars
+     * Behaviour that determines the optimal direction to avoid other cars
      * @return a vector direction
      */
     private Vec2 steerToAvoidCars() {
         Vec2 direction = new Vec2(0, 0);
         
+        return direction;
+    }
+    
+    private float speedAdjustmentToAvoidCars() {
         for (Car other : getCarsInSight()) {
-            Vec2 directionTowardsCar = car.getLocalPoint(other.getPosition());
+            // If that car is driving towards me, well, shit!
             
-            if (directionTowardsCar.length() < 5f) {
-                // todo: Right now, cars that are far away have more impact on
-                // the direction sum than cars close by. Maybe that should be
-                // turned around.
-                direction.addLocal(directionTowardsCar.negate());
-            }
+            Intersection intersection = intersect(car.getPosition(), car.getAbsoluteVelocity(),
+                other.getPosition(), other.getAbsoluteVelocity());
+            
+            if (intersection == null)
+                continue;
+            
+            // Time until I reach the intersection minus the time the other
+            // reaches the intersection
+            float d = intersection.u - intersection.v;
+            
+            // If there is enough time to pass safely, ignore this car
+            // Todo: determine 3 using the length of our and the other car and
+            // their speed. Hard math ahead?
+            if (Math.abs(d) > 3)
+                continue;
+            
+            // d < 0: I'm there first, we should speed up a bit maybe?
+            if (d < 0)
+                return d;
+            
+            // d > 0: other is there first, we should brake?
+            if (d > 0)
+                return d;
         }
         
-        return direction;
+        return 0;
+    }
+    
+    static private class Intersection
+    {
+        public float u, v;
+        
+        public Intersection(float u, float v) {
+            this.u = u;
+            this.v = v;
+        }
+    }
+    
+    private Intersection intersect(Vec2 as, Vec2 bs, Vec2 ad, Vec2 bd) {
+        // Let's try to solve:
+        // p = as + ad * u
+        // p = bs + bd * v
+        
+        float dx = bs.x - as.x;
+        float dy = bs.y - as.y;
+        float det = bd.x * ad.y - bd.y * ad.x;
+        float u = (dy * bd.x - dx * bd.y) / det;
+        float v = (dy * ad.x - dx * ad.y) / det;
+        
+        if (u > 0 && v > 0)
+            return new Intersection(u, v);
+        else
+            return null;
     }
     
     private Vec2 steerTowardsPath() {

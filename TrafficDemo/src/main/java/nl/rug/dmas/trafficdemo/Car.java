@@ -146,6 +146,10 @@ public class Car {
         wheels.add(new Wheel(world, this, new Vec2(width /  2f, length /  2f - 0.8f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom right
         return wheels;
     }
+    
+    public Vec2 getAbsoluteVelocity() {
+        return this.body.getLinearVelocityFromLocalPoint(new Vec2(0, 0));
+    }
 
     /**
      * Get the local velocity of the car. This is equal to the actual speed of
@@ -153,7 +157,7 @@ public class Car {
      * @return velocity of car
      */
     public Vec2 getLocalVelocity() {
-        return this.body.getLocalVector(this.body.getLinearVelocityFromLocalPoint(new Vec2(0, 0)));
+        return this.body.getLocalVector(getAbsoluteVelocity());
     }
     
     /**
