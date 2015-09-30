@@ -9,12 +9,11 @@ import org.jbox2d.common.Vec2;
  *
  * @author Laura & Bastiaan
  */
-public class Vertex {
+public class Vertex extends ListVertex {
 
     private final int vertexListIndex;
     private final ArrayList<Edge> outgoingEdges;
     private final ArrayList<Edge> incomingEdges;
-    private Vec2 location;
 
     /**
      * Constructor for a vertex.
@@ -22,27 +21,10 @@ public class Vertex {
      * @param vertexListIndex the `ID' of the vertex
      */
     public Vertex(int vertexListIndex) {
+        super();
         this.vertexListIndex = vertexListIndex;
         this.outgoingEdges = new ArrayList<>();
         this.incomingEdges = new ArrayList<>();
-        this.location = null;
-    }
-    
-    /**
-     * Get the location of this part of the road in world coordinates.
-     * @return location of this vertex in world coordinates
-     */
-    public Vec2 getLocation() {
-        return this.location;
-    }
-
-    /**
-     * Set the location of this vertex to location.
-     *
-     * @param location
-     */
-    public void setLocation(Vec2 location) {
-        this.location = location;
     }
 
     /**
