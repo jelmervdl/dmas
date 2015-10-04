@@ -35,7 +35,8 @@ public class AutonomousDriver extends Driver {
     
     @Override
     public int getActPeriod() {
-        return 100;
+//        return 100;
+        return 0;
     }
     
     @Override
