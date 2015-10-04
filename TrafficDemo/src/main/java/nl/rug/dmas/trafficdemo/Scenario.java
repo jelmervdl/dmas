@@ -165,6 +165,7 @@ public class Scenario extends Observable {
         car.destroy(world);
         actors.remove(car.driver);
         cars.remove(car);
+        selectedCars.remove(car);
     }
     
     /**

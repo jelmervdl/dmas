@@ -8,6 +8,7 @@ package nl.rug.dmas.trafficdemo;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
@@ -19,7 +20,12 @@ import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Arc2D;
+import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -138,32 +144,37 @@ public class TrafficPanel extends JPanel {
         // World position Vec2(0,0) is the center of the screen
         // Scale translates one world point to n pixels.
         Point center = getCenter();
+        g2.translate(center.x, center.y);
+        g2.scale(10, 10);
+        
+        g2.setStroke(new BasicStroke(1f / scale));
+        g2.setFont(getFont().deriveFont(1f / scale));
         
         // Draw the street-graph
         // Todo: draw this once and store it in a buffer that we can blit,
         // because it doesn't change that often
         if (scenario.streetGraph != null)
-            drawEnvironment(g2, scenario.streetGraph, center, scale);
+            drawEnvironment(g2, scenario.streetGraph);
         
         // Draw the path we paint for debugging purposes
         CopyOnWriteArrayList<Vec2> path = (CopyOnWriteArrayList<Vec2>) scenario.commonKnowledge.get("path");
         if (path != null) {
             g2.setColor(Color.RED);
-            drawPath(g2, path, center, scale);
+            drawPath(g2, path);
         }
         
         scenario.readLock.lock();
         try {
             // Then on top of those, we draw our cars.
-            drawCars(g2, scenario.cars, center, scale);
+            drawCars(g2, scenario.cars);
             
             if (drawFOV)
-                drawFOVs(g2, center, scale);
+                drawFOVs(g2);
         } finally {
             scenario.readLock.unlock();
         }
         
-        g.dispose();
+        g2.dispose();
     }
 
     /**
@@ -174,7 +185,7 @@ public class TrafficPanel extends JPanel {
      * @param offset in pixels of 0,0 in world space
      * @param scale to scale world space coordinates to pixels
      */
-    private void drawCars(Graphics2D g, List<Car> cars, Point offset, float scale) {
+    private void drawCars(Graphics2D g, List<Car> cars) {
         // Draw all wheels
         Graphics2D g2 = (Graphics2D) g.create();
         
@@ -182,24 +193,14 @@ public class TrafficPanel extends JPanel {
         for (Car car : cars) {
             for (Wheel wheel : car.wheels) {
                 // (Assume the body of a wheel has only one fixture, the body shape itself.)
-                drawShape(g2, wheel.body.getFixtureList().getShape(), wheel.body.getTransform(), offset, scale);
+                drawShape(g2, wheel.body.getFixtureList().getShape(), wheel.body.getTransform());
             }
         }
         
         // Then draw the body of the cars
         for (Car car : cars) {
             g2.setColor(car.color);
-            java.awt.Shape shape = getShape(car.bodyFixture.getShape(), car.body.getTransform(), offset, scale);
-            g2.fill(shape);
-            
-            if (scenario.selectedCars.contains(car)) {
-                Graphics2D strokePainter = (Graphics2D) g2.create();
-                strokePainter.setColor(UIManager.getColor("Focus.color"));
-                strokePainter.setStroke(new BasicStroke(2.0f));
-                strokePainter.draw(shape);
-                strokePainter.dispose();
-            }
-            //drawShape(g2, car.bodyFixture.getShape(), car.body.getTransform(), offset, scale);
+            drawShape(g2, car.bodyFixture.getShape(), car.body.getTransform());
         }
         
         // Draw headlights! I have too much free time.
@@ -208,32 +209,32 @@ public class TrafficPanel extends JPanel {
                 case ACCELERATE:
                     drawLight(g2, headlightColor,
                         new Vec2(-car.width / 2 + 0.5f, -car.length / 2),
-                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 50,
-                        car.body.getTransform(), offset, scale);
+                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 5,
+                        car.body.getTransform());
                     drawLight(g2, headlightColor,
                         new Vec2(car.width / 2 - 0.5f, -car.length / 2),
-                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 50,
-                        car.body.getTransform(), offset, scale);
+                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 5,
+                        car.body.getTransform());
                     break;
                 case BRAKE:
                     drawLight(g2, taillightColor,
                         new Vec2(-car.width / 2 + 0.5f, car.length / 2),
-                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 10,
-                        car.body.getTransform(), offset, scale);
+                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 1,
+                        car.body.getTransform());
                     drawLight(g2, taillightColor,
                         new Vec2(car.width / 2 - 0.5f, car.length / 2),
-                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 10,
-                        car.body.getTransform(), offset, scale);
+                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 1,
+                        car.body.getTransform());
                     break;
                 case REVERSE:
                     drawLight(g2, reverselightColor,
                         new Vec2(-car.width / 2 + 0.5f, car.length / 2),
                         Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 5,
-                        car.body.getTransform(), offset, scale);
+                        car.body.getTransform());
                     drawLight(g2, reverselightColor,
                         new Vec2(car.width / 2 - 0.5f, car.length / 2),
                         Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 5,
-                        car.body.getTransform(), offset, scale);
+                        car.body.getTransform());
                     break;
             }
         }
@@ -242,7 +243,7 @@ public class TrafficPanel extends JPanel {
         if (drawDirection) {
             g2.setColor(Color.RED);
             for (Car car : cars) {
-                drawAngle(g2, car.targetBodyAngle, car.body.getPosition(), offset, scale);
+                drawAngle(g2, car.targetBodyAngle, car.body.getPosition());
             }
         }
         
@@ -250,7 +251,26 @@ public class TrafficPanel extends JPanel {
         if (drawDriverThoughts) {
             g2.setColor(Color.GREEN);
             for (Car car : cars)
-                drawDriverDebug(g2, car.driver, offset, scale);
+                drawDriverDebug(g2, car.driver);
+        }
+        
+        if (!scenario.selectedCars.isEmpty()) {
+            Graphics2D strokePainter = (Graphics2D) g2.create();
+            strokePainter.setColor(UIManager.getColor("Focus.color"));
+            strokePainter.setStroke(new BasicStroke(2.0f / scale));
+                
+            for (Car car : scenario.selectedCars) {
+                Area area = new Area();
+                
+                for (Wheel wheel : car.wheels)
+                    area.add(new Area(getShape(wheel.body.getFixtureList().getShape(), wheel.body.getTransform())));
+                
+                area.add(new Area(getShape(car.bodyFixture.getShape(), car.body.getTransform())));
+                
+                strokePainter.draw(area);
+            }
+            
+            strokePainter.dispose();
         }
         
         g2.dispose();
@@ -265,60 +285,9 @@ public class TrafficPanel extends JPanel {
      * @param offset in pixels of 0,0 in world space
      * @param scale to scale world space coordinates to pixels
      */
-    private void drawShape(Graphics2D g2, Shape shape, Transform transform, Point offset, float scale) {
-        switch (shape.getType()) {
-            case POLYGON:
-                drawPolygonShape(g2, (PolygonShape) shape, transform, offset, scale);
-                break;
-            case CIRCLE:
-                drawCircleShape(g2, (CircleShape) shape, transform, offset, scale);
-                break;
-            default:
-                throw new UnsupportedOperationException("drawShape can only draw POLYGON and CIRCLE for now.");
-        } 
-    }
-    
-    /**
-     * Draws a filled JBox2D PolygonShape using fillPolygon.
-     * @param graphics
-     * @param poly JBox2D PolygonShape
-     * @param transform applied to the shape to get the location and rotation
-     * @param offset in pixels of 0,0 in world space
-     * @param scale to scale world space coordinates to pixels
-     */
-    private void drawPolygonShape(Graphics2D g2, PolygonShape poly, Transform transform, Point offset, float scale) {
-        int vertexCount = poly.m_count;
-        int[] xs = new int[vertexCount];
-        int[] ys = new int[vertexCount];
-
-        Vec2 vertex = new Vec2();
-        for (int i = 0; i < vertexCount; ++i) {
-            Transform.mulToOutUnsafe(transform, poly.m_vertices[i], vertex);
-            xs[i] = Math.round(vertex.x * scale + offset.x);
-            ys[i] = Math.round(vertex.y * scale + offset.y);
-        }
-
-        g2.fillPolygon(xs, ys, vertexCount);
-    }
-
-    /**
-     * Draws a filled JBox2D CircleShape using fillOval.
-     * @param graphics
-     * @param circle JBox2D CircleShape
-     * @param transform applied to the shape to get the location and rotation
-     * @param offset in pixels of 0,0 in world space
-     * @param scale to scale world space coordinates to pixels
-     */
-    private void drawCircleShape(Graphics2D g2, CircleShape circle, Transform transform, Point offset, float scale) {   
-        Vec2 center = new Vec2();
-        Transform.mulToOutUnsafe(transform, circle.m_p, center);
-        center.addLocal(-circle.getRadius(), -circle.getRadius());
-
-        g2.fillOval(
-            Math.round(center.x * scale + offset.x),
-            Math.round(center.y * scale + offset.y),
-            Math.round(2 * circle.getRadius() * scale),
-            Math.round(2 * circle.getRadius() * scale));
+    private void drawShape(Graphics2D g2, Shape shape, Transform transform) {
+        java.awt.Shape shape2d = getShape(shape, transform);
+        g2.fill(shape2d);
     }
     
     /**
@@ -329,10 +298,10 @@ public class TrafficPanel extends JPanel {
      * @param offset in pixels of 0,0 in world space
      * @param scale to scale world space coordinates to pixels
      */
-    private void drawAngle(Graphics2D g2, float angle, Vec2 position, Point offset, float scale) {
+    private void drawAngle(Graphics2D g2, float angle, Vec2 position) {
         angle -= MathUtils.HALF_PI;
         Vec2 direction = new Vec2(MathUtils.cos(angle), MathUtils.sin(angle));
-        drawVec(g2, direction, position, offset, scale);
+        drawVec(g2, direction, position);
     }
     
     /**
@@ -343,42 +312,44 @@ public class TrafficPanel extends JPanel {
      * @param offset in pixels of 0,0 in world space
      * @param scale to scale world space coordinates to pixels
      */
-    private void drawVec(Graphics2D g2, Vec2 direction, Vec2 position, Point offset, float scale) {
+    private void drawVec(Graphics2D g2, Vec2 direction, Vec2 position) {
         // target is the absolute world position of the tip of the vector
         Vec2 target = position.add(direction);
         
         // draw the line of the vector
-        g2.drawLine(
-            Math.round(position.x * scale + offset.x),
-            Math.round(position.y * scale + offset.y),
-            Math.round(target.x * scale + offset.x),
-            Math.round(target.y * scale + offset.y)
-        );
+        g2.draw(new Line2D.Float(
+            position.x, position.y,
+            target.x, target.y
+        ));
         
         // and draw a little arrowhead at the tip
         float angle = MathUtils.atan2(direction.y, direction.x);
         float arrowLength = MathUtils.clamp(direction.length() / 10f, 0.5f, 1.0f);
         float arrowWidth = 0.125f * MathUtils.PI;
         
-        int[] xs = new int[]{
-            Math.round(target.x * scale + offset.x), // tip
-            Math.round((target.x - arrowLength * MathUtils.cos(angle + arrowWidth)) * scale + offset.x), // bottom left
-            Math.round((target.x - arrowLength * MathUtils.cos(angle - arrowWidth)) * scale + offset.x) // bottom right
-        };
+        Path2D arrow = new Path2D.Float();
         
-        int[] ys = new int[] {
-            Math.round(target.y * scale + offset.y),
-            Math.round((target.y - arrowLength * MathUtils.sin(angle + arrowWidth)) * scale + offset.y),
-            Math.round((target.y - arrowLength * MathUtils.sin(angle - arrowWidth)) * scale + offset.y)
-        };
+        // Start at the tip
+        arrow.moveTo(target.x, target.y);
         
-        g2.fillPolygon(xs, ys, xs.length);
+        // bottom left
+        arrow.lineTo(
+            target.x - arrowLength * MathUtils.cos(angle + arrowWidth),
+            target.y - arrowLength * MathUtils.sin(angle + arrowWidth));
+        
+        // bottom right
+        arrow.lineTo(
+            target.x - arrowLength * MathUtils.cos(angle - arrowWidth),
+            target.y - arrowLength * MathUtils.sin(angle - arrowWidth));
+        
+        arrow.closePath();
+        g2.fill(arrow);
     }
 
     /**
      * Draw a little headlight box with light coming out of it!
      * @param g
-     * @param lightColor color of the light
+     * @param lightColor colour of the light
      * @param position position in car space of the point between the light and the light box I.e. the light box is 'behind' this point, and the light cone 'in front of'
      * @param angleDeg absolute rotation of the light in degrees
      * @param angleWidth width of the light beam in degrees
@@ -387,66 +358,66 @@ public class TrafficPanel extends JPanel {
      * @param offset in pixels of 0,0 in world space
      * @param scale to scale world space coordinates to pixels
      */
-    private void drawLight(Graphics2D g, Color lightColor, Vec2 position, int angleDeg, int angleWidth, int reach, Transform transform, Point offset, float scale) {
+    private void drawLight(Graphics2D g, Color lightColor, Vec2 position, int angleDeg, int angleWidth, float reach, Transform transform) {
         Graphics2D g2 = (Graphics2D) g.create();
         Vec2 worldPosition = new Vec2();
         Transform.mulToOutUnsafe(transform, position, worldPosition);
         
-        Point center = new Point(
-            Math.round(worldPosition.x * scale) + offset.x,
-            Math.round(worldPosition.y * scale) + offset.y);
+        Point2D center = new Point2D.Float(
+            worldPosition.x,
+            worldPosition.y);
         
-        g2.translate(center.x, center.y);
+        g2.translate(center.getX(), center.getY());
         g2.rotate(angleDeg * MathUtils.DEG2RAD);
         
         // First, draw the light box itself
         g2.setColor(lightColor);
-        g2.fillRect(-2, 0, 4, 2);
+        g2.fill(new Rectangle2D.Float(-0.2f, 0, 0.4f, 0.2f));
         
         // Secondly, draw the light beam
         
-        angleDeg -= 90;
+        angleDeg -= 90; // light is up, not to the right
         
         float[] dist = {0.0f, 1.0f};
         Color[] colors = {lightColor, new Color(0.0f, 0.0f, 0.0f, 0.0f)};
-        RadialGradientPaint p = new RadialGradientPaint(new Point(0, 0), reach / 2, dist, colors);
+        RadialGradientPaint p = new RadialGradientPaint(new Point(0, 0), reach / 2f, dist, colors);
         g2.setPaint(p);
-        g2.fillArc(-reach, -reach, reach * 2, reach * 2, -angleWidth / 2 + 90, angleWidth);
+        g2.fill(new Arc2D.Float(-reach, -reach, reach * 2, reach * 2, -angleWidth / 2 + 90, angleWidth, Arc2D.PIE));
         
         g2.dispose();
     }
 
-    private void drawPath(Graphics2D g2, List<Vec2> path, Point offset, float scale) {
+    private void drawPath(Graphics2D g2, List<Vec2> path) {
         for (Vec2 point : path) {
-            g2.fillOval(
-                Math.round(point.x * scale) + offset.x - 2,
-                Math.round(point.y * scale) + offset.y - 2,
-                4, 4);
+            g2.draw(new Ellipse2D.Float(
+                point.x - 0.2f,
+                point.y - 0.2f,
+                0.4f, 0.4f));
         }
     }
 
-    private void drawVertex(Graphics2D g2, Vertex vertex, Point offset, float scale) {
-        int radius = 5;
+    private void drawVertex(Graphics2D g, Vertex vertex) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        float radius = 0.5f;
         
         Vec2 point = vertex.getLocation();
         
-        drawPosition(g2, point, radius, offset, scale);
+        drawPosition(g2, point, radius);
         
-        Color background = g2.getColor();
         g2.setColor(Color.WHITE);
         g2.drawString(Integer.toString(vertex.getVertexListIndex()),
-            Math.round(point.x * scale) + offset.x,
-            Math.round(point.y * scale) + offset.y);
-        g2.setColor(background);
+            point.x, point.y);
+        
+        g2.dispose();
     }
 
-    private void drawEdge(Graphics2D g2, Edge edge, Point offset, float scale) {
+    private void drawEdge(Graphics2D g2, Edge edge) {
         Vec2 position = edge.getOrigin().getLocation();
         Vec2 direction = edge.getDestination().getLocation().sub(position);
-        drawVec(g2, direction, position, offset, scale);
+        drawVec(g2, direction, position);
     }
     
-    private void drawFOVs(Graphics2D g, Point offset, float scale) {
+    private void drawFOVs(Graphics2D g) {
         Graphics2D g2 = (Graphics2D) g.create();
         
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
@@ -455,7 +426,7 @@ public class TrafficPanel extends JPanel {
         for (Body body = scenario.getWorld().getBodyList(); body != null; body = body.getNext()) {
             for (Fixture fixture = body.getFixtureList(); fixture != null; fixture = fixture.getNext()) {
                 if (fixture.isSensor() && fixture.getUserData() instanceof Observer) {
-                    drawShape(g2, fixture.getShape(), body.getTransform(), offset, scale);
+                    drawShape(g2, fixture.getShape(), body.getTransform());
                 }
             }
         }
@@ -463,7 +434,7 @@ public class TrafficPanel extends JPanel {
         g2.dispose();
     }
     
-    private void drawRoad(Graphics2D g, Edge edge, Point offset, float scale) {
+    private void drawRoad(Graphics2D g, Edge edge) {
         Graphics2D g2 = (Graphics2D) g.create();
         
         LinkedList<Vertex> path = new LinkedList<>();
@@ -473,47 +444,44 @@ public class TrafficPanel extends JPanel {
         PointPath points = StreetGraph.generatePointPath(path);
         
         // First draw the road side
-        Stroke roadSideStroke = new BasicStroke(0.3f * scale);
+        Stroke roadSideStroke = new BasicStroke(0.3f);
         g2.setStroke(roadSideStroke);
         g2.setColor(Color.DARK_GRAY);
         
         // Both left and right side
-        drawLine(g2, points.translate(1.5f).iterator(), offset, scale);        
-        drawLine(g2, points.translate(-1.5f).iterator(), offset, scale);
+        drawLine(g2, points.translate(1.5f).iterator());
+        drawLine(g2, points.translate(-1.5f).iterator());
         
         // Then draw the road itself so it overlays all the road side drawing
         // glitches which occur at the intersections
-        Stroke roadStroke = new BasicStroke(3 * scale, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+        Stroke roadStroke = new BasicStroke(3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
         g2.setStroke(roadStroke);
         g2.setColor(Color.LIGHT_GRAY);
         
-        drawLine(g2, points.iterator(), offset, scale);
+        drawLine(g2, points.iterator());
         
         g2.dispose();
     }
     
-    private void drawLine(Graphics2D g2, Iterator<Vec2> pointIter, Point offset, float scale) {
-        Vec2 segmentStart;
-        Vec2 segmentEnd = pointIter.next();
+    private void drawLine(Graphics2D g2, Iterator<Vec2> pointIter) {
+        Path2D.Float path = new Path2D.Float();
+        
+        Vec2 point = pointIter.next();
+        path.moveTo(point.x, point.y);
         
         while (pointIter.hasNext()) {
-            segmentStart = segmentEnd;
-            segmentEnd = pointIter.next();
-            
-            g2.drawLine(
-                Math.round(segmentStart.x * scale) + offset.x,
-                Math.round(segmentStart.y * scale) + offset.y,
-                Math.round(segmentEnd.x * scale) + offset.x,
-                Math.round(segmentEnd.y * scale) + offset.y);
+            point = pointIter.next();
+            path.lineTo(point.x, point.y);
         }
+        
+        g2.draw(path);
     }
 
-    private void drawPosition(Graphics2D g2, Vec2 point, int radius, Point offset, float scale) {
-        g2.fillOval(
-            Math.round(point.x * scale) + offset.x - radius,
-            Math.round(point.y * scale) + offset.y - radius,
+    private void drawPosition(Graphics2D g2, Vec2 point, float radius) {
+        g2.fill(new Ellipse2D.Float(
+            point.x - radius, point.y - radius,
             radius * 2, radius * 2
-        );
+        ));
     }
 
     /**
@@ -523,15 +491,15 @@ public class TrafficPanel extends JPanel {
      * @param center
      * @param scale 
      */
-    private void drawEnvironment(Graphics2D g2, StreetGraph streetGraph, Point center, float scale) {
+    private void drawEnvironment(Graphics2D g2, StreetGraph streetGraph) {
         // First draw the actual road
         for (Edge edge : streetGraph.getEdges())
-            drawRoad(g2, edge, center, scale);
+            drawRoad(g2, edge);
 
         // Then draw the graph as an overlay
         g2.setColor(Color.BLACK);
         for (Edge edge : streetGraph.getEdges())
-            drawEdge(g2, edge, center, scale);
+            drawEdge(g2, edge);
 
         for (Vertex vertex : streetGraph.getVertices()) {
             if (streetGraph.isSink(vertex))
@@ -541,59 +509,61 @@ public class TrafficPanel extends JPanel {
             else
                 g2.setColor(Color.BLUE);
 
-            drawVertex(g2, vertex, center, scale);
+            drawVertex(g2, vertex);
         }
     }
 
-    private void drawDriverDebug(final Graphics2D g2, final Driver driver, final Point offset, final float scale) {
+    private void drawDriverDebug(final Graphics2D g2, final Driver driver) {
         driver.debugDraw.renderTo(new DebugGraphicsQueue.Renderer() {
             @Override
             public void drawPositionVelocity(Vec2 position, Vec2 velocity) {
-                TrafficPanel.this.drawVec(g2, velocity, position, offset, scale);
+                TrafficPanel.this.drawVec(g2, velocity, position);
             }
 
             @Override
             public void drawPosition(Vec2 position) {
-                TrafficPanel.this.drawPosition(g2, position, 3, offset, scale);
+                TrafficPanel.this.drawPosition(g2, position, 0.3f);
             }
         });
     }
     
-    private java.awt.Shape getShape(Shape shape, Transform transform, Point offset, float scale) {
+    private java.awt.Shape getShape(Shape shape, Transform transform) {
         switch (shape.getType()) {
             case POLYGON:
-                return getPolygonShape((PolygonShape) shape, transform, offset, scale);
+                return getPolygonShape((PolygonShape) shape, transform);
             case CIRCLE:
-                return getCircleShape((CircleShape) shape, transform, offset, scale);
+                return getCircleShape((CircleShape) shape, transform);
             default:
                 throw new UnsupportedOperationException("drawShape can only draw POLYGON and CIRCLE for now.");
         } 
     }
     
-    private java.awt.Shape getPolygonShape(PolygonShape poly, Transform transform, Point offset, float scale) {
+    private java.awt.Shape getPolygonShape(PolygonShape poly, Transform transform) {
         int vertexCount = poly.m_count;
-        int[] xs = new int[vertexCount];
-        int[] ys = new int[vertexCount];
+        Path2D.Float path = new Path2D.Float();
 
         Vec2 vertex = new Vec2();
         for (int i = 0; i < vertexCount; ++i) {
             Transform.mulToOutUnsafe(transform, poly.m_vertices[i], vertex);
-            xs[i] = Math.round(vertex.x * scale + offset.x);
-            ys[i] = Math.round(vertex.y * scale + offset.y);
+            if (i == 0) {
+                path.moveTo(vertex.x, vertex.y);
+            } else {
+                path.lineTo(vertex.x, vertex.y);
+            }
         }
-
-        return new Polygon(xs, ys, vertexCount);
+        
+        path.closePath();
+        return path;
     }
     
-    private java.awt.Shape getCircleShape(CircleShape circle, Transform transform, Point offset, float scale) {   
+    private java.awt.Shape getCircleShape(CircleShape circle, Transform transform) {
         Vec2 center = new Vec2();
         Transform.mulToOutUnsafe(transform, circle.m_p, center);
         center.addLocal(-circle.getRadius(), -circle.getRadius());
 
         return new Ellipse2D.Float(
-            Math.round(center.x * scale + offset.x),
-            Math.round(center.y * scale + offset.y),
-            Math.round(2 * circle.getRadius() * scale),
-            Math.round(2 * circle.getRadius() * scale));
+            center.x, center.y,
+            2 * circle.getRadius(),
+            2 * circle.getRadius());
     }
 }
