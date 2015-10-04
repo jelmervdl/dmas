@@ -8,12 +8,10 @@ package nl.rug.dmas.trafficdemo;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
@@ -145,10 +143,10 @@ public class TrafficPanel extends JPanel {
         // Scale translates one world point to n pixels.
         Point center = getCenter();
         g2.translate(center.x, center.y);
-        g2.scale(10, 10);
+        g2.scale(scale, scale);
         
         g2.setStroke(new BasicStroke(1f / scale));
-        g2.setFont(getFont().deriveFont(1f / scale));
+        g2.setFont(g2.getFont().deriveFont(g2.getFont().getSize2D() / scale));
         
         // Draw the street-graph
         // Todo: draw this once and store it in a buffer that we can blit,
