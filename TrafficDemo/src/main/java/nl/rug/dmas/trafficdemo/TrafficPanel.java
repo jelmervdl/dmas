@@ -168,6 +168,9 @@ public class TrafficPanel extends JPanel {
             
             if (drawFOV)
                 drawFOVs(g2);
+            
+            if (!scenario.selectedCars.isEmpty())
+                drawSelection(g2);
         } finally {
             scenario.readLock.unlock();
         }
@@ -250,25 +253,6 @@ public class TrafficPanel extends JPanel {
             g2.setColor(Color.GREEN);
             for (Car car : cars)
                 drawDriverDebug(g2, car.driver);
-        }
-        
-        if (!scenario.selectedCars.isEmpty()) {
-            Graphics2D strokePainter = (Graphics2D) g2.create();
-            strokePainter.setColor(UIManager.getColor("Focus.color"));
-            strokePainter.setStroke(new BasicStroke(2.0f / scale));
-                
-            for (Car car : scenario.selectedCars) {
-                Area area = new Area();
-                
-                for (Wheel wheel : car.wheels)
-                    area.add(new Area(getShape(wheel.body.getFixtureList().getShape(), wheel.body.getTransform())));
-                
-                area.add(new Area(getShape(car.bodyFixture.getShape(), car.body.getTransform())));
-                
-                strokePainter.draw(area);
-            }
-            
-            strokePainter.dispose();
         }
         
         g2.dispose();
@@ -563,5 +547,24 @@ public class TrafficPanel extends JPanel {
             center.x, center.y,
             2 * circle.getRadius(),
             2 * circle.getRadius());
+    }
+
+    private void drawSelection(Graphics2D g2) {
+        Graphics2D strokePainter = (Graphics2D) g2.create();
+        strokePainter.setColor(UIManager.getColor("Focus.color"));
+        strokePainter.setStroke(new BasicStroke(2.0f / scale));
+
+        for (Car car : scenario.selectedCars) {
+            Area area = new Area();
+
+            for (Wheel wheel : car.wheels)
+                area.add(new Area(getShape(wheel.body.getFixtureList().getShape(), wheel.body.getTransform())));
+
+            area.add(new Area(getShape(car.bodyFixture.getShape(), car.body.getTransform())));
+
+            strokePainter.draw(area);
+        }
+
+        strokePainter.dispose();
     }
 }
