@@ -194,14 +194,14 @@ public class TrafficPanel extends JPanel {
         for (Car car : cars) {
             for (Wheel wheel : car.wheels) {
                 // (Assume the body of a wheel has only one fixture, the body shape itself.)
-                drawShape(g2, wheel.body.getFixtureList().getShape(), wheel.body.getTransform());
+                fillShape(g2, wheel.body.getFixtureList().getShape(), wheel.body.getTransform());
             }
         }
         
         // Then draw the body of the cars
         for (Car car : cars) {
             g2.setColor(car.color);
-            drawShape(g2, car.bodyFixture.getShape(), car.body.getTransform());
+            fillShape(g2, car.bodyFixture.getShape(), car.body.getTransform());
         }
         
         // Draw headlights! I have too much free time.
@@ -267,7 +267,7 @@ public class TrafficPanel extends JPanel {
      * @param offset in pixels of 0,0 in world space
      * @param scale to scale world space coordinates to pixels
      */
-    private void drawShape(Graphics2D g2, Shape shape, Transform transform) {
+    private void fillShape(Graphics2D g2, Shape shape, Transform transform) {
         java.awt.Shape shape2d = getShape(shape, transform);
         g2.fill(shape2d);
     }
@@ -371,7 +371,7 @@ public class TrafficPanel extends JPanel {
 
     private void drawPath(Graphics2D g2, List<Vec2> path) {
         for (Vec2 point : path) {
-            g2.draw(new Ellipse2D.Float(
+            g2.fill(new Ellipse2D.Float(
                 point.x - 0.2f,
                 point.y - 0.2f,
                 0.4f, 0.4f));
@@ -408,7 +408,7 @@ public class TrafficPanel extends JPanel {
         for (Body body = scenario.getWorld().getBodyList(); body != null; body = body.getNext()) {
             for (Fixture fixture = body.getFixtureList(); fixture != null; fixture = fixture.getNext()) {
                 if (fixture.isSensor() && fixture.getUserData() instanceof Observer) {
-                    drawShape(g2, fixture.getShape(), body.getTransform());
+                    fillShape(g2, fixture.getShape(), body.getTransform());
                 }
             }
         }
