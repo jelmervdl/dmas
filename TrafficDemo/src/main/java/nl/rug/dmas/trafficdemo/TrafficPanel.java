@@ -68,13 +68,18 @@ public class TrafficPanel extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                if (e.isConsumed())
+                    return;
+                
                 if (!e.isShiftDown())
                     TrafficPanel.this.scenario.selectedCars.clear();
                 
                 Car car = TrafficPanel.this.getCarAtPosition(e.getPoint());
                 
-                if (car != null)
+                if (car != null) {
                     TrafficPanel.this.scenario.selectedCars.add(car);
+                    e.consume();
+                }
                 
                 repaint();
             }
@@ -91,26 +96,24 @@ public class TrafficPanel extends JPanel {
         Point panelLoc = getLocationOnScreen();
         int mx = mouseLoc.x - panelLoc.x;
         int my = mouseLoc.y - panelLoc.y;
-
-        Point center = getCenter();
-        float wx = (mx - center.x) / scale;
-        float wy = (my - center.y) / scale;
-
-        return new Vec2(wx, wy);
+        return getPositionInWorld(new Point(mx, my));
     }
     
     public Car getCarAtPosition(Point position) {
-        Point center = getCenter();
-        float wx = (position.x - center.x) / scale;
-        float wy = (position.y - center.y) / scale;
-        
-        Vec2 worldPoint = new Vec2(wx, wy);
+        Vec2 worldPoint = getPositionInWorld(position);
 
         for (Car car : scenario.cars)
             if (car.bodyFixture.testPoint(worldPoint))
                 return car;
         
         return null;
+    }
+    
+    public Vec2 getPositionInWorld(Point position) {
+        Point center = getCenter();
+        float wx = (position.x - center.x) / scale;
+        float wy = (position.y - center.y) / scale;
+        return new Vec2(wx, wy);
     }
     
     /**

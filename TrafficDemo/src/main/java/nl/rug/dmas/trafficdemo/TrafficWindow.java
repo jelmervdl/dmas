@@ -15,15 +15,20 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import org.jbox2d.common.Vec2;
 
@@ -59,6 +64,59 @@ public class TrafficWindow extends JFrame {
             @Override
             public void mouseMoved(MouseEvent e) {
                 TrafficWindow.this.scenario.getCommonKnowledge().put("mouse", panel.getMouseWorldLocation());
+            }
+        });
+        
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger())
+                    triggerPopup(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger())
+                    triggerPopup(e);
+            }
+            
+            private void triggerPopup(final MouseEvent popupEvent) {
+                JPopupMenu carContextMenu = new JPopupMenu();
+                
+                carContextMenu.add(new AbstractAction() {
+                    @Override
+                    public boolean isEnabled() {
+                        return !TrafficWindow.this.scenario.selectedCars.isEmpty();
+                    }
+                    
+                    @Override
+                    public Object getValue(String key) {
+                        if (key.equals(Action.NAME))
+                            return TrafficWindow.this.scenario.selectedCars.size() == 1
+                                    ? "Remove Selected Car"
+                                    : "Remove Selected Cars";
+                        else
+                            return super.getValue(key);
+                    }
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Set<Car> cars = new HashSet<>(TrafficWindow.this.scenario.selectedCars);
+                        for (Car car : cars)
+                            TrafficWindow.this.scenario.remove(car);
+                    }
+                });
+                
+                carContextMenu.add(new AbstractAction("Add Car") {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Vec2 position = panel.getPositionInWorld(popupEvent.getPoint());
+                        TrafficWindow.this.scenario.add(generateCar(position));
+                    }
+                });
+                
+                popupEvent.consume();
+                carContextMenu.show(panel, popupEvent.getX(), popupEvent.getY());
             }
         });
         
@@ -185,6 +243,10 @@ public class TrafficWindow extends JFrame {
     }
     
     private Car generateCar() {
-        return new Car(scenario.createDriver(), 2, 4, RandomUtil.nextRandomVec(-10, 10, -10, 10));
+        return generateCar(RandomUtil.nextRandomVec(-10, 10, -10, 10));
+    }
+    
+    private Car generateCar(Vec2 position) {
+        return new Car(scenario.createDriver(), 2, 4, position);
     }
 }
