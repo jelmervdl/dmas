@@ -91,7 +91,9 @@ public class StreetGraphSource implements Actor, Observer {
 
     @Override
     public void act() {
-        if (fixturesInSight == 0) {
+        Boolean enabled = (Boolean) scenario.getCommonKnowledge().get("spawnCars");
+        
+        if ((enabled == null || enabled) && fixturesInSight == 0) {
             try {
                 long currentTime = System.currentTimeMillis();
                 if (currentTime - timeOfLastSpawn > timeoutInMS) {

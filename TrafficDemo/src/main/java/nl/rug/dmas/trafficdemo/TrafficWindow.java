@@ -139,6 +139,17 @@ public class TrafficWindow extends JFrame {
             }
         });
         
+        simulationMenu.addSeparator();
+        
+        final JCheckBoxMenuItem spawnCars = new JCheckBoxMenuItem("Spawn Cars", true);
+        simulationMenu.add(spawnCars);
+        spawnCars.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                scenario.getCommonKnowledge().put("spawnCars", spawnCars.isSelected());
+            }
+        });
+        
         JMenu viewMenu = new JMenu("View");
         menuBar.add(viewMenu);
         
