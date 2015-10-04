@@ -24,8 +24,8 @@ import org.jbox2d.dynamics.World;
  */
 public class Car {
     final float maxSteerAngleDeg = 40;
-    final float power = 250;
-    final float brakePower = 100;
+    final float power = 300;
+    final float brakePower = 0; // TODO: So braking is the same as not accelerating :(
     final float steeringSpeed = 5f;
     
     final float width;
@@ -34,7 +34,6 @@ public class Car {
 
     final Driver driver;
     
-    float targetSpeedKMH = 0f;
     Acceleration acceleration =  Acceleration.NONE;
 
     float targetBodyAngle = 0f;
@@ -185,10 +184,6 @@ public class Car {
         return (getLocalVelocity().length() / 1000) * 3600;
     }
     
-    public void setSpeedKMH(float speedInKMH) {
-        targetSpeedKMH = speedInKMH;
-    }
-
     /**
      * Set the speed of the body of the car. This alters the velocity the car
      * already has gained. To change the velocity of the car in a realistic way,
@@ -262,13 +257,13 @@ public class Car {
 
         switch (this.acceleration) {
             case ACCELERATE:
-                if (this.getSpeedKMH() < this.targetSpeedKMH)
-                    forceVec = new Vec2(0, -1).mul(power); // Note: this represents the engine power!
+                forceVec = new Vec2(0, -1).mul(power); // Note: this represents the engine power!
                 break;
 
             case BRAKE:
+                // TODO: implement braking in such a way that it also works when driving in reverse
                 if (getLocalVelocity().y < 0)
-                    forceVec = new Vec2(0, getLocalVelocity().x).mul(brakePower);
+                    forceVec = new Vec2(0, 1).mul(brakePower);
                 break;
             
             case REVERSE:
@@ -283,7 +278,7 @@ public class Car {
                 wheel.setAngleDeg(wheelAngleDeg);
             
             if (wheel.powered == Power.POWERED)
-                wheel.body.applyForce(wheel.body.getWorldVector(forceVec), wheel.body.getWorldCenter());
+                wheel.body.applyForceToCenter(wheel.body.getWorldVector(forceVec));
         }
 
         //if going very slow, stop - to prevent endless sliding

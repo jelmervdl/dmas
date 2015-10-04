@@ -47,8 +47,6 @@ public class TestDriver extends Driver {
     protected void setSteerDirection(Vec2 direction) {
         car.setSteeringDirection(direction.mul(-1f));
         
-        car.setSpeedKMH(direction.length() * 5);
-
         if (direction.length() > 0.5f)
             car.setAcceleration(Acceleration.ACCELERATE);
         else

@@ -6,6 +6,7 @@
 package nl.rug.dmas.trafficdemo;
 
 import org.jbox2d.collision.shapes.PolygonShape;
+import org.jbox2d.common.MathUtils;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
@@ -96,7 +97,7 @@ public class Wheel {
      */
     public Vec2 getDirectionVector() {
         //return rotate new Vec2((-?)1,0) by this.body.angle() depending on moving forward or backward, namely getLocalVelocity().x
-        return new Vec2();
+        return VecUtils.rotate(new Vec2(-body.getMass(), 0), body.getAngle());
     }
 
     /**
@@ -110,7 +111,10 @@ public class Wheel {
         var dotprod=vectors.dot([velocity.x, velocity.y], sideways_axis);
         return [sideways_axis[0]*dotprod, sideways_axis[1]*dotprod];
         */
-        return new Vec2();
+        Vec2 velocity = body.getLinearVelocity();
+        Vec2 sidewaysAxis = getDirectionVector();
+        float dot = Vec2.dot(velocity, sidewaysAxis);
+        return sidewaysAxis.mul(dot);
     }
 
     /**

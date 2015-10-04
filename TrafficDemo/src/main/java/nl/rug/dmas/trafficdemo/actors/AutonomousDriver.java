@@ -10,6 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import nl.rug.dmas.trafficdemo.Acceleration;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.Scenario;
+import nl.rug.dmas.trafficdemo.VecUtils;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.Vec2;
@@ -56,14 +57,14 @@ public class AutonomousDriver extends Driver {
         
         car.setSteeringDirection(steerTowardsPath().negate());
        
-        car.setSpeedKMH(15 + speedAdjustmentToAvoidCars() * 5);
-        
         if (steerTowardsPath().length() == 0)
             car.setAcceleration(Acceleration.NONE);
         else if (speedAdjustmentToAvoidCars() < 0)
             car.setAcceleration(Acceleration.BRAKE);
-        else
+        else if (car.getSpeedKMH() < 30)
             car.setAcceleration(Acceleration.ACCELERATE);
+        else
+            car.setAcceleration(Acceleration.NONE);
     }
     
     /**
@@ -77,7 +78,7 @@ public class AutonomousDriver extends Driver {
     }
     
     private float speedAdjustmentToAvoidCars() {
-        Intersection mostImportant = null;
+        VecUtils.Intersection mostImportant = null;
         
 //        debugDraw.draw(car.getPosition(), car.getAbsoluteVelocity());
             
@@ -86,7 +87,7 @@ public class AutonomousDriver extends Driver {
             
             debugDraw.draw(other.getPosition(), other.getAbsoluteVelocity());
             
-            Intersection intersection = intersect(car.getPosition(), car.getAbsoluteVelocity(),
+            VecUtils.Intersection intersection = VecUtils.intersect(car.getPosition(), car.getAbsoluteVelocity(),
                 other.getPosition(), other.getAbsoluteVelocity());
             
             if (intersection == null)
@@ -103,7 +104,7 @@ public class AutonomousDriver extends Driver {
         
         // Time until I reach the intersection minus the time the other
         // reaches the intersection
-        float d = mostImportant.u - mostImportant.v;
+        float d = mostImportant.v - mostImportant.u;
 
         // If there is enough time to pass safely, ignore this car
         // Todo: determine 3 using the length of our and the other car and
@@ -114,44 +115,6 @@ public class AutonomousDriver extends Driver {
         // d < 0: I'm there first, we should speed up a bit maybe?
         // d > 0: other is there first, we should brake?
         return d;
-    }
-    
-    static private class Intersection
-    {
-        final public float u, v;
-        
-        final public Vec2 position;
-        
-        public Intersection(float u, float v, Vec2 position) {
-            this.u = u;
-            this.v = v;
-            this.position = position;
-        }
-    }
-    
-    /**
-     * Calculate whether two moving objects are going to intersect, and when.
-     * @param as Position of a
-     * @param ad Velocity of a
-     * @param bs Position of b
-     * @param bd Velocity of b
-     * @return the moment and position of intersection, or null if there is no intersection
-     */
-    private Intersection intersect(Vec2 as, Vec2 ad, Vec2 bs, Vec2 bd) {
-        // Let's try to solve:
-        // p = as + ad * u
-        // p = bs + bd * v
-        
-        float dx = bs.x - as.x;
-        float dy = bs.y - as.y;
-        float det = bd.x * ad.y - bd.y * ad.x;
-        float u = (dy * bd.x - dx * bd.y) / det;
-        float v = (dy * ad.x - dx * ad.y) / det;
-        
-        if (u > 0 && v > 0)
-            return new Intersection(u, v, as.mul(u));
-        else
-            return null;
     }
     
     private Vec2 steerTowardsPath() {
