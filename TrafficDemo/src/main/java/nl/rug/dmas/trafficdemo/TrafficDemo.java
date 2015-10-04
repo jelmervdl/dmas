@@ -97,17 +97,24 @@ public class TrafficDemo {
             // Could not initialize awesome Mac-specific UI, but Java UI will be sort of fine, I guess.
         }
         
+        // if there are files passed as arguments on the commandline, open those
         if (args.length > 1) {
             for (int i = 1; i < args.length; ++i)
                 runFile(new File(args[i]));
         }
+        // Otherwise, try to open the last opened file
         else {
             File file = getLastOpenedFile();
             
+            // No last opened file? Try the default input/graaf.txt
             if (file == null || !file.exists())
                 file = new File("input/graaf.txt");
             
-            runFile(file);
+            // And if that isn't there, ask the user about a file
+            if (file.exists())
+                runFile(file);
+            else
+                openFile();
         }
     }
 }
