@@ -7,9 +7,11 @@ package nl.rug.dmas.trafficdemo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import nl.rug.dmas.trafficdemo.actors.AutonomousDriver;
@@ -46,6 +48,8 @@ public class Scenario extends Observable {
     
     final private ArrayList<Car> carsToRemove = new ArrayList<>();
     final private ArrayList<Car> carsToAdd = new ArrayList<>();
+    
+    final Set<Car> selectedCars = new HashSet<>();
     
     final StreetGraph streetGraph;
     

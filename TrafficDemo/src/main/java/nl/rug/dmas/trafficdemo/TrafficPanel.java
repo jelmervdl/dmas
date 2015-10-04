@@ -12,14 +12,20 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Arc2D;
+import java.awt.geom.Ellipse2D;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 import nl.rug.dmas.trafficdemo.actors.Driver;
 import nl.rug.dmas.trafficdemo.streetgraph.Edge;
 import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
@@ -51,13 +57,28 @@ public class TrafficPanel extends JPanel {
     final Color headlightColor = new Color(1.0f, 1.0f, 0.6f);
     final Color taillightColor = new Color(1.0f, 0.0f, 0.0f);
     final Color reverselightColor = new Color(1.0f, 1.0f, 1.0f);
-
+    
     public TrafficPanel(Scenario scenarion) {
         this.scenario = scenarion;
+        
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!e.isShiftDown())
+                    TrafficPanel.this.scenario.selectedCars.clear();
+                
+                Car car = TrafficPanel.this.getCarAtPosition(e.getPoint());
+                
+                if (car != null)
+                    TrafficPanel.this.scenario.selectedCars.add(car);
+                
+                repaint();
+            }
+        });
     }
-
+    
     /**
-     * Get the location of the mouse in World coordinates. I.e. the center of
+     * Get the location of the mouse in World coordinates. I.e. the centre of
      * this panel is world coordinate 0,0. Scaling is also taken into account.
      * @return Vec2 with the mouse coordinates in world space.
      */
@@ -73,11 +94,25 @@ public class TrafficPanel extends JPanel {
 
         return new Vec2(wx, wy);
     }
+    
+    public Car getCarAtPosition(Point position) {
+        Point center = getCenter();
+        float wx = (position.x - center.x) / scale;
+        float wy = (position.y - center.y) / scale;
+        
+        Vec2 worldPoint = new Vec2(wx, wy);
 
+        for (Car car : scenario.cars)
+            if (car.bodyFixture.testPoint(worldPoint))
+                return car;
+        
+        return null;
+    }
+    
     /**
-     * Get the location in pixels of the center of the panel, typically the
+     * Get the location in pixels of the centre of the panel, typically the
      * half of the width and height of the panel.
-     * @return center of panel in pixels
+     * @return centre of panel in pixels
      */
     private Point getCenter() {
         return new Point(getSize().width / 2, getSize().height / 2);
@@ -154,7 +189,17 @@ public class TrafficPanel extends JPanel {
         // Then draw the body of the cars
         for (Car car : cars) {
             g2.setColor(car.color);
-            drawShape(g2, car.bodyFixture.getShape(), car.body.getTransform(), offset, scale);
+            java.awt.Shape shape = getShape(car.bodyFixture.getShape(), car.body.getTransform(), offset, scale);
+            g2.fill(shape);
+            
+            if (scenario.selectedCars.contains(car)) {
+                Graphics2D strokePainter = (Graphics2D) g2.create();
+                strokePainter.setColor(UIManager.getColor("Focus.color"));
+                strokePainter.setStroke(new BasicStroke(2.0f));
+                strokePainter.draw(shape);
+                strokePainter.dispose();
+            }
+            //drawShape(g2, car.bodyFixture.getShape(), car.body.getTransform(), offset, scale);
         }
         
         // Draw headlights! I have too much free time.
@@ -513,5 +558,42 @@ public class TrafficPanel extends JPanel {
             }
         });
     }
+    
+    private java.awt.Shape getShape(Shape shape, Transform transform, Point offset, float scale) {
+        switch (shape.getType()) {
+            case POLYGON:
+                return getPolygonShape((PolygonShape) shape, transform, offset, scale);
+            case CIRCLE:
+                return getCircleShape((CircleShape) shape, transform, offset, scale);
+            default:
+                throw new UnsupportedOperationException("drawShape can only draw POLYGON and CIRCLE for now.");
+        } 
+    }
+    
+    private java.awt.Shape getPolygonShape(PolygonShape poly, Transform transform, Point offset, float scale) {
+        int vertexCount = poly.m_count;
+        int[] xs = new int[vertexCount];
+        int[] ys = new int[vertexCount];
 
+        Vec2 vertex = new Vec2();
+        for (int i = 0; i < vertexCount; ++i) {
+            Transform.mulToOutUnsafe(transform, poly.m_vertices[i], vertex);
+            xs[i] = Math.round(vertex.x * scale + offset.x);
+            ys[i] = Math.round(vertex.y * scale + offset.y);
+        }
+
+        return new Polygon(xs, ys, vertexCount);
+    }
+    
+    private java.awt.Shape getCircleShape(CircleShape circle, Transform transform, Point offset, float scale) {   
+        Vec2 center = new Vec2();
+        Transform.mulToOutUnsafe(transform, circle.m_p, center);
+        center.addLocal(-circle.getRadius(), -circle.getRadius());
+
+        return new Ellipse2D.Float(
+            Math.round(center.x * scale + offset.x),
+            Math.round(center.y * scale + offset.y),
+            Math.round(2 * circle.getRadius() * scale),
+            Math.round(2 * circle.getRadius() * scale));
+    }
 }
