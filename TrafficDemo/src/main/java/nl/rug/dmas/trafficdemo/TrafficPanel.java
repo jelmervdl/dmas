@@ -129,22 +129,24 @@ public class TrafficPanel extends JPanel {
      */
     @Override
     public void paint(Graphics g) {
+        // This paint method gets called indirectly every 1/60th of a second
+        // by the mainLoop which issues a 'repaint()' request. (AWT then
+        // decides on when to do the actual painting, and at that moment this
+        // method is called.)
+        
         paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
         
-        // This paint method gets called indirectly every 1/60th of a second
-        // by the mainLoop which issues a 'repaint()' request. (AWT then
-        // decides on when to do the actual painting, and at that moment this
-        // method is called.)
         // World position Vec2(0,0) is the center of the screen
         // Scale translates one world point to n pixels.
         Point center = getCenter();
         g2.translate(center.x, center.y);
         g2.scale(scale, scale);
         
+        // Scale the stroke and font back to 1.0 in screen space.
         g2.setStroke(new BasicStroke(1f / scale));
         g2.setFont(g2.getFont().deriveFont(g2.getFont().getSize2D() / scale));
         
@@ -161,14 +163,19 @@ public class TrafficPanel extends JPanel {
             drawPath(g2, path);
         }
         
+        // Lock the world for reading, so we don't delete a car from the list
+        // while iterating over said list (resulting in an exception, or just
+        // a pair of wheels with a missing body.)
         scenario.readLock.lock();
         try {
             // Then on top of those, we draw our cars.
             drawCars(g2, scenario.cars);
             
+            // Draw fields of view of all sensors in the world, if enabled.
             if (drawFOV)
                 drawFOVs(g2);
             
+            // Draw an outline around the selected cars, if there are any cars selected
             if (!scenario.selectedCars.isEmpty())
                 drawSelection(g2);
         } finally {
@@ -210,31 +217,31 @@ public class TrafficPanel extends JPanel {
                 case ACCELERATE:
                     drawLight(g2, headlightColor,
                         new Vec2(-car.width / 2 + 0.5f, -car.length / 2),
-                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 5,
+                        car.body.getAngle(), 40 * MathUtils.DEG2RAD, 5,
                         car.body.getTransform());
                     drawLight(g2, headlightColor,
                         new Vec2(car.width / 2 - 0.5f, -car.length / 2),
-                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG), 40, 5,
+                        car.body.getAngle(), 40 * MathUtils.DEG2RAD, 5,
                         car.body.getTransform());
                     break;
                 case BRAKE:
                     drawLight(g2, taillightColor,
                         new Vec2(-car.width / 2 + 0.5f, car.length / 2),
-                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 1,
+                        car.body.getAngle() + MathUtils.PI, 120 * MathUtils.DEG2RAD, 1,
                         car.body.getTransform());
                     drawLight(g2, taillightColor,
                         new Vec2(car.width / 2 - 0.5f, car.length / 2),
-                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 1,
+                        car.body.getAngle() + MathUtils.PI, 120 * MathUtils.DEG2RAD, 1,
                         car.body.getTransform());
                     break;
                 case REVERSE:
                     drawLight(g2, reverselightColor,
                         new Vec2(-car.width / 2 + 0.5f, car.length / 2),
-                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 5,
+                        car.body.getAngle() + MathUtils.PI, 120 * MathUtils.DEG2RAD, 5,
                         car.body.getTransform());
                     drawLight(g2, reverselightColor,
                         new Vec2(car.width / 2 - 0.5f, car.length / 2),
-                        Math.round(car.body.getAngle() * MathUtils.RAD2DEG + 180), 120, 5,
+                        car.body.getAngle() + MathUtils.PI, 120 * MathUtils.DEG2RAD, 5,
                         car.body.getTransform());
                     break;
             }
@@ -333,14 +340,14 @@ public class TrafficPanel extends JPanel {
      * @param g
      * @param lightColor colour of the light
      * @param position position in car space of the point between the light and the light box I.e. the light box is 'behind' this point, and the light cone 'in front of'
-     * @param angleDeg absolute rotation of the light in degrees
-     * @param angleWidth width of the light beam in degrees
+     * @param angle absolute rotation of the light in radians
+     * @param angleWidth width of the light beam in radians
      * @param reach length of the light beam in pixels
      * @param transform transforms the position of the light in car space to world space
      * @param offset in pixels of 0,0 in world space
      * @param scale to scale world space coordinates to pixels
      */
-    private void drawLight(Graphics2D g, Color lightColor, Vec2 position, int angleDeg, int angleWidth, float reach, Transform transform) {
+    private void drawLight(Graphics2D g, Color lightColor, Vec2 position, float angle, float angleWidth, float reach, Transform transform) {
         Graphics2D g2 = (Graphics2D) g.create();
         Vec2 worldPosition = new Vec2();
         Transform.mulToOutUnsafe(transform, position, worldPosition);
@@ -350,7 +357,7 @@ public class TrafficPanel extends JPanel {
             worldPosition.y);
         
         g2.translate(center.getX(), center.getY());
-        g2.rotate(angleDeg * MathUtils.DEG2RAD);
+        g2.rotate(angle);
         
         // First, draw the light box itself
         g2.setColor(lightColor);
@@ -358,13 +365,13 @@ public class TrafficPanel extends JPanel {
         
         // Secondly, draw the light beam
         
-        angleDeg -= 90; // light is up, not to the right
+        angle -= MathUtils.HALF_PI; // light is up, not to the right
         
         float[] dist = {0.0f, 1.0f};
         Color[] colors = {lightColor, new Color(0.0f, 0.0f, 0.0f, 0.0f)};
         RadialGradientPaint p = new RadialGradientPaint(new Point(0, 0), reach / 2f, dist, colors);
         g2.setPaint(p);
-        g2.fill(new Arc2D.Float(-reach, -reach, reach * 2, reach * 2, -angleWidth / 2 + 90, angleWidth, Arc2D.PIE));
+        g2.fill(new Arc2D.Float(-reach, -reach, reach * 2, reach * 2, (-angleWidth / 2 * MathUtils.RAD2DEG) + 90, angleWidth * MathUtils.RAD2DEG, Arc2D.PIE));
         
         g2.dispose();
     }
