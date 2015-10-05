@@ -1,3 +1,6 @@
+Simulating Autonomous and Human-Driven Vehicles in Traffic Intersections
+
+
 problem:
 
 Drivers in California already have to share their roads with a few of the self-driving cars that are being tested there. One might wonder how these changes in traffic influence the flow of traffic. 
@@ -32,10 +35,11 @@ What we have now is:
 We are working on:
 - human drivers
 - implementing statistics
+- traffic signs (stop signs)
 
 We still need to do:
-- traffic: right of way rules
-- traffic: signs (stop signs)
+- traffic right of way rules
+- path following clean up
 
 We still want to do:
 - a more complicated graph
