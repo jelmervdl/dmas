@@ -85,7 +85,7 @@ public class TrafficPanel extends JPanel {
             public void componentResized(ComponentEvent e) {
                 // If we are resized, invalidate the already drawn environment
                 environmentBufferImage = null;
-            }    
+            }
         });
         
         addMouseListener(new MouseAdapter() {
@@ -219,8 +219,6 @@ public class TrafficPanel extends JPanel {
      * then the car bodies, the lights and and then the debug data.
      * @param graphics
      * @param cars a list of cars
-     * @param offset in pixels of 0,0 in world space
-     * @param scale to scale world space coordinates to pixels
      */
     private void drawCars(Graphics2D g, List<Car> cars) {
         // Draw all wheels
@@ -300,8 +298,6 @@ public class TrafficPanel extends JPanel {
      * @param graphics
      * @param shape JBox2D shape
      * @param transform applied to the shape to get the location and rotation
-     * @param offset in pixels of 0,0 in world space
-     * @param scale to scale world space coordinates to pixels
      */
     private void fillShape(Graphics2D g2, Shape shape, Transform transform) {
         java.awt.Shape shape2d = getShape(shape, transform);
@@ -313,8 +309,6 @@ public class TrafficPanel extends JPanel {
      * @param g2
      * @param angle in radians
      * @param position of the beginning of the angle
-     * @param offset in pixels of 0,0 in world space
-     * @param scale to scale world space coordinates to pixels
      */
     private void drawAngle(Graphics2D g2, float angle, Vec2 position) {
         angle -= MathUtils.HALF_PI;
@@ -327,8 +321,6 @@ public class TrafficPanel extends JPanel {
      * @param g2
      * @param direction vector
      * @param position of the base of the vector
-     * @param offset in pixels of 0,0 in world space
-     * @param scale to scale world space coordinates to pixels
      */
     private void drawVec(Graphics2D g2, Vec2 direction, Vec2 position) {
         // target is the absolute world position of the tip of the vector
@@ -371,10 +363,8 @@ public class TrafficPanel extends JPanel {
      * @param position position in car space of the point between the light and the light box I.e. the light box is 'behind' this point, and the light cone 'in front of'
      * @param angle absolute rotation of the light in radians
      * @param angleWidth width of the light beam in radians
-     * @param reach length of the light beam in pixels
+     * @param reach length of the light beam
      * @param transform transforms the position of the light in car space to world space
-     * @param offset in pixels of 0,0 in world space
-     * @param scale to scale world space coordinates to pixels
      */
     private void drawLight(Graphics2D g, Color lightColor, Vec2 position, float angle, float angleWidth, float reach, Transform transform) {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -506,8 +496,6 @@ public class TrafficPanel extends JPanel {
      * Draw the environment (aka roads)
      * @param g2
      * @param streetGraph
-     * @param center
-     * @param scale 
      */
     private void drawEnvironment(Graphics2D g2, StreetGraph streetGraph) {
         // First draw the actual road
