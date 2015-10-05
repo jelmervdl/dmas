@@ -22,8 +22,8 @@ import org.jbox2d.common.Vec2;
 public class HumanDriver extends Driver{
     final private List<Vec2> path;
     
-    private double viewAngle = 20;
-    private float viewLength = 15;
+    private double viewAngle = 40;
+    private float viewLength = 20;
     
     private int pathIndex = 0;
 
@@ -57,11 +57,12 @@ public class HumanDriver extends Driver{
     @Override
     public Shape getFOVShape() {
         PolygonShape shape = new PolygonShape();
-        float length = (float) (getViewLength() / 50);
+        float length = (float) (getViewLength() / 100);
         float width = (float) (sinAngle() * length);
         float startHeight =(float) (cosAngle() * length);
         float topHeight = (float) (length - startHeight);
-        Vec2[] vertices = {new Vec2(width, startHeight), new Vec2(-width, topHeight), new Vec2(-width, -topHeight), new Vec2(width, -startHeight)};
+        //Vec2[] vertices = {new Vec2(width, startHeight), new Vec2(-width, topHeight), new Vec2(-width, -topHeight),new Vec2(width, -startHeight)};
+        Vec2[] vertices = {VecUtils.rotate(new Vec2(width, startHeight), (float) (-0.25 * Math.PI)), VecUtils.rotate(new Vec2(-width, topHeight), (float) (-0.25 * Math.PI)), VecUtils.rotate(new Vec2(-width, -topHeight), (float) (-0.25 * Math.PI)), VecUtils.rotate(new Vec2(width, -startHeight), (float) (-0.25 * Math.PI))};
         shape.set(vertices,4);
         return shape;
     }
