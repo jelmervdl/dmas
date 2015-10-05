@@ -27,6 +27,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,8 +64,7 @@ public class TrafficPanel extends JPanel {
     // Options (for now)
     boolean drawFOV = true;
     boolean drawDirection = true;
-    boolean drawPaths = true;
-
+    
     boolean drawDriverThoughts = false;
     
     final Color headlightColor = new Color(1.0f, 1.0f, 0.6f);
@@ -286,13 +286,6 @@ public class TrafficPanel extends JPanel {
             }
         }
         
-        if (drawPaths) {
-            g2.setColor(Color.red);
-            for (Car car : cars) {
-                drawPath(g2, car.driver.getPath());
-            }
-        }
-
         // for testing, draw the angle the car tries to achieve
         if (drawDirection) {
             g2.setColor(Color.RED);
@@ -604,11 +597,16 @@ public class TrafficPanel extends JPanel {
     }
 
     private void drawSelection(Graphics2D g2) {
+        drawCarsOutline(g2, scenario.selectedCars);
+        drawDriverPaths(g2, scenario.selectedCars);
+    }
+    
+    private void drawCarsOutline(Graphics2D g2, Collection<Car> cars) {
         Graphics2D strokePainter = (Graphics2D) g2.create();
         strokePainter.setColor(UIManager.getColor("Focus.color"));
         strokePainter.setStroke(new BasicStroke(2.0f / scale));
 
-        for (Car car : scenario.selectedCars) {
+        for (Car car : cars) {
             Area area = new Area();
 
             for (Wheel wheel : car.wheels)
@@ -620,6 +618,15 @@ public class TrafficPanel extends JPanel {
         }
 
         strokePainter.dispose();
+    }
+    
+    private void drawDriverPaths(Graphics2D g2, Collection<Car> cars) {
+        Graphics2D pathPainter = (Graphics2D) g2.create();
+        pathPainter.setColor(Color.red);
+        for (Car car : cars) {
+            drawPath(pathPainter, car.driver.getPath());
+        }
+        pathPainter.dispose();
     }
 
     private void updateEnvironmentBuffer() {

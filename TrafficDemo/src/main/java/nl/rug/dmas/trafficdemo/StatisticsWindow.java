@@ -50,10 +50,11 @@ public class StatisticsWindow extends JFrame {
         
         for (Map.Entry<String, AbstractTableModel> statistic : statistics.entrySet()) {
             JPanel panel = new JPanel();
-            panel.setLayout(new BorderLayout());
+            panel.setLayout(new BorderLayout(4, 4));
             panel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
             
             JLabel label = new JLabel(statistic.getKey());
+            label.setFont(label.getFont().deriveFont(14f));
             label.setAlignmentY(LEFT_ALIGNMENT);
             panel.add(label, BorderLayout.NORTH);
             
