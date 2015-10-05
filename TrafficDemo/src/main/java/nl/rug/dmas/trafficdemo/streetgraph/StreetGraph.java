@@ -69,7 +69,7 @@ public class StreetGraph {
         }
     }
 
-    /**
+    /** 
      * Set the sources of the StreetGraph, sources represent the locations where
      * traffic may enter the simulation.
      *

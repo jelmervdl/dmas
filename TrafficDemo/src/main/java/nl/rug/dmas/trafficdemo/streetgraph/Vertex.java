@@ -9,11 +9,12 @@ import org.jbox2d.common.Vec2;
  *
  * @author Laura & Bastiaan
  */
-public class Vertex extends ListVertex {
+public class Vertex {
 
     private final int vertexListIndex;
     private final ArrayList<Edge> outgoingEdges;
     private final ArrayList<Edge> incomingEdges;
+    private Vec2 location;
 
     /**
      * Constructor for a vertex.
@@ -78,5 +79,13 @@ public class Vertex extends ListVertex {
      */
     protected void addOugoingEdge(Edge edge) {
         this.outgoingEdges.add(edge);
+    }
+
+    protected void setLocation(Vec2 location) {
+        this.location = location;
+    }
+
+    public Vec2 getLocation() {
+        return this.location;
     }
 }
