@@ -48,7 +48,7 @@ public class StreetGraph {
             if (currentVertex != null) {
                 map.put(currentIndex, currentVertex);
             } else {
-                throw new InputMismatchException(String.format("The selected source/sink with index %d is not defined", currentIndex));
+                throw new InputMismatchException(String.format("The selected vertex with 'name' %d is not defined", currentIndex));
             }
 
         }
@@ -97,7 +97,6 @@ public class StreetGraph {
     }
 
     /**
-     *
      * @return the sinks of the graph
      */
     public ArrayList<Vertex> getSinks() {
@@ -252,7 +251,7 @@ public class StreetGraph {
 
     public static PointPath generatePointLineSegment(Vec2 origin, Vec2 destination) throws NoPathException {
         if (origin == null || destination == null) {
-            throw new NoPathException("Need at least to locations to draw a path.");
+            throw new NoPathException("Need at least two locations to draw a path.");
         }
         return new PointPath(new LinearBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution));
     }
