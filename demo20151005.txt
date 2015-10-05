@@ -1,0 +1,45 @@
+problem:
+
+Drivers in California already have to share their roads with a few of the self-driving cars that are being tested there. One might wonder how these changes in traffic influence the flow of traffic. 
+
+state of the art
+Dresner and Stone (2007) test a new system that proposes to change every intersection with an intersection manager, that regulates traffic lights and deals wih 'reservations' that can be made by autonomous cars. This works, and the more autonomous cars there are, the less traffic delays there are.
+
+However, for this to work, they need to alter every existing intersection in the world.
+
+new idea
+
+We want to test if introducing autonomous cars into the current traffic situation will also make a change in amount of traffic delays. This because many traffic jams are caused by imperfect driving. Autonomous cars would have this less than human drivers, because they make less mistakes. 
+
+results
+
+We expect the delay to decrease, and there to be less crashes, as the ratio autonomous agents to `human' agents increases.
+
+relevance
+
+It is relevant, because where it is in the line of expectation that more autonomous cars will join in traffic in the next 10 years, nobody is looking forward to changing every intersection in every country, only to improve the flow of cars. 
+
+
+What we have now is:
+- a road to drive on
+- the means to add and delete cars
+- the means to add a different road
+- autonomous drivers
+- a path for drivers to follow
+- drivers see each other and can wait to avoid crashes
+
+We are working on:
+- human drivers
+- implementing statistics
+- turning corners realistically
+
+We still need to do:
+- traffic right of way rules
+- traffic signs (stop signs)
+
+We still want to do:
+- a more complicated graph
+- traffic lights
+
+
+
