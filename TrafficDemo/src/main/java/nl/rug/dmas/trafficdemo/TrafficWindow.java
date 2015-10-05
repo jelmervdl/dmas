@@ -250,6 +250,7 @@ public class TrafficWindow extends JFrame {
         
         final JMenuItem showStatistics = new JMenuItem("Statistics");
         viewMenu.add(showStatistics);
+        showStatistics.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         showStatistics.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
