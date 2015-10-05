@@ -245,31 +245,31 @@ public class TrafficPanel extends JPanel {
             switch (car.acceleration) {
                 case ACCELERATE:
                     drawLight(g2, headlightColor,
-                        new Vec2(-car.width / 2 + 0.5f, -car.length / 2),
+                        new Vec2(-car.getWidth() / 2 + 0.5f, -car.getLength() / 2),
                         car.body.getAngle(), 40 * MathUtils.DEG2RAD, 5,
                         car.body.getTransform());
                     drawLight(g2, headlightColor,
-                        new Vec2(car.width / 2 - 0.5f, -car.length / 2),
+                        new Vec2(car.getWidth() / 2 - 0.5f, -car.getLength() / 2),
                         car.body.getAngle(), 40 * MathUtils.DEG2RAD, 5,
                         car.body.getTransform());
                     break;
                 case BRAKE:
                     drawLight(g2, taillightColor,
-                        new Vec2(-car.width / 2 + 0.5f, car.length / 2),
+                        new Vec2(-car.getWidth() / 2 + 0.5f, car.getLength() / 2),
                         car.body.getAngle() + MathUtils.PI, 120 * MathUtils.DEG2RAD, 1,
                         car.body.getTransform());
                     drawLight(g2, taillightColor,
-                        new Vec2(car.width / 2 - 0.5f, car.length / 2),
+                        new Vec2(car.getWidth() / 2 - 0.5f, car.getLength() / 2),
                         car.body.getAngle() + MathUtils.PI, 120 * MathUtils.DEG2RAD, 1,
                         car.body.getTransform());
                     break;
                 case REVERSE:
                     drawLight(g2, reverselightColor,
-                        new Vec2(-car.width / 2 + 0.5f, car.length / 2),
+                        new Vec2(-car.getWidth() / 2 + 0.5f, car.getLength() / 2),
                         car.body.getAngle() + MathUtils.PI, 120 * MathUtils.DEG2RAD, 5,
                         car.body.getTransform());
                     drawLight(g2, reverselightColor,
-                        new Vec2(car.width / 2 - 0.5f, car.length / 2),
+                        new Vec2(car.getWidth() / 2 - 0.5f, car.getLength() / 2),
                         car.body.getAngle() + MathUtils.PI, 120 * MathUtils.DEG2RAD, 5,
                         car.body.getTransform());
                     break;

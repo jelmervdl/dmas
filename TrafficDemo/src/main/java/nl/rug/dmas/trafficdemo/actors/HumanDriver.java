@@ -23,7 +23,7 @@ public class HumanDriver extends Driver{
     final private List<Vec2> path;
     
     private double viewAngle = 40;
-    private float viewLength = 20;
+    private float viewLength = 8;
     
     private int pathIndex = 0;
 
@@ -50,23 +50,45 @@ public class HumanDriver extends Driver{
         return Math.toDegrees(angle);
     }
     
+//    /**
+//     * Get field of view shape of the driver, an arc
+//     * @return field of view
+//     */
+//    @Override
+//    public Shape getFOVShape() {
+//        PolygonShape shape = new PolygonShape();
+//        float rotateAngle = (float) (-0.25 * Math.PI);
+//        float length = (float) (getViewLength() / 100);
+//        float startHeight =(float) (cosAngle() * length);
+//        float topHeight = (float) (length - startHeight);
+//        float carWidth = (float) (car.getWidth() / 4);
+//        float width = (float) (sinAngle() * length) + carWidth;
+//        //Vec2[] vertices = {new Vec2(width, startHeight), new Vec2(-width, topHeight), new Vec2(-width, -topHeight),new Vec2(width, -startHeight)};
+//        Vec2[] vertices = {
+//            VecUtils.rotate(new Vec2(-carWidth, 0), rotateAngle),
+//            VecUtils.rotate(new Vec2(-width, startHeight), rotateAngle), 
+//            VecUtils.rotate(new Vec2(0, length), rotateAngle), 
+//            VecUtils.rotate(new Vec2(width, startHeight), rotateAngle), 
+//            VecUtils.rotate(new Vec2(carWidth, 0), rotateAngle),
+//            VecUtils.rotate(new Vec2(width, -startHeight), rotateAngle),
+//            VecUtils.rotate(new Vec2(0, -length), rotateAngle),
+//            VecUtils.rotate(new Vec2(-width, -startHeight), rotateAngle)
+//        };
+//        shape.set(vertices,8);
+//        return shape;
+//    }
+
     /**
-     * Get field of view shape of the driver, an arc
-     * @return field of view
+     * Get Field of view shape
+     * @return shape for field of view
      */
     @Override
     public Shape getFOVShape() {
-        PolygonShape shape = new PolygonShape();
-        float length = (float) (getViewLength() / 100);
-        float width = (float) (sinAngle() * length);
-        float startHeight =(float) (cosAngle() * length);
-        float topHeight = (float) (length - startHeight);
-        //Vec2[] vertices = {new Vec2(width, startHeight), new Vec2(-width, topHeight), new Vec2(-width, -topHeight),new Vec2(width, -startHeight)};
-        Vec2[] vertices = {VecUtils.rotate(new Vec2(width, startHeight), (float) (-0.25 * Math.PI)), VecUtils.rotate(new Vec2(-width, topHeight), (float) (-0.25 * Math.PI)), VecUtils.rotate(new Vec2(-width, -topHeight), (float) (-0.25 * Math.PI)), VecUtils.rotate(new Vec2(width, -startHeight), (float) (-0.25 * Math.PI))};
-        shape.set(vertices,4);
+        PolygonShape shape  = new PolygonShape();
+        shape.setAsBox(viewLength/2, viewLength/2, new Vec2(0,car.getLength()), (float) 90); //todo fix orientation
         return shape;
     }
-
+    
     @Override
     public boolean reachedDestination() {
         return path != null && pathIndex == path.size();

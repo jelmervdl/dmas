@@ -28,8 +28,8 @@ public class Car {
     final float brakePower = 0; // TODO: So braking is the same as not accelerating :(
     final float steeringSpeed = 5f;
     
-    final float width;
-    final float length;
+    private final float width;
+    private final float length;
     final Color color;
 
     final Driver driver;
@@ -113,7 +113,7 @@ public class Car {
         fixDef.restitution = 0.4f;//amount of force feedback when hitting something. >0 makes the car bounce off, it's fun!
         
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox(width / 2 , length / 2);
+        shape.setAsBox(getWidth() / 2 , getLength() / 2);
         fixDef.shape = shape;
         
         return fixDef;
@@ -138,10 +138,10 @@ public class Car {
      */
     protected ArrayList<Wheel> createWheels(World world) {
         ArrayList<Wheel> wheels = new ArrayList<>();
-        wheels.add(new Wheel(world, this, new Vec2(width / -2f, length / -2f + 0.8f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top left
-        wheels.add(new Wheel(world, this, new Vec2(width / -2f, length /  2f - 0.8f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom left
-        wheels.add(new Wheel(world, this, new Vec2(width /  2f, length / -2f + 0.8f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top right
-        wheels.add(new Wheel(world, this, new Vec2(width /  2f, length /  2f - 0.8f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom right
+        wheels.add(new Wheel(world, this, new Vec2(getWidth() / -2f, getLength() / -2f + 0.8f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top left
+        wheels.add(new Wheel(world, this, new Vec2(getWidth() / -2f, getLength() /  2f - 0.8f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom left
+        wheels.add(new Wheel(world, this, new Vec2(getWidth() /  2f, getLength() / -2f + 0.8f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top right
+        wheels.add(new Wheel(world, this, new Vec2(getWidth() /  2f, getLength() /  2f - 0.8f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom right
         return wheels;
     }
     
@@ -284,5 +284,19 @@ public class Car {
         //if going very slow, stop - to prevent endless sliding
         if (getSpeedKMH() < 4 && acceleration == Acceleration.NONE)
             setSpeed(0);
+    }
+
+    /**
+     * @return the width
+     */
+    public float getWidth() {
+        return width;
+    }
+
+    /**
+     * @return the length
+     */
+    public float getLength() {
+        return length;
     }
 }
