@@ -13,8 +13,8 @@ import org.jbox2d.common.Vec2;
  */
 public class StopSign extends Sign {
 
-    public StopSign(Vec2 location) {
-        super(location);
+    public StopSign() {
+        super();
     }
  
 }
