@@ -8,13 +8,17 @@ package nl.rug.dmas.trafficdemo;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Arc2D;
@@ -27,6 +31,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Observable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
@@ -62,6 +67,8 @@ public class TrafficPanel extends JPanel {
     final Color taillightColor = new Color(1.0f, 0.0f, 0.0f);
     final Color reverselightColor = new Color(1.0f, 1.0f, 1.0f);
     
+    private Image environmentBufferImage = null;
+    
     public TrafficPanel(Scenario scenarion) {
         this.scenario = scenarion;
         
@@ -72,6 +79,15 @@ public class TrafficPanel extends JPanel {
                 repaint();
             }
         });
+        
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                // If we are resized, invalidate the already drawn environment
+                environmentBufferImage = null;
+            }    
+        });
+        
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -149,6 +165,15 @@ public class TrafficPanel extends JPanel {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        
+        // Draw the street-graph
+        if (scenario.streetGraph != null) {
+            if (environmentBufferImage == null)
+                updateEnvironmentBuffer();
+              
+            g2.drawImage(environmentBufferImage, 0, 0, getWidth(), getHeight(), null);
+        }
         
         // World position Vec2(0,0) is the center of the screen
         // Scale translates one world point to n pixels.
@@ -159,12 +184,6 @@ public class TrafficPanel extends JPanel {
         // Scale the stroke and font back to 1.0 in screen space.
         g2.setStroke(new BasicStroke(1f / scale));
         g2.setFont(g2.getFont().deriveFont(g2.getFont().getSize2D() / scale));
-        
-        // Draw the street-graph
-        // Todo: draw this once and store it in a buffer that we can blit,
-        // because it doesn't change that often
-        if (scenario.streetGraph != null)
-            drawEnvironment(g2, scenario.streetGraph);
         
         // Draw the path we paint for debugging purposes
         CopyOnWriteArrayList<Vec2> path = (CopyOnWriteArrayList<Vec2>) scenario.commonKnowledge.get("path");
@@ -583,5 +602,26 @@ public class TrafficPanel extends JPanel {
         }
 
         strokePainter.dispose();
+    }
+
+    private void updateEnvironmentBuffer() {
+        environmentBufferImage = createImage(getWidth() * 2, getHeight() * 2);
+        
+        Graphics2D g2 = (Graphics2D) environmentBufferImage.getGraphics();
+        g2.scale(2, 2); // First, scale for the image
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
+        
+        Point center = getCenter();
+        g2.translate(center.x, center.y);
+        g2.scale(scale, scale); // then, scale for the drawing
+        
+        // Scale the stroke and font back to 1.0 in screen space.
+        g2.setStroke(new BasicStroke(1f / scale));
+        g2.setFont(g2.getFont().deriveFont(g2.getFont().getSize2D() / scale));
+        
+        drawEnvironment(g2, scenario.streetGraph);
+        
+        g2.dispose();
     }
 }
