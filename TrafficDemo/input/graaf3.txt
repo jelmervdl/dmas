@@ -1,0 +1,16 @@
+Number of Nodes and Edges
+3 2
+Sources
+0
+Sinks
+2
+Edges
+0 1 STOP BLAAT STOP
+1 2
+Node Locations, 0,0 is the centre of the screen
+-20 0
+0 0
+20 0
+Signs
+STOP 0 1
+STOP 1 2
