@@ -40,11 +40,15 @@ public class TrafficWindow extends JFrame {
     
     private final TrafficPanel panel;
     
+    private final StatisticsWindow statisticsWindow;
+    
     public TrafficWindow(Scenario scenario) {
         this.scenario = scenario;
         
         setTitle("Traffic!");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        
+        statisticsWindow = new StatisticsWindow(scenario.getStatistics());
         
         // The TrafficPanel draws the actual scenario (cars etc.)
         panel = new TrafficPanel(scenario);
@@ -243,6 +247,18 @@ public class TrafficWindow extends JFrame {
         
         JMenu viewMenu = new JMenu("View");
         menuBar.add(viewMenu);
+        
+        final JMenuItem showStatistics = new JMenuItem("Statistics");
+        viewMenu.add(showStatistics);
+        showStatistics.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                statisticsWindow.setVisible(true);
+                statisticsWindow.toFront();
+            }
+        });
+        
+        viewMenu.addSeparator();
         
         final JCheckBoxMenuItem drawFOV = new JCheckBoxMenuItem("Show Field of View", panel.drawFOV);
         viewMenu.add(drawFOV);

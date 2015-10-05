@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -62,8 +61,10 @@ public class Scenario extends Observable {
     final Lock writeLock = lock.writeLock();
 
     final private Thread mainLoop;
-
-    private AtomicInteger mainLoopIsPaused = new AtomicInteger();
+    
+    final private AtomicInteger mainLoopIsPaused = new AtomicInteger();
+    
+    final ScenarioStatistics statistics = new ScenarioStatistics();
 
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact
@@ -104,6 +105,10 @@ public class Scenario extends Observable {
 
     public Map<String, Object> getCommonKnowledge() {
         return commonKnowledge;
+    }
+    
+    public ScenarioStatistics getStatistics() {
+        return statistics;
     }
 
     /**
@@ -150,6 +155,7 @@ public class Scenario extends Observable {
         car.initialize(world);
         cars.add(car);
         actors.put(car.driver, 0l);
+        statistics.carAdded(car);
     }
 
     /**
@@ -176,6 +182,7 @@ public class Scenario extends Observable {
         actors.remove(car.driver);
         cars.remove(car);
         selectedCars.remove(car);
+        statistics.carRemoved(car);
     }
 
     /**
@@ -272,6 +279,7 @@ public class Scenario extends Observable {
                 readLock.lock();
                 try {
                     for (Map.Entry<Actor,Long> entry : actors.entrySet()) {
+                        // Only run the actor if their last act was long enough ago
                         if (entry.getValue() + entry.getKey().getActPeriod() < t) {
                             entry.getKey().act();
                             entry.setValue(t);

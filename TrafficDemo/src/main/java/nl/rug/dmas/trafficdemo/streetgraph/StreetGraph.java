@@ -25,7 +25,7 @@ public class StreetGraph {
     private final ArrayList<Edge> edges;
     private final HashMap<Integer, Vertex> sources;
     private final HashMap<Integer, Vertex> sinks;
-    private static int resolution = 50;
+    private final static int resolution = 50;
     private final static float turningRadius = 5.0f; 
 
     /**
@@ -197,8 +197,8 @@ public class StreetGraph {
         throw new NoPathException("No path found.");
     }
 
-    private static PointPath generatePointPathUsingVec2(LinkedList<Vec2> path, float someControlParameter) throws NoPathException {
-        PointPath points = new PointPath();
+    private static List<Vec2> generatePointPathUsingVec2(LinkedList<Vec2> path, float someControlParameter) throws NoPathException {
+        List<Vec2> points = new ArrayList<>();
         if (path.size() == 2) {
             return generatePointLineSegment(path.poll(), path.poll());
         }
@@ -210,9 +210,9 @@ public class StreetGraph {
         Vec2 intermediate = path.poll();
         Vec2 destination = path.poll();
 
-        PointPath segmentPoints;
         //TODO: Dubbele punten vermijden
         while (!origin.equals(destinationPoint)) {
+            List<Vec2> segmentPoints;
             if (pathIsStraight(origin, intermediate, destination)) {
                 segmentPoints = generatePointLineSegment(origin, intermediate);
                 origin = intermediate;
@@ -241,7 +241,8 @@ public class StreetGraph {
         while (pathIter.hasNext()) {
             pathOfLocations.add(pathIter.next().getLocation());
         }
-        return generatePointPathUsingVec2(pathOfLocations, turningRadius);
+        List<Vec2> points = generatePointPathUsingVec2(pathOfLocations, turningRadius);
+        return new PointPath(path.getFirst(), path.getLast(), points);
     }
 
     private static boolean pathIsStraight(Vec2 origin, Vec2 intermediate, Vec2 destination) {
@@ -266,14 +267,14 @@ public class StreetGraph {
         queue.add(pointB);
     }
 
-    private static PointPath generatePointCurve(Vec2 origin, Vec2 intermediate, Vec2 destination, float someControlParameter) throws NoPathException {
+    private static List<Vec2> generatePointCurve(Vec2 origin, Vec2 intermediate, Vec2 destination, float someControlParameter) throws NoPathException {
         LinkedList<Vec2> queue = new LinkedList<>();
         queue.addFirst(origin);
         buildHalvePointQueue(queue, origin, intermediate, someControlParameter);
         buildHalvePointQueue(queue, intermediate, destination, someControlParameter);
         //We are actually checking if origin and destination lie in a circle with radius someControlParameter placed on intermediate.
         if(queue.size() == 3){
-            return new PointPath(new QuadraticBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution, intermediate));
+            return new QuadraticBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution, intermediate);
         } else {
             return generatePointPathUsingVec2(queue, someControlParameter);    
         }
@@ -282,14 +283,14 @@ public class StreetGraph {
 //        return new PointPath(new QuadraticBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution, controlPoint));
     }
 
-    public static PointPath generatePointLineSegment(Vec2 origin, Vec2 destination) throws NoPathException {
+    public static List<Vec2> generatePointLineSegment(Vec2 origin, Vec2 destination) throws NoPathException {
         if (origin == null || destination == null) {
             throw new NoPathException("Need at least two locations to draw a path.");
         }
-        return new PointPath(new LinearBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution));
+        return new LinearBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution);
     }
 
-    public static PointPath generatePointLineSegment(Edge edge) throws NoPathException {
+    public static List<Vec2> generatePointLineSegment(Edge edge) throws NoPathException {
         return StreetGraph.generatePointLineSegment(
                 edge.getOrigin().getLocation(),
                 edge.getDestination().getLocation());

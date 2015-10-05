@@ -28,6 +28,10 @@ public class AutonomousDriver extends Driver {
         super(scenario, path);
     }
     
+    public List<Vec2> getPath() {
+        return path;
+    }
+    
     @Override
     public int getActPeriod() {
 //        return 100;

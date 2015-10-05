@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -17,21 +18,62 @@ import org.jbox2d.common.Vec2;
  */
 public class PointPath extends ArrayList<Vec2> {
 
-    public PointPath() {
-        //
+    final Vertex origin;
+    
+    final Vertex destination;
+    
+    public PointPath(Vertex origin, Vertex destination) {
+        this.origin = origin;
+        this.destination = destination;
     }
-
-    public PointPath(int size) {
+    
+    public PointPath(Vertex origin, Vertex destination, int size) {
         super(size);
+        this.origin = origin;
+        this.destination = destination;
     }
 
-    public PointPath(Collection<Vec2> points) {
+    public PointPath(Vertex origin, Vertex destination, Collection<Vec2> points) {
         super(points);
+        this.origin = origin;
+        this.destination = destination;
+    }
+    
+    public Vertex getOrigin() {
+        return origin;
     }
 
+    public Vertex getDestination() {
+        return destination;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof PointPath)
+            return ((PointPath) o).getOrigin() == getOrigin()
+                    && ((PointPath) o).getDestination() == getDestination();
+        else
+            return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.origin);
+        hash = 97 * hash + Objects.hashCode(this.destination);
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("From %d to %d",
+            getOrigin().getVertexListIndex(),
+            getDestination().getVertexListIndex());
+    }
+    
     public PointPath translate(float move) {
         List<Vec2> normals = getNormals(this);
-        PointPath out = new PointPath(size());
+        PointPath out = new PointPath(origin, destination, size());
         for (int i = 0; i < size() - 1; ++i) {
             out.add(get(i).add(normals.get(i).mul(move)));
         }
@@ -61,17 +103,5 @@ public class PointPath extends ArrayList<Vec2> {
         }
 
         return normals;
-    }
-
-    @Override
-    public String toString() {
-        Iterator<Vec2> pointIterator = this.iterator();
-        String output = "Pointpath:\n";
-        while(pointIterator.hasNext()){
-            output = output + "\t" + pointIterator.next().toString() + "\n";
-        }
-        return output;
-    }
-    
-    
+    }    
 }

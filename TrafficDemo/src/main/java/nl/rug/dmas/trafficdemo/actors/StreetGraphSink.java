@@ -62,8 +62,9 @@ public class StreetGraphSink implements Actor, Observer {
     @Override
     public void act() {
         for (Car car : carsInSight)
-            if (car.getDriver() != null && car.getDriver().reachedDestination())
+            if (car.getDriver() != null && car.getDriver().reachedDestination()) {
                 scenario.remove(car);
+            }
     }
 
     @Override
