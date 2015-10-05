@@ -30,7 +30,6 @@ import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -78,9 +77,14 @@ public class TrafficPanel extends JPanel {
         this.scenario = scenarion;
         
         // Also, when the scenario updates, we redraw.
-        scenario.addObserver(new java.util.Observer() {
+        scenario.addListener(new ScenarioAdapter() {
             @Override
-            public void update(Observable o, Object arg) {
+            public void scenarioStepped() {
+                repaint();
+            }
+            
+            @Override
+            public void selectionChanged() {
                 repaint();
             }
         });
@@ -108,8 +112,8 @@ public class TrafficPanel extends JPanel {
                     TrafficPanel.this.scenario.selectedCars.add(car);
                     e.consume();
                 }
-                
-                repaint();
+
+                // Todo: notify through selectionChanged
             }
         });
     }

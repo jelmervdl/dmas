@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
@@ -35,7 +34,7 @@ import org.jbox2d.dynamics.contacts.Contact;
  *
  * @author jelmer
  */
-public class Scenario extends Observable {
+public class Scenario {
 
     World world;
 
@@ -66,6 +65,8 @@ public class Scenario extends Observable {
     
     final ScenarioStatistics statistics = new ScenarioStatistics();
 
+    final Set<ScenarioListener> listeners = new HashSet<>();
+    
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact
      * listener. This listener updates the fixturesInSight list of the drivers
@@ -93,6 +94,8 @@ public class Scenario extends Observable {
 
         // Finally, init the main loop with a targeted 60 updates per second
         mainLoop = new Thread(new MainLoop(60));
+        
+        addListener(statistics);
     }
 
     public World getWorld() {
@@ -111,6 +114,14 @@ public class Scenario extends Observable {
         return statistics;
     }
 
+    public void addListener(ScenarioListener listener) {
+        listeners.add(listener);
+    }
+    
+    public void removeListener(ScenarioListener listener) {
+        listeners.remove(listener);
+    }
+    
     /**
      * Create a clueless driver. Mostly used when you add a car through the
      * menu, this factory method will give you a driver that drives along the
@@ -155,7 +166,9 @@ public class Scenario extends Observable {
         car.initialize(world);
         cars.add(car);
         actors.put(car.driver, 0l);
-        statistics.carAdded(car);
+        
+        for (ScenarioListener listener : listeners)
+            listener.carAdded(car);
     }
 
     /**
@@ -182,7 +195,9 @@ public class Scenario extends Observable {
         actors.remove(car.driver);
         cars.remove(car);
         selectedCars.remove(car);
-        statistics.carRemoved(car);
+        
+        for (ScenarioListener listener : listeners)
+            listener.carRemoved(car);
     }
 
     /**
@@ -290,8 +305,6 @@ public class Scenario extends Observable {
                         car.update(dt);
 
                     world.step(dt, 3, 8);
-                    
-                    setChanged();
                 } finally {
                     readLock.unlock();
                 }
@@ -308,7 +321,6 @@ public class Scenario extends Observable {
                     }
 
                     carsToRemove.clear();
-                    setChanged();
                 }
 
                 // And process additions that were also queued
@@ -318,13 +330,13 @@ public class Scenario extends Observable {
                     }
 
                     carsToAdd.clear();
-                    setChanged();
                 }
             } finally {
                 writeLock.unlock();
             }
             
-            notifyObservers();
+            for (ScenarioListener listener : listeners)
+                listener.scenarioStepped();
         }
     }
 }

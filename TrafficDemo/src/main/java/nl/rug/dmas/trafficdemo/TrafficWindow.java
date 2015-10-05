@@ -225,9 +225,9 @@ public class TrafficWindow extends JFrame {
         // Disable the remove car action by default, but listen to the scenario
         // to check whether we have a selection to remove.
         removeCar.setEnabled(false);
-        scenario.addObserver(new Observer() {
+        scenario.addListener(new ScenarioAdapter() {
             @Override
-            public void update(Observable o, Object arg) {
+            public void selectionChanged() {
                 removeCar.setText(String.format("Remove %s", scenario.selectedCars.size() == 1 ? "Car" : "Cars"));
                 removeCar.setEnabled(scenario.selectedCars.size() > 0);
             }

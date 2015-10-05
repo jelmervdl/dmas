@@ -15,17 +15,19 @@ import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
  *
  * @author jelmer
  */
-public class ScenarioStatistics extends AbstractTableModel {
+public class ScenarioStatistics extends AbstractTableModel implements ScenarioListener {
     final static int COLUMN_PROPERTY = 0;
     final static int COLUMN_VALUE = 1;
     
     List<PointPath> paths = new ArrayList<>();
     List<Counter> counters = new ArrayList<>();
 
+    @Override
     public void carAdded(Car car) {
         // Do nothing for now :(
     }
     
+    @Override
     public void carRemoved(Car car) {
         if (car.getDriver().reachedDestination()) {
             try {
@@ -99,6 +101,16 @@ public class ScenarioStatistics extends AbstractTableModel {
             default:
                 return null;
         }
+    }
+
+    @Override
+    public void scenarioStepped() {
+        //
+    }
+
+    @Override
+    public void selectionChanged() {
+        //
     }
 
     private static class Counter {
