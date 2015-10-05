@@ -1,13 +1,19 @@
 package nl.rug.dmas.trafficdemo.streetgraph;
 
+import java.awt.Point;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.InputMismatchException;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+import nl.rug.dmas.trafficdemo.actors.Sign;
+import nl.rug.dmas.trafficdemo.actors.StopSign;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -20,7 +26,8 @@ public class GraphReader {
     private static StreetGraph graph;
     private static int numNodes;
     private static int numEdges;
-    
+    private static HashMap<Point, ArrayList<Sign>> signs;
+
     private static void readHeaderRow() {
         if (GraphReader.scanner.nextLine().equals("")) {
             GraphReader.scanner.nextLine();
@@ -78,36 +85,64 @@ public class GraphReader {
         return sinks;
     }
 
-    private static ArrayList<String> readSigns(){
-        Pattern signPatterns = Pattern.compile("STOP");
-        String skipped;
-        ArrayList<String> signs = new ArrayList<>();        
-            while(GraphReader.scanner.hasNext(signPatterns)){
-                signs.add(GraphReader.scanner.next(signPatterns));
-            }        
-            skipped = GraphReader.scanner.nextLine();
-            if(!skipped.equals(new String())){
-                System.err.println(String.format("Skipped the following traffic signs: %s", skipped));
-            }
-            return signs;
+    private static void addSignToHashMap(Point edge, Sign sign) {
+        if (!GraphReader.signs.containsKey(edge)) {
+            GraphReader.signs.put(edge, new ArrayList<Sign>());
+        }
+        GraphReader.signs.get(edge).add(sign);
     }
-    
+
+    private static void readSigns(Point edge) throws InputMismatchException {
+        Pattern signPatterns = Pattern.compile("[a-zA-Z]+");
+        while (GraphReader.scanner.hasNext(signPatterns)) {
+            String matched = GraphReader.scanner.findInLine(signPatterns);
+            if (matched != null) {
+                switch (matched) {
+                    case "STOP":
+                        GraphReader.addSignToHashMap(edge, new StopSign());
+                        break;
+                    default:
+                        throw new InputMismatchException(String.format("The unknown sign %s was ignored.", matched));
+                }
+            } else {
+                break; //Leave loop
+            }
+        }
+        //TODO necessary?
+        GraphReader.scanner.nextLine();
+    }
+
     private static void readEdges() {
         readHeaderRow();
         int source, destination;
-        ArrayList<String> signs;
         for (int i = 0; i < GraphReader.numEdges; i++) {
             source = checkNodeValues(GraphReader.scanner.nextInt());
             destination = checkNodeValues(GraphReader.scanner.nextInt());
-            signs = readSigns();
             GraphReader.graph.addEdge(source, destination);
+            readSigns(new Point(source, destination));
         }
     }
-    
+
     private static HashSet<Integer> readSources() {
         readHeaderRow();
         HashSet<Integer> sources = readSetOfNaturalNumbersFromLine(GraphReader.numNodes);
         return sources;
+    }
+
+    private static void addSignsToGraph() {
+        Iterator<Map.Entry<Point, ArrayList<Sign>>> iterator = GraphReader.signs.entrySet().iterator();
+        Edge edge;
+        Vec2 location;
+        while (iterator.hasNext()) {
+            Map.Entry<Point, ArrayList<Sign>> signEdgePair = iterator.next();
+            edge = GraphReader.graph.findEdge(signEdgePair.getKey().x, signEdgePair.getKey().y);
+            //TODO currently signs are drawn over each other, increase the offset every iteration
+            location = Sign.computeLocation(edge.getOrigin(), edge.getDestination());
+            for (Sign sign : signEdgePair.getValue()) {
+                sign.setLocation(location);
+                GraphReader.graph.addSign(sign);
+            }
+        }
     }
 
     /**
@@ -126,6 +161,7 @@ public class GraphReader {
         }
 
         GraphReader.graph = new StreetGraph();
+        GraphReader.signs = new HashMap<>();
 
         try {
             readNumNodesAndEdges();
@@ -137,8 +173,8 @@ public class GraphReader {
             GraphReader.graph.setSources(sources);
 
             readNodeLocations();
-            
-            readSigns();
+
+            addSignsToGraph();
         } catch (InputMismatchException ex) {
             ex.printStackTrace(System.err);
             System.exit(-1);

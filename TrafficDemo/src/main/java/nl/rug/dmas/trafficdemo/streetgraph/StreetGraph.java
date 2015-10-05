@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map.Entry;
+import nl.rug.dmas.trafficdemo.actors.Sign;
 import nl.rug.dmas.trafficdemo.bezier.LinearBezier;
 import nl.rug.dmas.trafficdemo.bezier.QuadraticBezier;
 import org.jbox2d.common.MathUtils;
@@ -25,8 +26,12 @@ public class StreetGraph {
     private final ArrayList<Edge> edges;
     private final HashMap<Integer, Vertex> sources;
     private final HashMap<Integer, Vertex> sinks;
+    
+    private final ArrayList<Sign> signs;
+            
     private static int resolution = 50;
     private final static float turningRadius = 5.0f; 
+    
 
     /**
      * A graph representing streets, vertices represent intersections, edges
@@ -39,6 +44,8 @@ public class StreetGraph {
 
         this.vertices = new HashMap<>();
         this.edges = new ArrayList<>();
+        
+        this.signs = new ArrayList<>();
     }
 
     private void vertexHashSetToHashMap(HashSet<Integer> indices, HashMap<Integer, Vertex> map) throws InputMismatchException {
@@ -57,6 +64,18 @@ public class StreetGraph {
         }
     }
 
+    public ArrayList<Sign> getSigns() {
+        return signs;
+    }
+    
+    public void addSign(Sign sign){
+        this.signs.add(sign);
+    }   
+    
+    public void addSigns(ArrayList<Sign> signs){
+        this.signs.addAll(signs);
+    }
+    
     /**
      *
      * @param location
@@ -302,5 +321,17 @@ public class StreetGraph {
             res += "\t" + entry.getValue() + "\n";
         }
         return res;
+    }
+
+    Edge findEdge(int originName, int destinationName) {
+        //No need to check for nulls, since a sign can only be read after an edge, if the edge exists, vertices are created based on edges.
+        Vertex origin =  this.vertices.get(originName);
+        for(Edge edge : origin.getOutgoingEdges()){
+            if(edge.getDestination().getVertexListIndex() == destinationName){
+                return edge;
+            }
+        }
+        //This shouldn't happen
+        return null;
     }
 }
