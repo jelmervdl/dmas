@@ -27,15 +27,15 @@ What we have now is:
 - autonomous drivers
 - a path for drivers to follow
 - drivers see each other and can wait to avoid crashes
+- turning corners realistically
 
 We are working on:
 - human drivers
 - implementing statistics
-- turning corners realistically
 
 We still need to do:
-- traffic right of way rules
-- traffic signs (stop signs)
+- traffic: right of way rules
+- traffic: signs (stop signs)
 
 We still want to do:
 - a more complicated graph
