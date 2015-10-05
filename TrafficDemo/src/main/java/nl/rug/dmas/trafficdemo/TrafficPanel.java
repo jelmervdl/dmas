@@ -65,6 +65,13 @@ public class TrafficPanel extends JPanel {
     public TrafficPanel(Scenario scenarion) {
         this.scenario = scenarion;
         
+        // Also, when the scenario updates, we redraw.
+        scenario.addObserver(new java.util.Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                repaint();
+            }
+        });
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

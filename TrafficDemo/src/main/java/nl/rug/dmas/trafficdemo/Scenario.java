@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import nl.rug.dmas.trafficdemo.actors.AutonomousDriver;
@@ -60,7 +61,7 @@ public class Scenario extends Observable {
     
     final private Thread mainLoop;
     
-    private boolean mainLoopIsPaused = false;
+    private AtomicInteger mainLoopIsPaused = new AtomicInteger();
     
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact
@@ -188,11 +189,11 @@ public class Scenario extends Observable {
     }
     
     public void pause() {
-        mainLoopIsPaused = true;
+        mainLoopIsPaused.incrementAndGet();
     }
     
     public void resume() {
-        mainLoopIsPaused = false;
+        mainLoopIsPaused.decrementAndGet();
     }
     
     private class ObserverContactListener implements ContactListener {
@@ -239,8 +240,7 @@ public class Scenario extends Observable {
                 while (!Thread.interrupted()) {
                     long startTimeMS = System.currentTimeMillis();
 
-                    if (!Scenario.this.mainLoopIsPaused)
-                        step(startTimeMS, stepTime);
+                    step(startTimeMS, stepTime);
 
                     long finishTimeMS = System.currentTimeMillis();
                     long sleepTimeMS = (long) (stepTime * 1000) - (finishTimeMS - startTimeMS);
@@ -259,23 +259,27 @@ public class Scenario extends Observable {
         */
         private void step(long t, float dt) {
             // For running the simulation we only need a read lock
-            readLock.lock();
-            try {
-                for (Map.Entry<Actor,Long> entry : actors.entrySet()) {
-                    if (entry.getValue() + entry.getKey().getActPeriod() < t) {
-                        entry.getKey().act();
-                        entry.setValue(t);
+            if (Scenario.this.mainLoopIsPaused.get() == 0) {
+                readLock.lock();
+                try {
+                    for (Map.Entry<Actor,Long> entry : actors.entrySet()) {
+                        if (entry.getValue() + entry.getKey().getActPeriod() < t) {
+                            entry.getKey().act();
+                            entry.setValue(t);
+                        }
                     }
+
+                    for (Car car : cars)
+                        car.update(dt);
+
+                    world.step(dt, 3, 8);
+                    
+                    setChanged();
+                } finally {
+                    readLock.unlock();
                 }
-
-                for (Car car : cars)
-                    car.update(dt);
-
-                world.step(dt, 3, 8);
-            } finally {
-                readLock.unlock();
             }
-
+            
             // For altering the cars that need to be added or removed we want a
             // complete lock.
             writeLock.lock();
@@ -286,6 +290,7 @@ public class Scenario extends Observable {
                         removeCarUnsafe(car);
 
                     carsToRemove.clear();
+                    setChanged();
                 }
 
                 // And process additions that were also queued
@@ -294,13 +299,13 @@ public class Scenario extends Observable {
                         addCarUnsafe(car);
 
                     carsToAdd.clear();
+                    setChanged();
                 }
             }
             finally {
                 writeLock.unlock();
             }
             
-            setChanged();
             notifyObservers();
         }
     }

@@ -33,6 +33,7 @@ import javax.swing.KeyStroke;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import org.jbox2d.common.Vec2;
+import sun.java2d.cmm.ColorTransform;
 
 /**
  *
@@ -131,14 +132,6 @@ public class TrafficWindow extends JFrame {
             }
         });
         
-        // Also, when the scenario updates, we redraw.
-        scenario.addObserver(new Observer() {
-            @Override
-            public void update(Observable o, Object arg) {
-                repaint();
-            }
-        });
-        
         // Always stop the scenario when this window is closed.
         addWindowListener(new WindowAdapter() {
             @Override
@@ -183,6 +176,20 @@ public class TrafficWindow extends JFrame {
         
         JMenu simulationMenu = new JMenu("Simulation");
         menuBar.add(simulationMenu);
+        
+        final JCheckBoxMenuItem runSimulation = new JCheckBoxMenuItem("Run", true);
+        simulationMenu.add(runSimulation);
+        runSimulation.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (runSimulation.isSelected())
+                    scenario.resume();
+                else
+                    scenario.pause();
+            }
+        });
+        
+        simulationMenu.addSeparator();
         
         final JMenuItem selectCars = new JMenuItem("Select All");
         simulationMenu.add(selectCars);
