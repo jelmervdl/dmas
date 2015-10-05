@@ -14,16 +14,18 @@ import javax.swing.JTable;
  * @author jelmer
  */
 public class StatisticsWindow extends JFrame {
-    final ScenarioStatistics statistics;
+    final Scenario scenario;
     
-    public StatisticsWindow(ScenarioStatistics statistics) {
-        this.statistics = statistics;
+    public StatisticsWindow(Scenario scenario) {
+        this.scenario = scenario;
         
         setPreferredSize(new Dimension(300, 300));
         setTitle("Statistics");
         setType(Type.UTILITY);
         
-        JTable table = new JTable(statistics);
+        RouteStatistics routeStats = new RouteStatistics();
+        scenario.addListener(routeStats);
+        JTable table = new JTable(routeStats);
         add(table);
         
         pack();

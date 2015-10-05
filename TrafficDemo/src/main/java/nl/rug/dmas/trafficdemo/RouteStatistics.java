@@ -15,7 +15,7 @@ import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
  *
  * @author jelmer
  */
-public class ScenarioStatistics extends AbstractTableModel implements ScenarioListener {
+public class RouteStatistics extends AbstractTableModel implements ScenarioListener {
     final static int COLUMN_PROPERTY = 0;
     final static int COLUMN_VALUE = 1;
     
