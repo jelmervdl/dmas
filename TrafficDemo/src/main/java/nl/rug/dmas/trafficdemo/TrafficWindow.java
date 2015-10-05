@@ -18,11 +18,8 @@ import java.awt.event.WindowEvent;
 import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -33,7 +30,6 @@ import javax.swing.KeyStroke;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import org.jbox2d.common.Vec2;
-import sun.java2d.cmm.ColorTransform;
 
 /**
  *
