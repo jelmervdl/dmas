@@ -2,10 +2,12 @@ package nl.rug.dmas.trafficdemo.streetgraph;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -18,7 +20,7 @@ public class GraphReader {
     private static StreetGraph graph;
     private static int numNodes;
     private static int numEdges;
-
+    
     private static void readHeaderRow() {
         if (GraphReader.scanner.nextLine().equals("")) {
             GraphReader.scanner.nextLine();
@@ -76,14 +78,32 @@ public class GraphReader {
         return sinks;
     }
 
+    private static ArrayList<String> readSigns(){
+        Pattern signPatterns = Pattern.compile("STOP");
+        String skipped;
+        ArrayList<String> signs = new ArrayList<>();        
+            while(GraphReader.scanner.hasNext(signPatterns)){
+                signs.add(GraphReader.scanner.next(signPatterns));
+            }        
+            skipped = GraphReader.scanner.nextLine();
+            if(!skipped.equals(new String())){
+                System.err.println(String.format("Skipped the following traffic signs: %s", skipped));
+            }
+            return signs;
+    }
+    
     private static void readEdges() {
         readHeaderRow();
+        int source, destination;
+        ArrayList<String> signs;
         for (int i = 0; i < GraphReader.numEdges; i++) {
-            GraphReader.graph.addEdge(checkNodeValues(GraphReader.scanner.nextInt()),
-                    checkNodeValues(GraphReader.scanner.nextInt()));
+            source = checkNodeValues(GraphReader.scanner.nextInt());
+            destination = checkNodeValues(GraphReader.scanner.nextInt());
+            signs = readSigns();
+            GraphReader.graph.addEdge(source, destination);
         }
     }
-
+    
     private static HashSet<Integer> readSources() {
         readHeaderRow();
         HashSet<Integer> sources = readSetOfNaturalNumbersFromLine(GraphReader.numNodes);
@@ -117,6 +137,8 @@ public class GraphReader {
             GraphReader.graph.setSources(sources);
 
             readNodeLocations();
+            
+            readSigns();
         } catch (InputMismatchException ex) {
             ex.printStackTrace(System.err);
             System.exit(-1);
