@@ -19,7 +19,7 @@ public class CubicBezier extends Bezier {
     }
 
     @Override
-    protected Vec2 interpolate(float t, Vec2... controlPoints) {
+    public Vec2 interpolate(float t, Vec2... controlPoints) {
         if (controlPoints.length != 2) {
             throw new InputMismatchException("Cubic bezier curves need two controlpoints.");
         }

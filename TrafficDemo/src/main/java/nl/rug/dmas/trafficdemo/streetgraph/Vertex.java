@@ -22,27 +22,10 @@ public class Vertex {
      * @param vertexListIndex the `ID' of the vertex
      */
     public Vertex(int vertexListIndex) {
+        super();
         this.vertexListIndex = vertexListIndex;
         this.outgoingEdges = new ArrayList<>();
         this.incomingEdges = new ArrayList<>();
-        this.location = null;
-    }
-    
-    /**
-     * Get the location of this part of the road in world coordinates.
-     * @return location of this vertex in world coordinates
-     */
-    public Vec2 getLocation() {
-        return this.location;
-    }
-
-    /**
-     * Set the location of this vertex to location.
-     *
-     * @param location
-     */
-    public void setLocation(Vec2 location) {
-        this.location = location;
     }
 
     /**
@@ -79,7 +62,7 @@ public class Vertex {
 
     @Override
     public String toString() {
-        return this.vertexListIndex + "\t Incoming: " + this.incomingEdges + "\n\t\t Outgoing: " + this.outgoingEdges;
+        return this.vertexListIndex +  this.location.toString() +  "\t Incoming: " + this.incomingEdges + "\n\t\t\t Outgoing: " + this.outgoingEdges;
     }
 
     /**
@@ -96,5 +79,13 @@ public class Vertex {
      */
     protected void addOugoingEdge(Edge edge) {
         this.outgoingEdges.add(edge);
+    }
+
+    protected void setLocation(Vec2 location) {
+        this.location = location;
+    }
+
+    public Vec2 getLocation() {
+        return this.location;
     }
 }

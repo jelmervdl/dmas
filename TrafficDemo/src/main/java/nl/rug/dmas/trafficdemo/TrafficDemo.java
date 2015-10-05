@@ -46,10 +46,10 @@ public class TrafficDemo {
         Scenario scenario = new Scenario(streetGraph);
         scenario.commonKnowledge.put("mouse", new Vec2(0, 0));
         scenario.commonKnowledge.put("path", new CopyOnWriteArrayList<Vec2>());
-        
+
         return scenario;
     }
-    
+
     static public void openFile() {
         FileDialog fileChooser = new FileDialog((Frame) null, "Open a graph…", FileDialog.LOAD);
         File lastOpenedFile = getLastOpenedFile();
@@ -64,12 +64,13 @@ public class TrafficDemo {
     
     static public void runFile(File file) {
         Scenario scenario = readScenarioFromFile(file);
-        
+
         // Pony up a simple window, our only entrypoint to the app
         TrafficWindow window = new TrafficWindow(scenario);
         window.setSize(800, 600);
         
         window.setTitle(file.getName());
+
         window.getRootPane().putClientProperty("Window.documentFile", file);
         
         windows.add(window);
@@ -97,7 +98,7 @@ public class TrafficDemo {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
             // Could not initialize awesome Mac-specific UI, but Java UI will be sort of fine, I guess.
         }
-        
+
         // if there are files passed as arguments on the commandline, open those
         if (args.length > 1) {
             for (int i = 1; i < args.length; ++i)

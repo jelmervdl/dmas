@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import nl.rug.dmas.trafficdemo.Actor;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.DebugGraphicsQueue;
@@ -16,6 +17,7 @@ import nl.rug.dmas.trafficdemo.Observer;
 import nl.rug.dmas.trafficdemo.Scenario;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.Shape;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Fixture;
 
 /**
@@ -29,6 +31,10 @@ abstract public class Driver implements Actor, Observer {
     
     protected Car car;
     
+    final List<Vec2> path;
+    
+    int pathIndex = 0;
+    
     // A set of all fixtures in the 
     final protected Set<Fixture> fixturesInSight = new HashSet<>();
     
@@ -40,6 +46,12 @@ abstract public class Driver implements Actor, Observer {
      */
     public Driver(Scenario scenario) {
         this.scenario = scenario;
+        this.path = (CopyOnWriteArrayList<Vec2>) scenario.getCommonKnowledge().get("path");
+    }
+    
+    public Driver(Scenario scenario, List<Vec2> path) {
+        this.scenario = scenario;
+        this.path = path;
     }
     
     /**
@@ -58,6 +70,10 @@ abstract public class Driver implements Actor, Observer {
         Shape shape = new CircleShape();
         shape.setRadius(8);
         return shape;
+    }
+    
+    public List<Vec2> getPath() {
+        return path;
     }
 
     /**
@@ -81,13 +97,6 @@ abstract public class Driver implements Actor, Observer {
     }
     
     /**
-     * Test whether the destination is reached. This method is used by the sinks
-     * to determine whether a car can be removed from the scenario.
-     * @return whether the destination is reached right now
-     */
-    abstract public boolean reachedDestination();
-    
-    /**
      * Filters the list of fixtures in sight and only returns actual cars that
      * are not my own car.
      * @return a list of cars inside the FOV.
@@ -101,5 +110,30 @@ abstract public class Driver implements Actor, Observer {
                 cars.add((Car) fixture.getUserData());
         
         return cars;
+    }
+    
+    protected Vec2 steerTowardsPath() {
+        if (path != null) {
+            while (pathIndex < path.size()) {
+                Vec2 directionToNextPoint = car.getLocalPoint(path.get(pathIndex));
+
+                if (directionToNextPoint.length() > 3.0f) {
+                    return directionToNextPoint;
+                } else {
+                    pathIndex += 1;
+                }
+            }
+        }
+        
+        return new Vec2(0, 0);
+    }
+
+    /**
+     * Test whether the destination is reached. This method is used by the sinks
+     * to determine whether a car can be removed from the scenario.
+     * @return whether the destination is reached right now
+     */
+    public boolean reachedDestination() {
+        return path != null && pathIndex == path.size();
     }
 }
