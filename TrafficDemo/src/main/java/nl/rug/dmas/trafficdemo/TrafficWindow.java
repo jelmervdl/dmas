@@ -48,7 +48,9 @@ public class TrafficWindow extends JFrame {
         setTitle("Traffic!");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
-        statisticsWindow = new StatisticsWindow(scenario.getStatistics());
+        final ScenarioStatistics pathStatistics = new ScenarioStatistics();
+        statisticsWindow = new StatisticsWindow(pathStatistics);
+        scenario.addListener(pathStatistics);
         
         // The TrafficPanel draws the actual scenario (cars etc.)
         panel = new TrafficPanel(scenario);

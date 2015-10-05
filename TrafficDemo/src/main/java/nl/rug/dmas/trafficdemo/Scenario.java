@@ -63,8 +63,6 @@ public class Scenario {
     
     final private AtomicInteger mainLoopIsPaused = new AtomicInteger();
     
-    final ScenarioStatistics statistics = new ScenarioStatistics();
-
     final Set<ScenarioListener> listeners = new HashSet<>();
     
     /**
@@ -94,8 +92,6 @@ public class Scenario {
 
         // Finally, init the main loop with a targeted 60 updates per second
         mainLoop = new Thread(new MainLoop(60));
-        
-        addListener(statistics);
     }
 
     public World getWorld() {
@@ -110,10 +106,6 @@ public class Scenario {
         return commonKnowledge;
     }
     
-    public ScenarioStatistics getStatistics() {
-        return statistics;
-    }
-
     public void addListener(ScenarioListener listener) {
         listeners.add(listener);
     }
