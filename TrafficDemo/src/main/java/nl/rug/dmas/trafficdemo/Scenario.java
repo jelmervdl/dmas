@@ -18,6 +18,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import nl.rug.dmas.trafficdemo.actors.AutonomousDriver;
 import nl.rug.dmas.trafficdemo.actors.Driver;
+import nl.rug.dmas.trafficdemo.actors.HumanDriver;
 import nl.rug.dmas.trafficdemo.actors.StreetGraphSink;
 import nl.rug.dmas.trafficdemo.actors.StreetGraphSource;
 import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
@@ -110,7 +111,7 @@ public class Scenario extends Observable {
      * @return 
      */
     public Driver createDriver() {
-        return new AutonomousDriver(this, (List<Vec2>) commonKnowledge.get("path"));
+        return new HumanDriver(this, (List<Vec2>) commonKnowledge.get("path"));
     }
     
     /**
@@ -122,7 +123,7 @@ public class Scenario extends Observable {
      * @return a driver!
      */
     public Driver createDriver(PointPath path) {
-        return new AutonomousDriver(this, path);
+        return new HumanDriver(this, path);
     }
     
     /**
