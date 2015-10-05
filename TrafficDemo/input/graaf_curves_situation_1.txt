@@ -1,0 +1,13 @@
+Number of Nodes and Edges
+3 2
+Sources
+0
+Sinks
+2
+Edges
+0 1
+1 2
+Node Locations, 0,0 is the centre of the screen
+0 -10
+0 0
+10 0
