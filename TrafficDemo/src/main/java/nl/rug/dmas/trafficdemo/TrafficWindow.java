@@ -30,6 +30,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -82,31 +84,40 @@ public class TrafficWindow extends JFrame {
             
             private void triggerPopup(final MouseEvent popupEvent) {
                 JPopupMenu carContextMenu = new JPopupMenu();
+                final Car car = panel.getCarAtPosition(popupEvent.getPoint());
                 
-                carContextMenu.add(new AbstractAction() {
+                // Pause the scenario while the context menu is open
+                carContextMenu.addPopupMenuListener(new PopupMenuListener() {
                     @Override
-                    public boolean isEnabled() {
-                        return !TrafficWindow.this.scenario.selectedCars.isEmpty();
-                    }
-                    
-                    @Override
-                    public Object getValue(String key) {
-                        if (key.equals(Action.NAME))
-                            return TrafficWindow.this.scenario.selectedCars.size() == 1
-                                    ? "Remove Selected Car"
-                                    : "Remove Selected Cars";
-                        else
-                            return super.getValue(key);
+                    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                        TrafficWindow.this.scenario.pause();
                     }
 
                     @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Set<Car> cars = new HashSet<>(TrafficWindow.this.scenario.selectedCars);
-                        for (Car car : cars)
-                            TrafficWindow.this.scenario.remove(car);
+                    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                        TrafficWindow.this.scenario.resume();
+                    }
+
+                    @Override
+                    public void popupMenuCanceled(PopupMenuEvent e) {
+                        //
                     }
                 });
                 
+                // Menu item for removing the car (if one was selected)
+                carContextMenu.add(new AbstractAction("Remove Car") {
+                    @Override
+                    public boolean isEnabled() {
+                        return car != null;
+                    }
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        TrafficWindow.this.scenario.remove(car);
+                    }
+                });
+                
+                // Menu item for spawning a car at this position
                 carContextMenu.add(new AbstractAction("Add Car") {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -173,9 +184,19 @@ public class TrafficWindow extends JFrame {
         JMenu simulationMenu = new JMenu("Simulation");
         menuBar.add(simulationMenu);
         
+        final JMenuItem selectCars = new JMenuItem("Select All");
+        simulationMenu.add(selectCars);
+        selectCars.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        selectCars.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                scenario.selectedCars.addAll(scenario.cars);
+            }
+        });
+        
         final JMenuItem addCar = new JMenuItem("Add a Car");
         simulationMenu.add(addCar);
-        addCar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        addCar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         addCar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -183,19 +204,28 @@ public class TrafficWindow extends JFrame {
             }
         });
         
-        final JMenuItem removeCar = new JMenuItem("Remove a Car");
+        final JMenuItem removeCar = new JMenuItem("Remove Cars");
         simulationMenu.add(removeCar);
-        removeCar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        removeCar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0));
         removeCar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Random generator = new Random();
-                if (scenario.cars.size() > 0) {
-                    Car car = scenario.cars.get(generator.nextInt(scenario.cars.size()));
+                for (Car car : new HashSet<>(scenario.selectedCars))
                     scenario.remove(car);
-                }
             }
         });
+        
+        // Disable the remove car action by default, but listen to the scenario
+        // to check whether we have a selection to remove.
+        removeCar.setEnabled(false);
+        scenario.addObserver(new Observer() {
+            @Override
+            public void update(Observable o, Object arg) {
+                removeCar.setText(String.format("Remove %s", scenario.selectedCars.size() == 1 ? "Car" : "Cars"));
+                removeCar.setEnabled(scenario.selectedCars.size() > 0);
+            }
+        });
+        
         
         simulationMenu.addSeparator();
         

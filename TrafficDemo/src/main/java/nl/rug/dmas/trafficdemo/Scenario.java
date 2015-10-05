@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import nl.rug.dmas.trafficdemo.actors.AutonomousDriver;
@@ -58,6 +59,8 @@ public class Scenario extends Observable {
     final Lock writeLock = lock.writeLock();
     
     final private Thread mainLoop;
+    
+    private boolean mainLoopIsPaused = false;
     
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact
@@ -184,6 +187,14 @@ public class Scenario extends Observable {
         mainLoop.interrupt();
     }
     
+    public void pause() {
+        mainLoopIsPaused = true;
+    }
+    
+    public void resume() {
+        mainLoopIsPaused = false;
+    }
+    
     private class ObserverContactListener implements ContactListener {
         @Override
         public void beginContact(Contact fixtureContact) {
@@ -228,7 +239,8 @@ public class Scenario extends Observable {
                 while (!Thread.interrupted()) {
                     long startTimeMS = System.currentTimeMillis();
 
-                    step(startTimeMS, stepTime);
+                    if (!Scenario.this.mainLoopIsPaused)
+                        step(startTimeMS, stepTime);
 
                     long finishTimeMS = System.currentTimeMillis();
                     long sleepTimeMS = (long) (stepTime * 1000) - (finishTimeMS - startTimeMS);
