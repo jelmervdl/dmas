@@ -8,7 +8,6 @@ package nl.rug.dmas.trafficdemo;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -33,10 +32,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import nl.rug.dmas.trafficdemo.actors.Driver;
 import nl.rug.dmas.trafficdemo.streetgraph.Edge;
+import nl.rug.dmas.trafficdemo.streetgraph.NoPathException;
 import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
 import nl.rug.dmas.trafficdemo.streetgraph.StreetGraph;
 import nl.rug.dmas.trafficdemo.streetgraph.Vertex;
@@ -51,16 +53,19 @@ import org.jbox2d.dynamics.Fixture;
 
 /**
  * Draws cars.
+ *
  * @author jelmer
  */
 public class TrafficPanel extends JPanel {
 
     Scenario scenario;
     float scale = 10f;
-    
+
     // Options (for now)
     boolean drawFOV = true;
     boolean drawDirection = true;
+    boolean drawPaths = true;
+
     boolean drawDriverThoughts = false;
     
     final Color headlightColor = new Color(1.0f, 1.0f, 0.6f);
@@ -112,6 +117,7 @@ public class TrafficPanel extends JPanel {
     /**
      * Get the location of the mouse in World coordinates. I.e. the centre of
      * this panel is world coordinate 0,0. Scaling is also taken into account.
+     *
      * @return Vec2 with the mouse coordinates in world space.
      */
     public Vec2 getMouseWorldLocation() {
@@ -151,6 +157,7 @@ public class TrafficPanel extends JPanel {
     /**
      * Our custom painting of awesome cars. Do not call directly, but call
      * repaint() instead.
+     *
      * @param g
      */
     @Override
@@ -191,7 +198,7 @@ public class TrafficPanel extends JPanel {
             g2.setColor(Color.RED);
             drawPath(g2, path);
         }
-        
+
         // Lock the world for reading, so we don't delete a car from the list
         // while iterating over said list (resulting in an exception, or just
         // a pair of wheels with a missing body.)
@@ -217,13 +224,14 @@ public class TrafficPanel extends JPanel {
     /**
      * Draw all cars and appropriate debug data. This first draws all wheels,
      * then the car bodies, the lights and and then the debug data.
+     *
      * @param graphics
      * @param cars a list of cars
      */
     private void drawCars(Graphics2D g, List<Car> cars) {
         // Draw all wheels
         Graphics2D g2 = (Graphics2D) g.create();
-        
+
         g2.setColor(Color.BLACK);
         for (Car car : cars) {
             for (Wheel wheel : car.wheels) {
@@ -231,13 +239,13 @@ public class TrafficPanel extends JPanel {
                 fillShape(g2, wheel.body.getFixtureList().getShape(), wheel.body.getTransform());
             }
         }
-        
+
         // Then draw the body of the cars
         for (Car car : cars) {
             g2.setColor(car.color);
             fillShape(g2, car.bodyFixture.getShape(), car.body.getTransform());
         }
-        
+
         // Draw headlights! I have too much free time.
         for (Car car : cars) {
             switch (car.acceleration) {
@@ -274,6 +282,13 @@ public class TrafficPanel extends JPanel {
             }
         }
         
+        if (drawPaths) {
+            g2.setColor(Color.red);
+            for (Car car : cars) {
+                drawPath(g2, car.driver.getPath());
+            }
+        }
+
         // for testing, draw the angle the car tries to achieve
         if (drawDirection) {
             g2.setColor(Color.RED);
@@ -281,7 +296,7 @@ public class TrafficPanel extends JPanel {
                 drawAngle(g2, car.targetBodyAngle, car.body.getPosition());
             }
         }
-        
+
         // for gaining insight, draw the stored drawing calls that the car AI made
         if (drawDriverThoughts) {
             g2.setColor(Color.GREEN);
@@ -291,10 +306,11 @@ public class TrafficPanel extends JPanel {
         
         g2.dispose();
     }
-    
+
     /**
      * Draws a filled JBox2D shape using fillPolygon or fillOval. Only supports
      * PolygonShape and CircleShape at this moment.
+     *
      * @param graphics
      * @param shape JBox2D shape
      * @param transform applied to the shape to get the location and rotation
@@ -303,9 +319,11 @@ public class TrafficPanel extends JPanel {
         java.awt.Shape shape2d = getShape(shape, transform);
         g2.fill(shape2d);
     }
-    
+
     /**
-     * Draw an absolute angle as an arrow of 1.0 (i.e. 1.0 * scale) world point length
+     * Draw an absolute angle as an arrow of 1.0 (i.e. 1.0 * scale) world point
+     * length
+     *
      * @param g2
      * @param angle in radians
      * @param position of the beginning of the angle
@@ -315,9 +333,10 @@ public class TrafficPanel extends JPanel {
         Vec2 direction = new Vec2(MathUtils.cos(angle), MathUtils.sin(angle));
         drawVec(g2, direction, position);
     }
-    
+
     /**
      * Draw a direction vector relative to position.
+     *
      * @param g2
      * @param direction vector
      * @param position of the base of the vector
@@ -325,7 +344,7 @@ public class TrafficPanel extends JPanel {
     private void drawVec(Graphics2D g2, Vec2 direction, Vec2 position) {
         // target is the absolute world position of the tip of the vector
         Vec2 target = position.add(direction);
-        
+
         // draw the line of the vector
         g2.draw(new Line2D.Float(
             position.x, position.y,
@@ -336,7 +355,7 @@ public class TrafficPanel extends JPanel {
         float angle = MathUtils.atan2(direction.y, direction.x);
         float arrowLength = MathUtils.clamp(direction.length() / 10f, 0.5f, 1.0f);
         float arrowWidth = 0.125f * MathUtils.PI;
-        
+
         Path2D arrow = new Path2D.Float();
         
         // Start at the tip
@@ -358,6 +377,7 @@ public class TrafficPanel extends JPanel {
 
     /**
      * Draw a little headlight box with light coming out of it!
+     *
      * @param g
      * @param lightColor colour of the light
      * @param position position in car space of the point between the light and the light box I.e. the light box is 'behind' this point, and the light cone 'in front of'
@@ -370,7 +390,7 @@ public class TrafficPanel extends JPanel {
         Graphics2D g2 = (Graphics2D) g.create();
         Vec2 worldPosition = new Vec2();
         Transform.mulToOutUnsafe(transform, position, worldPosition);
-        
+
         Point2D center = new Point2D.Float(
             worldPosition.x,
             worldPosition.y);
@@ -391,7 +411,7 @@ public class TrafficPanel extends JPanel {
         RadialGradientPaint p = new RadialGradientPaint(new Point(0, 0), reach / 2f, dist, colors);
         g2.setPaint(p);
         g2.fill(new Arc2D.Float(-reach, -reach, reach * 2, reach * 2, (-angleWidth / 2 * MathUtils.RAD2DEG) + 90, angleWidth * MathUtils.RAD2DEG, Arc2D.PIE));
-        
+
         g2.dispose();
     }
 
@@ -424,10 +444,10 @@ public class TrafficPanel extends JPanel {
         Vec2 direction = edge.getDestination().getLocation().sub(position);
         drawVec(g2, direction, position);
     }
-    
+
     private void drawFOVs(Graphics2D g) {
         Graphics2D g2 = (Graphics2D) g.create();
-        
+
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f));
         g2.setColor(Color.BLUE);
 
@@ -438,37 +458,43 @@ public class TrafficPanel extends JPanel {
                 }
             }
         }
-        
+
         g2.dispose();
     }
-    
+
     private void drawRoad(Graphics2D g, Edge edge) {
         Graphics2D g2 = (Graphics2D) g.create();
-        
+
         LinkedList<Vertex> path = new LinkedList<>();
         path.add(edge.getOrigin());
         path.add(edge.getDestination());
         
-        PointPath points = StreetGraph.generatePointPath(path);
-        
-        // First draw the road side
-        Stroke roadSideStroke = new BasicStroke(0.3f);
-        g2.setStroke(roadSideStroke);
-        g2.setColor(Color.DARK_GRAY);
-        
-        // Both left and right side
-        drawLine(g2, points.translate(1.5f).iterator());
-        drawLine(g2, points.translate(-1.5f).iterator());
-        
-        // Then draw the road itself so it overlays all the road side drawing
-        // glitches which occur at the intersections
-        Stroke roadStroke = new BasicStroke(3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
-        g2.setStroke(roadStroke);
-        g2.setColor(Color.LIGHT_GRAY);
-        
-        drawLine(g2, points.iterator());
-        
-        g2.dispose();
+        try {
+            PointPath points = StreetGraph.generatePointPath(path);
+
+
+            // First draw the road side
+            Stroke roadSideStroke = new BasicStroke(0.3f);
+            g2.setStroke(roadSideStroke);
+            g2.setColor(Color.DARK_GRAY);
+
+            // Both left and right side
+            drawLine(g2, points.translate(1.5f).iterator());
+            drawLine(g2, points.translate(-1.5f).iterator());
+
+            // Then draw the road itself so it overlays all the road side drawing
+            // glitches which occur at the intersections
+            Stroke roadStroke = new BasicStroke(3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+            g2.setStroke(roadStroke);
+            g2.setColor(Color.LIGHT_GRAY);
+
+            drawLine(g2, points.iterator());
+        } catch (NoPathException ex) {
+            Logger.getLogger(TrafficPanel.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            g2.dispose();
+        }
+
     }
     
     private void drawLine(Graphics2D g2, Iterator<Vec2> pointIter) {
