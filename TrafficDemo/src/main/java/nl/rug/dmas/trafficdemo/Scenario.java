@@ -17,6 +17,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import nl.rug.dmas.trafficdemo.actors.AutonomousDriver;
 import nl.rug.dmas.trafficdemo.actors.Driver;
+import nl.rug.dmas.trafficdemo.actors.Sign;
 import nl.rug.dmas.trafficdemo.actors.StreetGraphSink;
 import nl.rug.dmas.trafficdemo.actors.StreetGraphSource;
 import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
@@ -42,6 +43,9 @@ public class Scenario extends Observable {
     // A list of all cars in the simulation.
     final ArrayList<Car> cars = new ArrayList<>();
 
+    // A list of all signs in the simulation
+    final ArrayList<Sign> signs;
+    
     // A list of actors, agents or objects that can act, such as drivers
     // and spawn points.
     final Map<Actor, Long> actors = new HashMap<>();
@@ -77,6 +81,8 @@ public class Scenario extends Observable {
         // Create a world without gravity (2d world seen from top, eh!)
         // The world is our physics simulation.
         world = new World(new Vec2(0, 0));
+        
+        this.signs = graph.getSigns();
 
         // Add actors for the spawn points and sinks of the street graph
         for (Vertex source : streetGraph.getSources())
