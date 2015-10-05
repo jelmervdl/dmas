@@ -62,7 +62,7 @@ public class Vertex {
 
     @Override
     public String toString() {
-        return this.vertexListIndex + "\t Incoming: " + this.incomingEdges + "\n\t\t Outgoing: " + this.outgoingEdges;
+        return this.vertexListIndex +  this.location.toString() +  "\t Incoming: " + this.incomingEdges + "\n\t\t\t Outgoing: " + this.outgoingEdges;
     }
 
     /**

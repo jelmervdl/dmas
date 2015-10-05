@@ -62,4 +62,16 @@ public class PointPath extends ArrayList<Vec2> {
 
         return normals;
     }
+
+    @Override
+    public String toString() {
+        Iterator<Vec2> pointIterator = this.iterator();
+        String output = "Pointpath:\n";
+        while(pointIterator.hasNext()){
+            output = output + "\t" + pointIterator.next().toString() + "\n";
+        }
+        return output;
+    }
+    
+    
 }
