@@ -13,12 +13,17 @@ This model contains two different hierarchical levels, the car/driver level and 
 \later{Check that the low-level parameters are still accurate}
 
 \subparagraph{Low-level state variables}
-\Cref{tab:par:method:model:overview:state:lowlevel:car} provides an overview of all parameters that influence the behaviour of a car. 
+\Cref{tab:par:method:model:overview:state:lowlevel:car} provides an overview of all parameters that influence the behaviour of a car. Since we use a physics engine to realistically model vehicles we need a lot of information on the physical properties of the car. Each car has a driver, this driver can either be autonomous or human. Currently the only difference between human drivers and autonomous drivers is their field of view, however future versions of this system could also include some of the attributes proposed by \citeauthor{paruchuri2002multi}. 
+
+The \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car} is a set of points in the two dimensional simulation space, the origin of this space lies in the middle of the panels shown in \cref{fig:model:simulation}. 
+\algemeen{Ergens uitleggen hoe die punten gegenereerd worden, denk niet dat dit daar de juiste plek voor is.}
+
+
 % The dimensions must be clearly defined for all parameters and variables in the tables.
 
-\jelmer{Ik heb eenheden toegevoegd, aan deze tabel, zou jij kunnen checken of die kloppen.}
+\jelmer{Er zijn eenheden toegevoegd, aan deze tabel, zou jij kunnen checken of die kloppen.}
 \jelmer{Wat is de eenheid van power?}
-\algemeen{De vision range is een beetje vreemd zo, best nuttig zo'n verslag, maar dat wordt uiteindelijk een eigenschap van de versschillende drivers. Mij lijkt hem splitsen in hoek, 360 graden voor autonomous, 60 ofozo voor human, en een radius mij niet zo heel gek. }
+\algemeen{De vision range is een beetje vreemd zo, best nuttig zo'n verslag, maar dat wordt uiteindelijk een eigenschap van de versschillende drivers. Mij lijkt hem splitsen in hoek, 360 graden voor autonomous, 60 ofzo voor human, en een radius niet zo heel gek. }
 	\begin{table}
 		\centering
 		\begin{tabularx}{\textwidth}{>{\ttfamily}llX}
@@ -59,7 +64,7 @@ This model contains two different hierarchical levels, the car/driver level and 
 			initialPosition 		
 				& n.a.
 				& The initial position of the agent at the start of the simulation. \\ 
-			% bodyFixture 			& unit & The `fixture' of the bocy of a vehicle, used when viewing other vehicles\\ 
+			% bodyFixture 			& unit & The `fixture' of the body of a vehicle, used when viewing other vehicles\\ 
 			% visionFixture 		& unit & The `fixture of the vision of the vehicle, describing what a vehicle can see'\\ 
 			targetSpeedKMH			
 				& \si{\kilo\meter\per\hour}
@@ -69,13 +74,15 @@ This model contains two different hierarchical levels, the car/driver level and 
 				& The path the agent is going to follow. \\ 
 			\bottomrule
 		\end{tabularx}
-		\caption{Parameters that indicate the state of a car.}
+		\caption{An overview of the parameters that indicate the state of a car.}
 		\label{tab:par:method:model:overview:state:lowlevel:car}
 	\end{table}
 
 	\later{Check that the high-level parameters are still accurate}
 	\subparagraph{Higher-level entities}
 	The parameters at the simulation level are shown in \cref{tab:par:method:model:overview:state:highlevel:sim}.
+
+	The properties of cars are described in \cref{tab:par:method:model:overview:state:lowlevel:car}. The graph represents the streets, it is input as a connected directed graph with two special types of vertices; sources and sinks. Sources are vertices where cars can enter the simulation, these vertices have no incoming edges, the opposite type of vertex is a sink; vertices without outgoing edges where cars leave the simulation. In terms of traffic a source is the point of departure and a sink is the destination. 
 	
 	\begin{table}[H]
 		\centering
