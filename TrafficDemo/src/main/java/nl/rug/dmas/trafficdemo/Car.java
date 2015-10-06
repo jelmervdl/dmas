@@ -15,13 +15,14 @@ import org.jbox2d.dynamics.World;
 
 /**
  * A simulation of a car with a physical body, wheels and a metaphysical driver.
- *
+ * Based on http://www.iforce2d.net/b2dtut/top-down-car
+ * and http://www.iforce2d.net/src/iforce2d_TopdownCar.h
  * @author jelmer
  */
 public class Car {
     final float maxSteerAngleDeg = 40;
-    final float power = 300;
-    final float brakePower = 0; // TODO: So braking is the same as not accelerating :(
+    final float power = 30;
+    final float brakePower = 50;
     final float steeringSpeed = 5f;
     
     final float width;
@@ -291,7 +292,6 @@ public class Car {
                 break;
 
             case BRAKE:
-                // TODO: implement braking in such a way that it also works when driving in reverse
                 if (getLocalVelocity().y < 0)
                     forceVec = new Vec2(0, 1).mul(brakePower);
                 break;

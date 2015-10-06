@@ -104,23 +104,20 @@ public class Wheel {
      * Subtracts sideways velocity from this wheel its velocity vector and returns the remaining front-facing velocity vector
      * @return
      */
-    public Vec2 getKillVelocityVector() {
-        /*
-        var velocity=this.body.GetLinearVelocity();
-        var sideways_axis=this.getDirectionVector();
-        var dotprod=vectors.dot([velocity.x, velocity.y], sideways_axis);
-        return [sideways_axis[0]*dotprod, sideways_axis[1]*dotprod];
-        */
-        Vec2 velocity = body.getLinearVelocity();
-        Vec2 sidewaysAxis = getDirectionVector();
-        float dot = Vec2.dot(velocity, sidewaysAxis);
-        return sidewaysAxis.mul(dot);
+    private Vec2 getLateralVelocity() {
+        // Take the normal on the right side of the car
+        Vec2 currentRightNormal = body.getWorldVector(new Vec2(1, 0));
+        
+        // Now take the velocity of the body, and use the dot product to get the component of
+        // the velocity in the direction of the normal.
+        return currentRightNormal.mul(Vec2.dot(currentRightNormal, body.getLinearVelocity()));
     }
 
     /**
      * Removes all sideways velocity from this wheels velocity
      */
-    public void killSidewaysVelocity() {
-        this.body.setLinearVelocity(getKillVelocityVector());
+    void killSidewaysVelocity() {
+        Vec2 impulse = getLateralVelocity().negate().mul(body.getMass());
+        this.body.applyLinearImpulse(impulse, body.getWorldCenter());
     }
 }
