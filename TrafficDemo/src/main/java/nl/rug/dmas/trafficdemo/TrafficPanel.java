@@ -8,6 +8,7 @@ package nl.rug.dmas.trafficdemo;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -20,6 +21,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.font.GlyphVector;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
@@ -423,15 +425,17 @@ public class TrafficPanel extends JPanel {
 
     private void drawVertex(Graphics2D g, Vertex vertex) {
         Graphics2D g2 = (Graphics2D) g.create();
-        float radius = 0.5f;
         
         Vec2 point = vertex.getLocation();
+        float radius = 1.0f;
         
-        drawPosition(g2, point, radius);
+        g2.setColor(Color.BLACK);
+        g2.fill(new Ellipse2D.Float(
+            point.x - radius, point.y - radius,
+            radius * 2, radius * 2
+        ));
         
-        g2.setColor(Color.WHITE);
-        g2.drawString(Integer.toString(vertex.getVertexListIndex()),
-            point.x, point.y);
+        drawVertexName(g2, vertex);
         
         g2.dispose();
     }
@@ -532,13 +536,11 @@ public class TrafficPanel extends JPanel {
 
         for (Vertex vertex : streetGraph.getVertices()) {
             if (streetGraph.isSink(vertex))
-                g2.setColor(Color.RED);
+                drawSink(g2, vertex);
             else if (streetGraph.isSource(vertex))
-                g2.setColor(Color.GREEN);
+                drawSource(g2, vertex);
             else
-                g2.setColor(Color.BLUE);
-
-            drawVertex(g2, vertex);
+                drawVertex(g2, vertex);
         }
     }
 
@@ -646,6 +648,83 @@ public class TrafficPanel extends JPanel {
         g2.setFont(g2.getFont().deriveFont(g2.getFont().getSize2D() / scale));
         
         drawEnvironment(g2, scenario.streetGraph);
+        
+        g2.dispose();
+    }
+    
+    private void drawVertexName(Graphics2D g, Vertex vertex) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        
+        String name = Integer.toString(vertex.getVertexListIndex());
+        Font font = g2.getFont().deriveFont(1f);
+        GlyphVector nameShape = font.createGlyphVector(g2.getFontRenderContext(), name);
+        
+        Rectangle2D bounds = nameShape.getVisualBounds();
+        
+        g2.translate(
+            vertex.getLocation().x - bounds.getCenterX(),
+            vertex.getLocation().y - bounds.getCenterY());
+        
+        g2.setColor(Color.WHITE);
+        g2.setStroke(new BasicStroke(0.3f));
+        g2.draw(nameShape.getOutline());
+        
+        g2.setColor(Color.BLACK);
+        g2.fill(nameShape.getOutline());
+        
+        g2.dispose();
+    }
+    
+    private void drawSource(Graphics2D g, Vertex vertex) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        
+        Vec2 point = vertex.getLocation();
+        float radius = 1.0f;
+        float innerRadius = 0.7f;
+        
+        g2.setColor(Color.BLACK);
+        g2.fill(new Ellipse2D.Float(
+            point.x - radius, point.y - radius,
+            radius * 2, radius * 2
+        ));
+        
+        g2.setColor(Color.WHITE);
+        g2.setStroke(new BasicStroke(0.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g2.draw(new Ellipse2D.Float(
+            point.x - innerRadius, point.y - innerRadius,
+            innerRadius * 2 - 0.03f, innerRadius * 2 - 0.03f
+        ));
+        
+        drawVertexName(g2, vertex);
+        
+        g2.dispose();
+    }
+
+    private void drawSink(Graphics2D g, Vertex vertex) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        
+        Vec2 point = vertex.getLocation();
+        float radius = 1.0f;
+        
+        Ellipse2D.Float circle = new Ellipse2D.Float(
+            point.x - radius, point.y - radius,
+            radius * 2, radius * 2
+        );
+        
+        g2.setColor(Color.BLACK);
+        g2.fill(circle);
+        
+        float d = radius * MathUtils.cos(MathUtils.QUARTER_PI);
+        
+        g2.setClip(circle);
+        g2.setColor(Color.WHITE);
+        g2.setStroke(new BasicStroke(0.3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g2.draw(new Line2D.Float(point.x - d, point.y - d, point.x + d, point.y + d)); // top left to bottom right
+        g2.draw(new Line2D.Float(point.x + d, point.y - d, point.x - d, point.y + d)); // top right to bottom left
+        
+        g2.setClip(null);
+        
+        drawVertexName(g2, vertex);
         
         g2.dispose();
     }
