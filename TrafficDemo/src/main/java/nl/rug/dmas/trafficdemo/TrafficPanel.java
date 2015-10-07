@@ -58,7 +58,7 @@ import org.jbox2d.dynamics.Fixture;
  *
  * @author jelmer
  */
-public class TrafficPanel extends JPanel {
+public class TrafficPanel extends JPanel implements ScenarioListener {
 
     Scenario scenario;
     float scale = 10f;
@@ -77,19 +77,6 @@ public class TrafficPanel extends JPanel {
     
     public TrafficPanel(Scenario scenarion) {
         this.scenario = scenarion;
-        
-        // Also, when the scenario updates, we redraw.
-        scenario.addListener(new ScenarioAdapter() {
-            @Override
-            public void scenarioStepped() {
-                repaint();
-            }
-            
-            @Override
-            public void selectionChanged() {
-                repaint();
-            }
-        });
         
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -225,6 +212,9 @@ public class TrafficPanel extends JPanel {
         }
         
         g2.dispose();
+        
+        // Draw scenario time in top left corner
+        g.drawString(TimeUtil.formatTime(scenario.getTime()), 5, 15);
     }
 
     /**
@@ -727,5 +717,35 @@ public class TrafficPanel extends JPanel {
         drawVertexName(g2, vertex);
         
         g2.dispose();
+    }
+
+    @Override
+    public void carAdded(Car car) {
+        //
+    }
+
+    @Override
+    public void carRemoved(Car car) {
+        //
+    }
+
+    @Override
+    public void scenarioStarted() {
+        //
+    }
+
+    @Override
+    public void scenarioStepped() {
+        repaint();
+    }
+
+    @Override
+    public void scenarioStopped() {
+        //
+    }
+
+    @Override
+    public void selectionChanged() {
+        repaint();
     }
 }

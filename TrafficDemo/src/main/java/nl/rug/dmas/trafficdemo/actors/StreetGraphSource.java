@@ -33,13 +33,19 @@ public class StreetGraphSource implements Actor, Observer {
     private final Scenario scenario;
     private int fixturesInSight = 0;
 
-    private long timeOfLastSpawn;
-    final private long timeoutInMS;
+    private float timeOfLastSpawn;
+    final private float timeout;
 
-    public StreetGraphSource(Scenario scenario, Vertex vertex, long timeoutInMS) {
+    /**
+     *
+     * @param scenario 
+     * @param vertex vertex on which the spawn point is located
+     * @param timeout time between spawns in seconds
+     */
+    public StreetGraphSource(Scenario scenario, Vertex vertex, float timeout) {
         this.scenario = scenario;
         this.vertex = vertex;
-        this.timeoutInMS = timeoutInMS;
+        this.timeout = timeout;
 
         BodyDef def = new BodyDef();
         def.type = BodyType.STATIC;
@@ -98,11 +104,10 @@ public class StreetGraphSource implements Actor, Observer {
         
         if ((enabled == null || enabled) && fixturesInSight == 0) {
             try {
-                long currentTime = System.currentTimeMillis();
-                if (currentTime - timeOfLastSpawn > timeoutInMS) {
+                if (scenario.getTime() - timeOfLastSpawn > timeout) {
                     Driver driver = getMeADriver();
                     scenario.add(getMeACar(driver));
-                    timeOfLastSpawn = currentTime;
+                    timeOfLastSpawn = scenario.getTime();
                 }
             } catch (NoPathException e) {
                 System.err.println("Cannot spawn car because there is no destination that can be reached");

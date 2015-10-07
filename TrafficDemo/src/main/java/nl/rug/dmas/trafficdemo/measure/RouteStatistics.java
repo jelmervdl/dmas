@@ -36,7 +36,17 @@ public class RouteStatistics extends AbstractCountingTableModel<PointPath> imple
     }
     
     @Override
+    public void scenarioStarted() {
+        // Do nothing, it can be started multiple times!
+    }
+    
+    @Override
     public void scenarioStepped() {
+        //
+    }
+    
+    @Override
+    public void scenarioStopped() {
         //
     }
 

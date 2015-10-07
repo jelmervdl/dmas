@@ -60,11 +60,11 @@ public class Scenario {
     final Lock readLock = lock.readLock();
     final Lock writeLock = lock.writeLock();
 
-    final private Thread mainLoop;
-    
-    final private AtomicInteger mainLoopIsPaused = new AtomicInteger();
+    private Thread mainLoop;
     
     final Set<ScenarioListener> listeners = new HashSet<>();
+    
+    private float time = 0f;
     
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact
@@ -82,7 +82,7 @@ public class Scenario {
 
         // Add actors for the spawn points and sinks of the street graph
         for (Vertex source : streetGraph.getSources())
-            actors.put(new StreetGraphSource(this, source, 3000), 0l);
+            actors.put(new StreetGraphSource(this, source, 1.0f), 0l);
         
         for (Vertex sink : streetGraph.getSinks())
             actors.put(new StreetGraphSink(this, sink), 0l);
@@ -90,9 +90,6 @@ public class Scenario {
         // Keep a contact listener that monitors whether cars are in sight of
         // drivers.
         world.setContactListener(new ObserverContactListener());
-
-        // Finally, init the main loop with a targeted 60 updates per second
-        mainLoop = new Thread(new MainLoop(60));
     }
 
     public World getWorld() {
@@ -105,6 +102,10 @@ public class Scenario {
 
     public Map<String, Object> getCommonKnowledge() {
         return commonKnowledge;
+    }
+    
+    public float getTime() {
+        return time;
     }
     
     public void addListener(ScenarioListener listener) {
@@ -198,23 +199,92 @@ public class Scenario {
      * own thread.
      */
     public void start() {
+        if (mainLoop != null)
+            return;
+        
+        mainLoop = new Thread(new MainLoop(60));
         mainLoop.start();
     }
 
     /**
      * Stop the main loop of the simulation. Effectively interrupts the thread,
      * nothing more.
+     * @throws java.lang.InterruptedException
      */
-    public void stop() {
+    public void stop() throws InterruptedException {
+        if (mainLoop == null)
+            return;
+        
         mainLoop.interrupt();
+        mainLoop.join();
+        mainLoop = null;
     }
 
-    public void pause() {
-        mainLoopIsPaused.incrementAndGet();
+    /**
+     *
+     * @param time
+     * @throws java.lang.InterruptedException
+     */
+    public void jumpTo(float time) throws InterruptedException {
+        stop();
+        
+        Thread jumpLoop = new Thread(new JumpLoop(60, time));
+        jumpLoop.start();
+        jumpLoop.join();
     }
     
-    public void resume() {
-        mainLoopIsPaused.decrementAndGet();
+    /**
+    * Steps the simulation of dt seconds. This locks the simulation.
+    * @param dt delta time in seconds
+    */
+    private void step(float dt) {
+        // For running the simulation we only need a read lock
+        readLock.lock();
+        try {
+            for (Map.Entry<Actor,Long> entry : actors.entrySet()) {
+                // Only run the actor if their last act was long enough ago
+                // Todo: getActPeriod should return a time as float in seconds.
+                if (entry.getValue() + entry.getKey().getActPeriod() < (long) (time * 1000)) {
+                    entry.getKey().act();
+                    entry.setValue((long) time * 1000);
+                }
+            }
+
+            for (Car car : cars)
+                car.update(dt);
+
+            world.step(dt, 3, 8);
+        } finally {
+            readLock.unlock();
+        }
+
+        // For altering the cars that need to be added or removed we want a
+        // complete lock.
+        writeLock.lock();
+        try {
+            // Process removals that were queued
+            if (!carsToRemove.isEmpty()) {
+                for (Car car : carsToRemove) {
+                    removeCarUnsafe(car);
+                }
+
+                carsToRemove.clear();
+            }
+
+            // And process additions that were also queued
+            if (!carsToAdd.isEmpty()) {
+                for (Car car : carsToAdd) {
+                    addCarUnsafe(car);
+                }
+
+                carsToAdd.clear();
+            }
+        } finally {
+            writeLock.unlock();
+        }
+
+        for (ScenarioListener listener : listeners)
+            listener.scenarioStepped();
     }
     
     private class ObserverContactListener implements ContactListener {
@@ -248,26 +318,33 @@ public class Scenario {
         }
     }
 
-    private class MainLoop implements Runnable {
+    class MainLoop implements Runnable {
 
         final private int hz;
-
+        
         public MainLoop(int hz) {
             this.hz = hz;
         }
 
         @Override
         public void run() {
+            // Let everyone know that we've started.
+            for (ScenarioListener listener : listeners) {
+                listener.scenarioStarted();
+            }
+
             try {
                 float stepTime = 1.0f / (float) hz;
 
                 while (!Thread.interrupted()) {
                     long startTimeMS = System.currentTimeMillis();
 
-                    step(startTimeMS, stepTime);
-
+                    step(stepTime);
+                    time += stepTime;
+                    
                     long finishTimeMS = System.currentTimeMillis();
                     long sleepTimeMS = (long) (stepTime * 1000) - (finishTimeMS - startTimeMS);
+                    
                     if (sleepTimeMS > 0) {
                         Thread.sleep(sleepTimeMS);
                     }
@@ -275,61 +352,42 @@ public class Scenario {
             } catch (InterruptedException e) {
                 // Just stop the mainloop
             }
+            
+            // Let everyone know that we've stopped.
+            for (ScenarioListener listener : listeners) {
+                listener.scenarioStopped();
+            }
+        }
+    }
+    
+    class JumpLoop implements Runnable {
+
+        final private int hz;
+        
+        final private float targetTime;
+        
+        public JumpLoop(int hz, float targetTime) {
+            this.hz = hz;
+            this.targetTime = targetTime;
         }
 
-        /**
-        * Steps the simulation of dt seconds. This locks the simulation.
-        * @param dt delta time in seconds
-        */
-        private void step(long t, float dt) {
-            // For running the simulation we only need a read lock
-            if (Scenario.this.mainLoopIsPaused.get() == 0) {
-                readLock.lock();
-                try {
-                    for (Map.Entry<Actor,Long> entry : actors.entrySet()) {
-                        // Only run the actor if their last act was long enough ago
-                        if (entry.getValue() + entry.getKey().getActPeriod() < t) {
-                            entry.getKey().act();
-                            entry.setValue(t);
-                        }
-                    }
-
-                    for (Car car : cars)
-                        car.update(dt);
-
-                    world.step(dt, 3, 8);
-                } finally {
-                    readLock.unlock();
-                }
+        @Override
+        public void run() {
+            float stepTime = 1.0f / (float) hz;
+            float startTime = time;
+            
+            for (ScenarioListener listener : listeners) {
+                listener.scenarioStarted();
             }
             
-            // For altering the cars that need to be added or removed we want a
-            // complete lock.
-            writeLock.lock();
-            try {
-                // Process removals that were queued
-                if (!carsToRemove.isEmpty()) {
-                    for (Car car : carsToRemove) {
-                        removeCarUnsafe(car);
-                    }
-
-                    carsToRemove.clear();
-                }
-
-                // And process additions that were also queued
-                if (!carsToAdd.isEmpty()) {
-                    for (Car car : carsToAdd) {
-                        addCarUnsafe(car);
-                    }
-
-                    carsToAdd.clear();
-                }
-            } finally {
-                writeLock.unlock();
+            while (!Thread.interrupted() && time < targetTime) {
+                step(stepTime);
+                time += stepTime;
             }
             
-            for (ScenarioListener listener : listeners)
-                listener.scenarioStepped();
+            for (ScenarioListener listener : listeners) {
+                listener.scenarioStopped();
+            }
         }
     }
 }
