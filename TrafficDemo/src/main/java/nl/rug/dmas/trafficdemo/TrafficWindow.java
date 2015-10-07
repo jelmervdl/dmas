@@ -5,6 +5,7 @@
  */
 package nl.rug.dmas.trafficdemo;
 
+import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,17 +17,23 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashSet;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JProgressBar;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import org.jbox2d.common.Vec2;
@@ -55,6 +62,9 @@ public class TrafficWindow extends JFrame {
         panel.drawFOV = TrafficDemo.getPreferences().getBoolean("drawFOV", panel.drawFOV); // prefer user stored preference
         panel.drawDirection = TrafficDemo.getPreferences().getBoolean("drawDirection", panel.drawDirection);
         add(panel);
+        
+        // Update the panel when the scenario changes
+        scenario.addListener(panel);
         
         // Allow us to draw on the canvas to create a path for the steerAlongPath behavior of drivers.
         panel.addMouseMotionListener(new MouseAdapter() {
@@ -91,12 +101,16 @@ public class TrafficWindow extends JFrame {
                 carContextMenu.addPopupMenuListener(new PopupMenuListener() {
                     @Override
                     public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                        TrafficWindow.this.scenario.pause();
+                        try {
+                            TrafficWindow.this.scenario.stop();
+                        } catch (InterruptedException error) {
+                            JOptionPane.showMessageDialog(TrafficWindow.this, error.getMessage());
+                        }
                     }
 
                     @Override
                     public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                        TrafficWindow.this.scenario.resume();
+                        TrafficWindow.this.scenario.start();
                     }
 
                     @Override
@@ -136,7 +150,11 @@ public class TrafficWindow extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                TrafficWindow.this.scenario.stop();
+                try {
+                    TrafficWindow.this.scenario.stop();
+                } catch (InterruptedException error) {
+                    // Do nothing, it will propably quit someday automatically
+                }
             }
         });
         
@@ -179,13 +197,122 @@ public class TrafficWindow extends JFrame {
         
         final JCheckBoxMenuItem runSimulation = new JCheckBoxMenuItem("Run", true);
         simulationMenu.add(runSimulation);
-        runSimulation.addItemListener(new ItemListener() {
+        runSimulation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0));
+        runSimulation.addActionListener(new ActionListener() {
             @Override
-            public void itemStateChanged(ItemEvent e) {
-                if (runSimulation.isSelected())
-                    scenario.resume();
-                else
-                    scenario.pause();
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    if (runSimulation.isSelected())
+                        scenario.start();
+                    else
+                        scenario.stop();
+                } catch (InterruptedException error) {
+                    JOptionPane.showMessageDialog(
+                        TrafficWindow.this, error.getMessage(),
+                        "Could not stop the simulation",
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        
+        // Update the "Run" checkbox with the actual state of the simulation
+        scenario.addListener(new ScenarioAdapter() {
+            @Override
+            public void scenarioStarted() {
+                runSimulation.setSelected(true);
+            }
+
+            @Override
+            public void scenarioStopped() {
+                runSimulation.setSelected(false);
+            }
+        });
+        
+        final JMenuItem jumpSimulation = new JMenuItem("Jump to…");
+        simulationMenu.add(jumpSimulation);
+        jumpSimulation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        jumpSimulation.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String timeString = JOptionPane.showInputDialog(TrafficWindow.this,
+                        "Jump to time (in seconds):",
+                        String.format("%.2f", scenario.getTime()));
+                
+                // If we cancelled the dialog, do nothing
+                if (timeString == null)
+                    return;
+                
+                final float time = Float.parseFloat(timeString);
+                
+                final JDialog progressDialog = new JDialog(TrafficWindow.this, "Jumping…", JDialog.ModalityType.DOCUMENT_MODAL);
+                progressDialog.setSize(300, 75);
+                progressDialog.setLocationRelativeTo(TrafficWindow.this);
+                
+                JPanel progressPanel = (JPanel) progressDialog.getContentPane();
+                progressPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+                final JLabel progressLabel = new JLabel(String.format("Jumping to %s", TimeUtil.formatTime(time)));
+                progressDialog.getContentPane().add(progressLabel, BorderLayout.NORTH);
+
+                final JProgressBar progressBar = new JProgressBar((int) scenario.getTime(), (int) time);
+                progressDialog.getContentPane().add(progressBar, BorderLayout.CENTER);
+                
+                // We create a separate scenario listener that updates the progress bar
+                final ScenarioListener progressListener = new ScenarioAdapter() {
+                    @Override
+                    public void scenarioStepped() {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setValue((int) scenario.getTime());
+                            }
+                        });
+                    }
+                };
+
+                // This worker switches out the listeners and performs the 
+                // actual (blocking) jump. We need to do this in a worker the
+                // thread we are running in will be blocked on the modal's
+                // JDialog.setVisible(true).
+                SwingWorker worker = new SwingWorker() {
+                    @Override
+                    protected Object doInBackground() throws Exception {
+                        scenario.stop();
+
+                        try {
+                            scenario.removeListener(panel);
+                            scenario.addListener(progressListener);
+
+                            scenario.jumpTo(time);
+                        } catch (InterruptedException error) {
+                            // shit
+                        } finally {
+                            scenario.addListener(panel);
+                            scenario.removeListener(progressListener);
+                        }
+
+                        return null;
+                    }
+                    
+                    // Once done, hide the progress dialog and paint the
+                    // current scenario. No need for SwingUtilities.invokeLater
+                    // this method will be automatically executed in the right
+                    // thread for UI updates
+                    @Override
+                    public void done() {
+                        progressDialog.setVisible(false);
+                        panel.repaint();
+                    }
+                };
+                
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.setVisible(true);
+                    }
+                });
+
+                worker.execute();
             }
         });
         
