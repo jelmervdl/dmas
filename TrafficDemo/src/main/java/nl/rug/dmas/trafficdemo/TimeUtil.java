@@ -20,10 +20,8 @@ class TimeUtil {
         
         if (hours > 0) {
             return String.format("%02d:%02d:%02.2f", hours, minutes, time);
-        } else if (minutes > 0) {
-            return String.format("%02d:%02.2f", minutes, time);
         } else {
-            return String.format("%.2fs", time);
+            return String.format("%02d:%02.2f", minutes, time);
         }
     }
 }
