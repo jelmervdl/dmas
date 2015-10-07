@@ -111,7 +111,7 @@ public class Scenario extends Observable {
      * @return 
      */
     public Driver createDriver() {
-        return new HumanDriver(this, (List<Vec2>) commonKnowledge.get("path"));
+        return new AutonomousDriver(this, (List<Vec2>) commonKnowledge.get("path"));
     }
     
     /**
@@ -123,7 +123,7 @@ public class Scenario extends Observable {
      * @return a driver!
      */
     public Driver createDriver(PointPath path) {
-        return new HumanDriver(this, path);
+        return new AutonomousDriver(this, path);
     }
     
     /**
