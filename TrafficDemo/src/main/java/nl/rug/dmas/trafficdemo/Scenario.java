@@ -59,9 +59,7 @@ public class Scenario {
     final Lock readLock = lock.readLock();
     final Lock writeLock = lock.writeLock();
 
-    final private Thread mainLoop;
-    
-    final private AtomicInteger mainLoopIsPaused = new AtomicInteger();
+    private Thread mainLoop;
     
     final Set<ScenarioListener> listeners = new HashSet<>();
     
@@ -91,9 +89,6 @@ public class Scenario {
         // Keep a contact listener that monitors whether cars are in sight of
         // drivers.
         world.setContactListener(new ObserverContactListener());
-
-        // Finally, init the main loop with a targeted 60 updates per second
-        mainLoop = new Thread(new MainLoop(60, false));
     }
 
     public World getWorld() {
@@ -203,23 +198,38 @@ public class Scenario {
      * own thread.
      */
     public void start() {
+        if (mainLoop != null)
+            return;
+        
+        mainLoop = new Thread(new MainLoop(60));
         mainLoop.start();
     }
 
     /**
      * Stop the main loop of the simulation. Effectively interrupts the thread,
      * nothing more.
+     * @throws java.lang.InterruptedException
      */
-    public void stop() {
+    public void stop() throws InterruptedException {
+        if (mainLoop == null)
+            return;
+        
         mainLoop.interrupt();
+        mainLoop.join();
+        mainLoop = null;
     }
 
-    public void pause() {
-        mainLoopIsPaused.incrementAndGet();
-    }
-    
-    public void resume() {
-        mainLoopIsPaused.decrementAndGet();
+    /**
+     *
+     * @param time
+     * @throws java.lang.InterruptedException
+     */
+    public void jumpTo(float time) throws InterruptedException {
+        stop();
+        
+        Thread jumpLoop = new Thread(new JumpLoop(60, time));
+        jumpLoop.start();
+        jumpLoop.join();
     }
     
     /**
@@ -228,25 +238,23 @@ public class Scenario {
     */
     private void step(float dt) {
         // For running the simulation we only need a read lock
-        if (mainLoopIsPaused.get() == 0) {
-            readLock.lock();
-            try {
-                for (Map.Entry<Actor,Long> entry : actors.entrySet()) {
-                    // Only run the actor if their last act was long enough ago
-                    // Todo: getActPeriod should return a time as float in seconds.
-                    if (entry.getValue() + entry.getKey().getActPeriod() < (long) (time * 1000)) {
-                        entry.getKey().act();
-                        entry.setValue((long) time * 1000);
-                    }
+        readLock.lock();
+        try {
+            for (Map.Entry<Actor,Long> entry : actors.entrySet()) {
+                // Only run the actor if their last act was long enough ago
+                // Todo: getActPeriod should return a time as float in seconds.
+                if (entry.getValue() + entry.getKey().getActPeriod() < (long) (time * 1000)) {
+                    entry.getKey().act();
+                    entry.setValue((long) time * 1000);
                 }
-
-                for (Car car : cars)
-                    car.update(dt);
-
-                world.step(dt, 3, 8);
-            } finally {
-                readLock.unlock();
             }
+
+            for (Car car : cars)
+                car.update(dt);
+
+            world.step(dt, 3, 8);
+        } finally {
+            readLock.unlock();
         }
 
         // For altering the cars that need to be added or removed we want a
@@ -313,11 +321,8 @@ public class Scenario {
 
         final private int hz;
         
-        final private boolean realtime;
-        
-        public MainLoop(int hz, boolean realtime) {
+        public MainLoop(int hz) {
             this.hz = hz;
-            this.realtime = realtime;
         }
 
         @Override
@@ -334,13 +339,38 @@ public class Scenario {
                     long finishTimeMS = System.currentTimeMillis();
                     long sleepTimeMS = (long) (stepTime * 1000) - (finishTimeMS - startTimeMS);
                     
-                    if (realtime && sleepTimeMS > 0) {
+                    if (sleepTimeMS > 0) {
                         Thread.sleep(sleepTimeMS);
                     }
                 }
             } catch (InterruptedException e) {
                 // Just stop the mainloop
             }
-        }        
+            
+        }
+    }
+    
+    class JumpLoop implements Runnable {
+
+        final private int hz;
+        
+        final private float targetTime;
+        
+        public JumpLoop(int hz, float targetTime) {
+            this.hz = hz;
+            this.targetTime = targetTime;
+        }
+
+        @Override
+        public void run() {
+            float stepTime = 1.0f / (float) hz;
+            float startTime = time;
+            
+            while (!Thread.interrupted() && time < targetTime) {
+                step(stepTime);
+                time += stepTime;
+            }
+            
+        }
     }
 }
