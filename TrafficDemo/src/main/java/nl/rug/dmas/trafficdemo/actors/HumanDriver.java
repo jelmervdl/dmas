@@ -85,7 +85,7 @@ public class HumanDriver extends Driver{
     @Override
     public Shape getFOVShape() {
         PolygonShape shape  = new PolygonShape();
-        shape.setAsBox(viewLength/2, viewLength/2, new Vec2(0,car.getLength()), (float) 90); //todo fix orientation
+        shape.setAsBox(viewLength/2, viewLength/2, new Vec2(0,-car.getLength()), (float) Math.toRadians(45));
         return shape;
     }
     
