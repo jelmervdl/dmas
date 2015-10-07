@@ -5,7 +5,7 @@
 The initial variables are partly fixed, partly variable, an overview of all variables relating to cars and their initial values is presented in \cref{tab:par:method:model:details:init:car:value}. The variability is between agents, but not necessarily between simulations. These varying values are chosen arbitrarily for each run of the simulation.
 \jelmer{Met java rand? Welke distirbutie samplet die? Als het een linear congruential generator is, is er een maximuum aantal random nummers voor hij herhaalt, hebben wij daar last van?}
 
-The \t{path} of a car depends on its randomly chosen point of departure and destination, it's \t{initialPosition} is the same as the location of its point of departure, thus although the \t{path} and \t{initialLocation} differ per vehicle they are dependent within a vehicle. 
+The \t{path} of a car depends on its randomly chosen point of departure and destination, its \t{initialPosition} is the same as the location of its point of departure, thus although the \t{path} and \t{initialLocation} differ per vehicle they are dependent within a vehicle. 
 
 The driver object is selected randomly but in such a way that we adhere to the input ratio of human drivers versus autonomous cars. 
 
