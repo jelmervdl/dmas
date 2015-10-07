@@ -108,6 +108,10 @@ public class Car {
      */
     public void destroy(World world) {
         world.destroyBody(body);
+        
+        for (Wheel wheel : wheels) {
+            world.destroyBody(wheel.body);
+        }
     }
 
     /**
