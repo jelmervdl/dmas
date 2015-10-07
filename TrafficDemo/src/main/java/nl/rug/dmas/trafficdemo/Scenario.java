@@ -83,7 +83,7 @@ public class Scenario {
 
         // Add actors for the spawn points and sinks of the street graph
         for (Vertex source : streetGraph.getSources())
-            actors.put(new StreetGraphSource(this, source, 3000), 0l);
+            actors.put(new StreetGraphSource(this, source, 1.0f), 0l);
         
         for (Vertex sink : streetGraph.getSinks())
             actors.put(new StreetGraphSink(this, sink), 0l);
