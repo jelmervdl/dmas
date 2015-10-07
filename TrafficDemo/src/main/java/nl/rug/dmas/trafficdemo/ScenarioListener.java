@@ -15,7 +15,11 @@ public interface ScenarioListener
     
     public void carRemoved(Car car);
     
+    public void scenarioStarted();
+    
     public void scenarioStepped();
+    
+    public void scenarioStopped();
     
     public void selectionChanged();
 }

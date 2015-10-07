@@ -26,7 +26,17 @@ class ScenarioAdapter implements ScenarioListener {
     }
 
     @Override
+    public void scenarioStarted() {
+        //
+    }
+
+    @Override
     public void scenarioStepped() {
+        //
+    }
+
+    @Override
+    public void scenarioStopped() {
         //
     }
 

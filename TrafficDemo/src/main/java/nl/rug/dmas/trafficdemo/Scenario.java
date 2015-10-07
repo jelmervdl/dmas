@@ -327,6 +327,11 @@ public class Scenario {
 
         @Override
         public void run() {
+            // Let everyone know that we've started.
+            for (ScenarioListener listener : listeners) {
+                listener.scenarioStarted();
+            }
+
             try {
                 float stepTime = 1.0f / (float) hz;
 
@@ -347,6 +352,10 @@ public class Scenario {
                 // Just stop the mainloop
             }
             
+            // Let everyone know that we've stopped.
+            for (ScenarioListener listener : listeners) {
+                listener.scenarioStopped();
+            }
         }
     }
     
@@ -366,11 +375,18 @@ public class Scenario {
             float stepTime = 1.0f / (float) hz;
             float startTime = time;
             
+            for (ScenarioListener listener : listeners) {
+                listener.scenarioStarted();
+            }
+            
             while (!Thread.interrupted() && time < targetTime) {
                 step(stepTime);
                 time += stepTime;
             }
             
+            for (ScenarioListener listener : listeners) {
+                listener.scenarioStopped();
+            }
         }
     }
 }
