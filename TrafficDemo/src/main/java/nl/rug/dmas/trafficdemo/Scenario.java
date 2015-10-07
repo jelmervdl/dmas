@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
@@ -65,6 +66,8 @@ public class Scenario {
     final Set<ScenarioListener> listeners = new HashSet<>();
     
     private float time = 0f;
+    
+    final private Random oracle = new Random();
     
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact
@@ -135,7 +138,9 @@ public class Scenario {
      * @return a driver!
      */
     public Driver createDriver(PointPath path) {
-        return new AutonomousDriver(this, path);
+        return oracle.nextBoolean()
+            ? new HumanDriver(this, path)
+            : new AutonomousDriver(this, path);
     }
     
     /**
