@@ -20,23 +20,16 @@ import org.jbox2d.common.Vec2;
  * @author lauravandebraak
  */
 public class HumanDriver extends Driver{
-    final private List<Vec2> path;
-    
     private double viewAngle = 40;
     private float viewLength = 8;
     
-    private int pathIndex = 0;
-
     public HumanDriver(Scenario scenario) {
         super(scenario);
-        this.path = (CopyOnWriteArrayList<Vec2>) scenario.getCommonKnowledge().get("path");
     }
     
     public HumanDriver(Scenario scenario, List<Vec2> path) {
-        super(scenario);
-        this.path = path;
+        super(scenario, path);
     }
-    
     
     private double sinAngle(){
         double angle = Math.toRadians(getViewAngle());
@@ -171,22 +164,6 @@ public class HumanDriver extends Driver{
         return d;
     }
     
-    private Vec2 steerTowardsPath() {
-        if (path != null) {
-            while (pathIndex < path.size()) {
-                Vec2 directionToNextPoint = car.getLocalPoint(path.get(pathIndex));
-
-                if (directionToNextPoint.length() > 3.0f) {
-                    return directionToNextPoint;
-                } else {
-                    pathIndex += 1;
-                }
-            }
-        }
-        
-        return new Vec2(0, 0);
-    }
-
     /**
      * @return the viewAngle
      */

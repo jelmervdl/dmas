@@ -1,15 +1,13 @@
 Number of Nodes and Edges
-4 3
+3 2
 Sources
-1
-Sinks
 0
+Sinks
+2
 Edges
-1 3
-2 3
-3 0
+0 1
+1 2
 Node Locations, 0,0 is the centre of the screen
-20 0
-0 20
-0 -20
+0 3
 0 0
+3 0

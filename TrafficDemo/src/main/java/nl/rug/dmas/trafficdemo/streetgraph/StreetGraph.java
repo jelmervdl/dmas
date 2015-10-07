@@ -7,14 +7,17 @@ import java.util.InputMismatchException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map.Entry;
 import nl.rug.dmas.trafficdemo.bezier.LinearBezier;
+import nl.rug.dmas.trafficdemo.bezier.QuadraticBezier;
+import org.jbox2d.common.MathUtils;
 import org.jbox2d.common.Vec2;
 
 /**
  * Class to represent a flow graph
  *
- * @author Laura & Bastiaan
+ * @author Laura &amp; Bastiaan
  */
 public class StreetGraph {
 
@@ -22,6 +25,8 @@ public class StreetGraph {
     private final ArrayList<Edge> edges;
     private final HashMap<Integer, Vertex> sources;
     private final HashMap<Integer, Vertex> sinks;
+    private final static int resolution = 50;
+    private final static float turningRadius = 5.0f; 
 
     /**
      * A graph representing streets, vertices represent intersections, edges
@@ -46,7 +51,7 @@ public class StreetGraph {
             if (currentVertex != null) {
                 map.put(currentIndex, currentVertex);
             } else {
-                throw new InputMismatchException(String.format("The selected source/sink with index %d is not defined", currentIndex));
+                throw new InputMismatchException(String.format("The selected vertex with 'name' %d is not defined", currentIndex));
             }
 
         }
@@ -95,17 +100,16 @@ public class StreetGraph {
     }
 
     /**
-     *
      * @return the sinks of the graph
      */
     public ArrayList<Vertex> getSinks() {
         return new ArrayList<>(sinks.values());
     }
-    
+
     public List<Vertex> getVertices() {
         return new ArrayList<>(vertices.values());
     }
-    
+
     public List<Edge> getEdges() {
         return new ArrayList<>(edges);
     }
@@ -113,11 +117,11 @@ public class StreetGraph {
     public boolean isSource(Vertex vertex) {
         return getSources().contains(vertex);
     }
-    
+
     public boolean isSink(Vertex vertex) {
         return getSinks().contains(vertex);
     }
-    
+
     /**
      *
      * @param origin the origin of the edge to be added, represented by its
@@ -193,38 +197,103 @@ public class StreetGraph {
         throw new NoPathException("No path found.");
     }
 
-    /**
-     *
-     * @param origin
-     * @param destination
-     * @return
-     * @throws nl.rug.dmas.trafficdemo.streetgraph.NoPathException
-     */
-    public PointPath generatePointPath(Vertex origin, Vertex destination) throws NoPathException {
-        LinkedList<Vertex> path = this.findBFSPath(origin, destination);
-        return generatePointPath(path);
+    private static List<Vec2> generatePointPathUsingVec2(LinkedList<Vec2> path, float someControlParameter) throws NoPathException {
+        List<Vec2> points = new ArrayList<>();
+        if (path.size() == 2) {
+            return generatePointLineSegment(path.poll(), path.poll());
+        }
+        Vec2 destinationPoint = path.getLast();
+        path.addLast(destinationPoint);
+        path.addLast(destinationPoint);
+
+        Vec2 origin = path.poll();
+        Vec2 intermediate = path.poll();
+        Vec2 destination = path.poll();
+
+        //TODO: Dubbele punten vermijden
+        while (!origin.equals(destinationPoint)) {
+            List<Vec2> segmentPoints;
+            if (pathIsStraight(origin, intermediate, destination)) {
+                segmentPoints = generatePointLineSegment(origin, intermediate);
+                origin = intermediate;
+                intermediate = destination;
+                destination = path.poll();
+            } else {
+                segmentPoints = generatePointCurve(origin, intermediate, destination, someControlParameter);
+                origin = destination;
+                intermediate = path.poll();
+                destination = path.poll();
+            }
+            points.addAll(segmentPoints);
+        }
+        return points;
     }
 
-    static public PointPath generatePointPath(LinkedList<Vertex> path) {
-        PointPath points = new PointPath();
-        int numEdgesInpath = path.size() - 1;
-        Vertex intermediateOrigin = path.poll();
-        Vertex intermidiateDestination = path.poll();
-        int linearPathResolution = 3;
-        //TODO: Dubbele punten vermijden
-        for (int i = 0; i < numEdgesInpath; i++) {
-            points.addAll(
-                    new LinearBezier(
-                            intermediateOrigin.getLocation(),
-                            intermidiateDestination.getLocation()
-                    ).computePointsOnCurve(linearPathResolution)
-            );
-            intermediateOrigin = intermidiateDestination;
-            intermidiateDestination = path.poll();
-            //TODO in linear case: remove last elements from points
+    public PointPath generatePointPath(Vertex origin, Vertex destination) throws NoPathException {
+        LinkedList<Vertex> path = this.findBFSPath(origin, destination);
+        PointPath pointPath = StreetGraph.generatePointPath(path);
+        return pointPath;
+    }    
+    
+    public static PointPath generatePointPath(LinkedList<Vertex> path) throws NoPathException {
+        LinkedList<Vec2> pathOfLocations = new LinkedList<>();
+        ListIterator<Vertex> pathIter = path.listIterator();
+        while (pathIter.hasNext()) {
+            pathOfLocations.add(pathIter.next().getLocation());
         }
-        //TODO in linear case: add final destination location to points
-        return points;
+        List<Vec2> points = generatePointPathUsingVec2(pathOfLocations, turningRadius);
+        return new PointPath(path.getFirst(), path.getLast(), points);
+    }
+
+    private static boolean pathIsStraight(Vec2 origin, Vec2 intermediate, Vec2 destination) {
+        //TODO If the lines are parallel their cross product is zero, since three points can't define two parallel lines the three points must lie on one line.
+        Vec2 originIntermediate = intermediate.sub(origin);
+        Vec2 intermediateDestination = destination.sub(intermediate);
+        double cross = Vec2.cross(originIntermediate, intermediateDestination);
+        return cross == 0;
+    }
+
+    private static Vec2 computeSupportPoint(Vec2 pointA, Vec2 pointB, float someControlParameter){
+        Vec2 abVector = pointB.sub(pointA);
+        float t = 1 - (someControlParameter / MathUtils.distance(pointA, pointB));
+        Vec2 supportPoint = pointA.add(abVector.mul(t));
+        return supportPoint;
+    }
+    
+    private static void buildHalvePointQueue(LinkedList<Vec2> queue, Vec2 pointA, Vec2 pointB, float someControlParameter) {
+        if (MathUtils.distance(pointA, pointB) > someControlParameter) {
+            queue.add(computeSupportPoint(pointA, pointB, someControlParameter));
+        }
+        queue.add(pointB);
+    }
+
+    private static List<Vec2> generatePointCurve(Vec2 origin, Vec2 intermediate, Vec2 destination, float someControlParameter) throws NoPathException {
+        LinkedList<Vec2> queue = new LinkedList<>();
+        queue.addFirst(origin);
+        buildHalvePointQueue(queue, origin, intermediate, someControlParameter);
+        buildHalvePointQueue(queue, intermediate, destination, someControlParameter);
+        //We are actually checking if origin and destination lie in a circle with radius someControlParameter placed on intermediate.
+        if(queue.size() == 3){
+            return new QuadraticBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution, intermediate);
+        } else {
+            return generatePointPathUsingVec2(queue, someControlParameter);    
+        }
+//        float turningRadius = 7.0f;
+//        Vec2 controlPoint = intermediate.add(new Vec2(turningRadius, turningRadius));
+//        return new PointPath(new QuadraticBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution, controlPoint));
+    }
+
+    public static List<Vec2> generatePointLineSegment(Vec2 origin, Vec2 destination) throws NoPathException {
+        if (origin == null || destination == null) {
+            throw new NoPathException("Need at least two locations to draw a path.");
+        }
+        return new LinearBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution);
+    }
+
+    public static List<Vec2> generatePointLineSegment(Edge edge) throws NoPathException {
+        return StreetGraph.generatePointLineSegment(
+                edge.getOrigin().getLocation(),
+                edge.getDestination().getLocation());
     }
 
     @Override

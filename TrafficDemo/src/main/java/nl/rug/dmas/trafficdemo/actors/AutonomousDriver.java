@@ -20,18 +20,16 @@ import org.jbox2d.common.Vec2;
  * @author jelmer
  */
 public class AutonomousDriver extends Driver {
-    final private List<Vec2> path;
-    
-    private int pathIndex = 0;
-    
     public AutonomousDriver(Scenario scenario) {
-        super(scenario);
-        this.path = (CopyOnWriteArrayList<Vec2>) scenario.getCommonKnowledge().get("path");
+        super(scenario);    
     }
     
     public AutonomousDriver(Scenario scenario, List<Vec2> path) {
-        super(scenario);
-        this.path = path;
+        super(scenario, path);
+    }
+    
+    public List<Vec2> getPath() {
+        return path;
     }
     
     @Override
@@ -115,26 +113,5 @@ public class AutonomousDriver extends Driver {
         // d < 0: I'm there first, we should speed up a bit maybe?
         // d > 0: other is there first, we should brake?
         return d;
-    }
-    
-    private Vec2 steerTowardsPath() {
-        if (path != null) {
-            while (pathIndex < path.size()) {
-                Vec2 directionToNextPoint = car.getLocalPoint(path.get(pathIndex));
-
-                if (directionToNextPoint.length() > 3.0f) {
-                    return directionToNextPoint;
-                } else {
-                    pathIndex += 1;
-                }
-            }
-        }
-        
-        return new Vec2(0, 0);
-    }
-
-    @Override
-    public boolean reachedDestination() {
-        return path != null && pathIndex == path.size();
     }
 }

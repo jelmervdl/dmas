@@ -2,53 +2,86 @@
 \paragraph{Purpose}
 \label{par:method:model:overview:purpose}
 % \algemeen{A clear, concise and specific formulation of the model’s purpose. This element informs about why you need to build a complex model, and what, in general and in particular, you are going to do with your model.}
-The aim of this model is to be able to test whether autonomous vehicles joining regular `human' traffic has an influence on the traffic delay. To do this, we need a simulation in which we have different types of agents, namely autonomous and `human' agents, and a set of roads. In our simulation, we let both types of agents drive over the roads, encounter intersections, and we  measure the delay an number of crashes. By doing this with different ratios of autonomous to human vehicles we can get an idea of when the presences of self-driving cars starts to influence the flow of traffic.
+The aim of this model is to be able to test whether autonomous vehicles joining regular `human' traffic has influences traffic delays. To do this, we need a simulation in which we have different types of agents, namely autonomous and `human' agents, and a set of roads. In our simulation, we let both types of agents drive over the roads, encounter intersections, and we  measure the delay an number of crashes. By doing this with different ratios of human to autonomous vehicles we can get an idea of when the presences of self-driving cars starts to influence the flow of traffic.
 
 \paragraph{State variables and scales}
 \label{par:method:model:overview:state}
 This model contains two different hierarchical levels, the car/driver level and the traffic level. The traffic level contains the roads, and thus all possible paths, and all the vehicles. The car/driver level consists of all parameters necessary for the functioning of a vehicle.  
+\algemeen{Moeten aan de tabelen met parameters geen parameters toegevoegd?}
+\vdbraak{De parameter \t{driver} is nog een beetje vaag, zou jij die verder kunnen toelichten, eventueel in de tekst.}
+\later{Als dat straks is toegevoegd is het een idee om de \t{driver} als aparte hierarchische laag toe te voegen. Dan krijgt die ook een eigen tabel met parameters, maar dat heeft nu nog niet heel veel nut, want die is nog niet af.}
+\later{Check that the low-level parameters are still accurate}
+
+\subparagraph{Low-level state variables}
+\Cref{tab:par:method:model:overview:state:lowlevel:car} provides an overview of all parameters that influence the behaviour of a car. Since we use a physics engine to realistically model vehicles we need a lot of information on the physical properties of the car. Each car has a driver, this driver can either be autonomous or human. Currently the only difference between human drivers and autonomous drivers is their field of view, however future versions of this system could also include some of the attributes proposed by \citeauthor{paruchuri2002multi}. 
+
+The \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car} is a set of points in the two dimensional simulation space, the origin of this space lies in the middle of the panels shown in \cref{fig:model:simulation}. 
 
 % The dimensions must be clearly defined for all parameters and variables in the tables.
 
-	\later{Check that the low-level parameters are still accurate}
-	\subparagraph{Low-level state variables}
-	\Cref{tab:par:method:model:overview:state:lowlevel:car} provides an overview of all parameters that influence the behaviour of a car.
-
-	\algemeen{Moeten aan de tabelen met parameters geen parameters toegevoegd?}
-	\jelmer{De parameter \t{driver} is nog een beetje vaag, zou jij die verder kunnen toelichten?}
-	\later{Als dat straks is toegevoegd is het een idee om de \t{driver} als aparte hierarchische laag toe te voegen. Dan krijgt die ook een eigen tabel met parameters, maar dat heeft nu nog niet heel veel nut, want die is nog niet af.}
-
-	\begin{table}[H]
+\jelmer{Er zijn eenheden toegevoegd, aan deze tabel, zou jij kunnen checken of die kloppen.}
+\jelmer{Wat is de eenheid van power?}
+\algemeen{De vision range is een beetje vreemd zo, best nuttig zo'n verslag, maar dat wordt uiteindelijk een eigenschap van de versschillende drivers. Mij lijkt hem splitsen in hoek, 360 graden voor autonomous, 60 ofzo voor human, en een radius niet zo heel gek. }
+	\begin{table}
 		\centering
-		\begin{tabularx}{\textwidth}{>{\ttfamily}lX}
+		\begin{tabularx}{\textwidth}{>{\ttfamily}llX}
 			\toprule
-			\normalfont{Parameter}	& Purpose \\ 
+			\normalfont{Parameter}	&Unit & Purpose \\ 
 			\midrule
-			acceleration 			& The acceleration of the vehicle, may be negative to indicate breaking.\\ 
-			targetBodyAngle 		& The angle at which the target is located, relative to the body of the vehicle. \\ 
-			maxSteerAngleDeg 		& The maximum angle the wheels can turn. \\ 
-			power 					& The impulse power of a vehicle. \\ 
-			wheelAngleDeg 			& The current angle of the wheel, relative to the body of the vehicle. \\ 
-			steeringSpeed 			& The speed with which a vehicle can turn (the turning radius). \\ 
-			visionRange 			& The range of the vision of the vehicle. \\ 
-			width 					& The width of the vehicle. \\ 
-			length 					& The length of the vehicle. \\ 
-			% colour 				& The colour of a vehicle \\ 
-			driver 					& The driver agent. \\ 
-			initialPosition 		& The initial position of the agent at the start of the simulation. \\ 
-			% bodyFixture 			& The `fixture' of the bocy of a vehicle, used when viewing other vehicles\\ 
-			% visionFixture 		& The `fixture of the vision of the vehicle, describing what a vehicle can see'\\ 
-			targetSpeedKMH			& The maximum speed of the agent. \\ 
-			path					& The path the agent is going to follow. \\ 
+			acceleration 			
+				& \si{\meter\per\square\second} 
+				& The acceleration of the vehicle, may be negative to indicate breaking.\\ 
+			targetBodyAngle 		
+				& \si{\radian}
+				& The angle at which the target is located, relative to the body of the vehicle. \\ 
+			maxSteerAngleDeg 		
+				& \si{\radian}
+				& The maximum angle the wheels can turn. \\ 
+			power 					
+				& \si{?}
+				& The impulse power of a vehicle. \\ 
+			wheelAngleDeg 			
+				& \si{\radian}
+				& The current angle of the wheel, relative to the body of the vehicle. \\ 
+			steeringSpeed 			
+				& \si{\meter\per\second}
+				& The speed with which a vehicle can turn (the turning radius). \\ 
+			visionRange 			
+				& \si{\meter}
+				& The radius of the circle that covers the are that is perceived by the driver.\\ 
+			width 					
+				& \si{meter} 
+				& The width of the vehicle. \\ 
+			length 					
+				& \si{meter} 
+				& The length of the vehicle. \\ 
+			% colour 				& unit & The colour of a vehicle \\ 
+			driver 					
+				& n.a. 
+				& The driver agent. \\ 
+			initialPosition 		
+				& n.a.
+				& The initial position of the agent at the start of the simulation. \\ 
+			% bodyFixture 			& unit & The `fixture' of the body of a vehicle, used when viewing other vehicles\\ 
+			% visionFixture 		& unit & The `fixture of the vision of the vehicle, describing what a vehicle can see'\\ 
+			targetSpeedKMH			
+				& \si{\kilo\meter\per\hour}
+				& The maximum speed of the agent. \\ 
+			path					
+				& n.a. 
+				& The path the agent is going to follow. \\ 
 			\bottomrule
 		\end{tabularx}
-		\caption{Parameters that indicate the state of a car.}
+		\caption{An overview of the parameters that indicate the state of a car.}
 		\label{tab:par:method:model:overview:state:lowlevel:car}
 	\end{table}
 
 	\later{Check that the high-level parameters are still accurate}
 	\subparagraph{Higher-level entities}
-	The parameters at the simulation level are shown in \cref{tab:par:method:model:overview:state:highlevel:sim}.
+	The parameters at the simulation level are presented in \cref{tab:par:method:model:overview:state:highlevel:sim}.
+
+	The properties of cars are described in \cref{tab:par:method:model:overview:state:lowlevel:car}. The graph represents the streets, it is input as a connected directed graph with two special types of vertices; sources and sinks. Sources are vertices where cars can enter the simulation, these vertices have no incoming edges, the opposite type of vertex is a sink; vertices without outgoing edges where cars leave the simulation. In terms of traffic a source is the point of departure and a sink is the destination. To determine the \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car} we try to find a path from a randomly chosen source to a randomly chosen sink using breadth-first search. The found path is represented as a list of edges, which are then converted to the set of points that make up the \t{path}.
+	\algemeen{Meer uitleg over hoe het gegenereerd wordt? Verwacht eerlijk gezegd niet dat de rest van dit verhaal heel boeiend is, bochten zien er mooier uit, maar kan me niet voorstellen dat het heel veel uitmaakt verder.}
 	
 	\begin{table}[H]
 		\centering
@@ -66,7 +99,9 @@ This model contains two different hierarchical levels, the car/driver level and 
 
 
 	\subparagraph{Scales}
-	Each time step is \si{33 \milli\second}. This frequent update rate makes the visualisation of the simulation run smoothly, without creating a too large computational stress. Furthermore this small time steps ensures that our simulation approach the continuous movement of real life vehicles.
+	Each time step is \si{33 \milli\second}. This frequent update rate makes the visualisation of the simulation run smoothly, without creating a too large computational stress. Furthermore this small time steps ensures that our simulation approaches the continuous movement of real life vehicles. 
+	\jelmer{Klopt dit?}
+	At each time step the cars move forward along their \t{paths} one by one. 
 
 \algemeen{Een time horizon (hoe lang de simulatie draait?) kiezen en hier rapporteren.}
 
@@ -79,15 +114,13 @@ This model contains two different hierarchical levels, the car/driver level and 
 % \algemeen{Welkeb processen zitten in het model, eventueel met tabel.}
 
 \algemeen{Hier wordt in het kort uitgelegd wat de auto's doen.}
-
-The processes active in the model are \t{steerToAvoidCars} and \t{steerTowardsPath}. The first process checks if there is another vehicle in its vicinity and if it is going to hit it given its current driving angle. If a collision seems imminent, the vector describing the direction vector of the vehicle is negated, causing the vehicle to decelerate or turn.
+The processes active in the model are \t{steerToAvoidCars} and \t{steerTowardsPath}. The first process checks if there is another vehicle or other object in its vicinity and if it is going to hit it given its current driving angle. If a collision seems imminent, the vector describing the direction vector of the vehicle is negated, causing the vehicle to decelerate or turn.
 
 The process \t{steerTowardsPath} is the driving of the vehicle in the direction of the target. As a car is added to the simulation it is passed its path, which is defined as multiple discrete points.  A vehicle drives in the direction of the next point on its path, and when it is close enough, drives to its next target, the next point on its path. Eventually the agent will reach its goal, even when it gets diverted by other vehicles along the way.
 
 % \algemeen{Bespreek scheduling van processen, welke volgorde uitgevoerd?}
 % \algemeen{Are some actions executed in a random order?}
-There are no actions that are executed in a random order.
-Every step, each agent first checks if there are other cars it could possibly crash into before continuing on towards the target. The agents are updated in the same order in every time step, nor are any other actions executed in a random order.
+All actions are executed in a fixed order that stays the same for each iteration. At every time step, each agent first checks if there are other cars it could possibly crash into before continuing on towards the target. The agents are updated in the same order in every time step.
 
 % \algemeen{How is time modeled}
 % \algemeen{How are actions that happen concurrently IRL executed in the model}

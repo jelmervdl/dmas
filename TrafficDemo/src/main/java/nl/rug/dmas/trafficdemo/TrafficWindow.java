@@ -18,11 +18,8 @@ import java.awt.event.WindowEvent;
 import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -33,7 +30,6 @@ import javax.swing.KeyStroke;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import org.jbox2d.common.Vec2;
-import sun.java2d.cmm.ColorTransform;
 
 /**
  *
@@ -44,11 +40,15 @@ public class TrafficWindow extends JFrame {
     
     private final TrafficPanel panel;
     
+    private final StatisticsWindow statisticsWindow;
+    
     public TrafficWindow(Scenario scenario) {
         this.scenario = scenario;
         
         setTitle("Traffic!");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        
+        statisticsWindow = new StatisticsWindow(scenario);
         
         // The TrafficPanel draws the actual scenario (cars etc.)
         panel = new TrafficPanel(scenario);
@@ -225,9 +225,9 @@ public class TrafficWindow extends JFrame {
         // Disable the remove car action by default, but listen to the scenario
         // to check whether we have a selection to remove.
         removeCar.setEnabled(false);
-        scenario.addObserver(new Observer() {
+        scenario.addListener(new ScenarioAdapter() {
             @Override
-            public void update(Observable o, Object arg) {
+            public void selectionChanged() {
                 removeCar.setText(String.format("Remove %s", scenario.selectedCars.size() == 1 ? "Car" : "Cars"));
                 removeCar.setEnabled(scenario.selectedCars.size() > 0);
             }
@@ -247,6 +247,19 @@ public class TrafficWindow extends JFrame {
         
         JMenu viewMenu = new JMenu("View");
         menuBar.add(viewMenu);
+        
+        final JMenuItem showStatistics = new JMenuItem("Statistics");
+        viewMenu.add(showStatistics);
+        showStatistics.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        showStatistics.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                statisticsWindow.setVisible(true);
+                statisticsWindow.toFront();
+            }
+        });
+        
+        viewMenu.addSeparator();
         
         final JCheckBoxMenuItem drawFOV = new JCheckBoxMenuItem("Show Field of View", panel.drawFOV);
         viewMenu.add(drawFOV);

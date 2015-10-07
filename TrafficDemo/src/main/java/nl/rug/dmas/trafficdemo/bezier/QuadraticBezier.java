@@ -19,7 +19,7 @@ public class QuadraticBezier extends Bezier {
     }
 
     @Override
-    protected Vec2 interpolate(float t, Vec2... controlPoints) {
+    public Vec2 interpolate(float t, Vec2... controlPoints) {
         if (controlPoints.length != 1) {
             throw new InputMismatchException("Quadratic bezier curves need one controlpoint.");
         }
