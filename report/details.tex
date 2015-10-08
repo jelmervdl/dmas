@@ -3,13 +3,13 @@
 \label{par:method:model:details:initialization}
 % \algemeen{How are the environment and the individuals created at the start of a simulation run, i.e. what are the initial values of the state variables? Is initialisation always the same, or was it varied among simulations? Were the initial values chosen arbitrarily or based on data? References to those data should be provided}
 The initial variables are partly fixed, partly variable, an overview of all variables relating to cars and their initial values is presented in \cref{tab:par:method:model:details:init:car:value}. The variability is between agents, but not necessarily between simulations. These varying values are chosen arbitrarily for each run of the simulation.
-\jelmer{Met java rand? Welke distirbutie samplet die? Als het een linear congruential generator is, is er een maximuum aantal random nummers voor hij herhaalt, hebben wij daar last van?}
+\jelmer{Met java rand? Welke distirbutie samplet die? Als het een linear congruential generator is, is er een maximuum aantal random nummers voor hij herhaalt, hebben wij daar last van? Jelmer: Op het moment is niets willekeurig, behalve de keuze of er een Human driver of een Autonomous Driver wordt geïnstantieerd (middels Random.nextBoolean(), maar dat wordt anders), en wat de bestemming van de nieuwe bestuurder is. (middels Collections.shuffle())}
 
-The \t{path} of a car depends on its randomly chosen point of departure and destination, its \t{initialPosition} is the same as the location of its point of departure, thus although the \t{path} and \t{initialLocation} differ per vehicle they are dependent within a vehicle. 
+The \t{path} of a car depends on where it starts and its randomly chosen destination. Its \t{initialPosition} is the same as the location of its point of departure, thus although the \t{path} and \t{initialLocation} differ per vehicle they are dependent within a vehicle. \vdbraak{`differ per vehicle but dependent within a vehicle'? Ik begrijp dit niet helemaal.}
 
-The driver object is selected randomly but in such a way that we adhere to the input ratio of human drivers versus autonomous cars. 
+The type of driver is selected randomly but in such a way that we adhere to the input ratio of human drivers versus autonomous cars.
 
-We choose the size of a car randomly, to avoid strangely shaped cars we selected the ranges for the length and width of a car in such a way that they are no smaller than a 2004 Smart Coupe and no larger than the maximum size of a private car allowed by the Dutch government. 
+We choose the size of a car randomly, to avoid strangely shaped cars we selected the ranges for the length and width of a car in such a way that they are no smaller than a 2004 Smart Coupe and no larger than the maximum size of a private car allowed by the Dutch legislation. 
 
 
 \begin{table}
@@ -61,7 +61,7 @@ The simulation variables differ per simulation, and so have no fixed initialisat
 \paragraph{Input}
 \label{par:method:model:details:input}
 % \algemeen{The dynamics of many IBMs are driven by some environmental conditions which change over space and time. All these environmental conditions are “input”, i.e. imposed dynamics of certain state variables.}
-This simulation requires a graph, traffic signs, vertex locations and the human-autonomous ratio. The graph represents the connections between the streets, since we are not interested in graph visualisation one also needs to indication the location of each vertex in the panel space. Each traffic sign is associated with an edge and is placed near the on the right side of the edge near its destination. The human-autonomous ratio indicates how many human drivers we have relative to the number of autonomous cars. This ratio determines the ratio of human cars to autonomous cars that are generated at each source. 
+This simulation requires a graph, sources and sinks, traffic signs, vertex locations and the human-autonomous ratio. The graph represents the connections between the streets, since we are not interested in graph visualisation one also needs to indication the location of each vertex in the world space. Vertices can be marked as a source or a sink, making it the starting point or destination for drivers. Each traffic sign is associated with an edge and is placed near the right side of the edge near the destination of the edge. The human-autonomous ratio indicates how many human drivers we have relative to the number of autonomous cars. This ratio determines the ratio of human cars to autonomous cars that are generated at each source.
 % \paragraph{Submodels}
 % \label{par:method:model:details:submodels}
 %  No clue
