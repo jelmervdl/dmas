@@ -95,7 +95,7 @@ public class StreetGraphSource implements Actor, Observer {
     }
 
     protected Car getMeACar(Driver driver) {
-        return new Car(driver, 2, 4, vertex.getLocation());
+        return scenario.createCar(driver, vertex.getLocation());
     }
 
     @Override

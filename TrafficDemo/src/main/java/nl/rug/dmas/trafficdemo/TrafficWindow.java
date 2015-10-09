@@ -424,6 +424,6 @@ public class TrafficWindow extends JFrame {
     }
     
     private Car generateCar(Vec2 position) {
-        return new Car(scenario.createDriver(), 2, 4, position);
+        return scenario.createCar(scenario.createDriver(), position);
     }
 }

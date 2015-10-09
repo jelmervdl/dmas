@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import nl.rug.dmas.trafficdemo.actors.AutonomousDriver;
@@ -68,6 +67,9 @@ public class Scenario {
     private float time = 0f;
     
     final private Random oracle = new Random();
+    
+    final Parameter carWidth = Parameter.fromString("1.47-2.55");
+    final Parameter carLength = Parameter.fromString("2.540-12.0");
     
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact
@@ -141,6 +143,14 @@ public class Scenario {
         return oracle.nextBoolean()
             ? new HumanDriver(this, path)
             : new AutonomousDriver(this, path);
+    }
+    
+    public Car createCar(Driver driver, Vec2 position) {
+        return new Car(driver, carWidth.getValue(oracle), carLength.getValue(oracle), position);
+    }
+    
+    private float getRandomFloatBetween(float lower, float upper) {
+        return lower + oracle.nextFloat() * (upper - lower);
     }
     
     /**
