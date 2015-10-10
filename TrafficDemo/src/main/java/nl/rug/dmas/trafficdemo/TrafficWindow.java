@@ -277,15 +277,24 @@ public class TrafficWindow extends JFrame {
                     private float lastCarRemovedTime;
                     
                     @Override
+                    public void carRemoved(Car car) {
+                        lastCarRemovedTime = scenario.getTime();
+                    }
+                    
+                    @Override
                     public void scenarioStepped() {
                         final float timeSinceLastRemoval = scenario.getTime() - lastCarRemovedTime;
-                            
+                        
+                        // Update the GUI from the Swing thread
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
+                                // Update the progress bar
                                 progressBar.setValue((int) scenario.getTime());
                                 
-                                if (timeSinceLastRemoval > 30.0f) {
+                                // Show the "Shit we are stuck" label if we haven't removed 
+                                // a car for more than 60 seconds.
+                                if (timeSinceLastRemoval > 60.0f) {
                                     stalledLabel.setText(String.format("Stuck for %s",
                                             TimeUtil.formatTime(timeSinceLastRemoval)));
                                     stalledLabel.setVisible(true);
@@ -294,11 +303,6 @@ public class TrafficWindow extends JFrame {
                                 }
                             }
                         });
-                    }
-                    
-                    @Override
-                    public void carRemoved(Car car) {
-                        lastCarRemovedTime = scenario.getTime();
                     }
                 };
                 
