@@ -21,15 +21,21 @@ public class VecUtilsTest {
     @org.junit.Test
     public void testIntersect() {
         System.out.println("intersect");
-        Vec2 as = null;
-        Vec2 ad = null;
-        Vec2 bs = null;
-        Vec2 bd = null;
-        VecUtils.Intersection expResult = null;
+        Vec2 as = new Vec2(0, 0);
+        Vec2 ad = new Vec2(1, 0);
+        Vec2 bs = new Vec2(0, 2);
+        Vec2 bd = new Vec2(2, -1);
         VecUtils.Intersection result = VecUtils.intersect(as, ad, bs, bd);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        
+        // Assume there is an intersection
+        assertNotNull(result);
+        
+        // Assume the intersection is at [0,4]
+        assertEquals(result.position.x, 4.0f, 0.0001f);
+        assertEquals(result.position.y, 0.0f, 0.0001f);
+        
+        // Assume that the [0,0; 1,0] arrives there later than the [2,-1] one
+        assertTrue(result.v > result.u);
     }
 
     /**
