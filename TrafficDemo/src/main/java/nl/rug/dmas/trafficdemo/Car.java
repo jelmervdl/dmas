@@ -83,6 +83,7 @@ public class Car {
         double frontAxis = Double.NEGATIVE_INFINITY;
         double backAxis = Double.POSITIVE_INFINITY;
         for (Wheel wheel : this.wheels) {
+            // Todo Baakman are you mixing Y and X here intentionally?
             frontAxis = Math.max(frontAxis, wheel.position.y);
             backAxis = Math.min(backAxis, wheel.position.x);
         }
@@ -163,11 +164,12 @@ public class Car {
      * @return a list of wheels
      */
     protected ArrayList<Wheel> createWheels(World world) {
+        float axisOffset = getLength() / 5f;
         ArrayList<Wheel> wheels = new ArrayList<>();
-        wheels.add(new Wheel(world, this, new Vec2(getWidth() / -2f, getLength() / -2f + 0.8f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top left
-        wheels.add(new Wheel(world, this, new Vec2(getWidth() / -2f, getLength() /  2f - 0.8f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom left
-        wheels.add(new Wheel(world, this, new Vec2(getWidth() /  2f, getLength() / -2f + 0.8f), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top right
-        wheels.add(new Wheel(world, this, new Vec2(getWidth() /  2f, getLength() /  2f - 0.8f), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom right
+        wheels.add(new Wheel(world, this, new Vec2(getWidth() / -2f, getLength() / -2f + axisOffset), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top left
+        wheels.add(new Wheel(world, this, new Vec2(getWidth() / -2f, getLength() /  2f - axisOffset), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom left
+        wheels.add(new Wheel(world, this, new Vec2(getWidth() /  2f, getLength() / -2f + axisOffset), 0.4f, 0.8f, Joint.REVOLVING, Power.POWERED)); // top right
+        wheels.add(new Wheel(world, this, new Vec2(getWidth() /  2f, getLength() /  2f - axisOffset), 0.4f, 0.8f, Joint.FIXED, Power.UNPOWERED)); // bottom right
         return wheels;
     }
     
