@@ -189,7 +189,7 @@ public class TrafficPanel extends JPanel implements ScenarioListener {
         CopyOnWriteArrayList<Vec2> path = (CopyOnWriteArrayList<Vec2>) scenario.commonKnowledge.get("path");
         if (path != null) {
             g2.setColor(Color.RED);
-            drawPath(g2, path);
+            drawPath(g2, path, -1);
         }
 
         // Lock the world for reading, so we don't delete a car from the list
@@ -404,12 +404,19 @@ public class TrafficPanel extends JPanel implements ScenarioListener {
         g2.dispose();
     }
 
-    private void drawPath(Graphics2D g2, List<Vec2> path) {
-        for (Vec2 point : path) {
-            g2.fill(new Ellipse2D.Float(
+    private void drawPath(Graphics2D g2, List<Vec2> path, int current) {
+        for (int i = 0; i < path.size(); ++i) {
+            Vec2 point = path.get(i);
+            Ellipse2D.Float circle = new Ellipse2D.Float(
                 point.x - 0.2f,
                 point.y - 0.2f,
-                0.4f, 0.4f));
+                0.4f, 0.4f);
+            
+            if (i == current) {
+                g2.fill(circle);
+            } else {
+                g2.draw(circle);
+            }
         }
     }
 
@@ -616,7 +623,7 @@ public class TrafficPanel extends JPanel implements ScenarioListener {
         Graphics2D pathPainter = (Graphics2D) g2.create();
         pathPainter.setColor(Color.red);
         for (Car car : cars) {
-            drawPath(pathPainter, car.driver.getPath());
+            drawPath(pathPainter, car.driver.getPath(), car.driver.getPathIndex());
         }
         pathPainter.dispose();
     }

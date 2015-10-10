@@ -75,6 +75,10 @@ abstract public class Driver implements Actor, Observer {
     public List<Vec2> getPath() {
         return path;
     }
+    
+    public int getPathIndex() {
+        return pathIndex;
+    }
 
     /**
      * Called when a Fixture enters our FOV shape in the world.
