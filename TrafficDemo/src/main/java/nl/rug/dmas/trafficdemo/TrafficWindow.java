@@ -264,6 +264,9 @@ public class TrafficWindow extends JFrame {
                 final JPanel buttonPanel = new JPanel();
                 buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
                 
+                final JLabel stalledLabel = new JLabel("Stuck for 0:00");
+                buttonPanel.add(stalledLabel);
+                
                 final JButton abortButton = new JButton("Abort");
                 buttonPanel.add(abortButton);
                 
@@ -271,14 +274,31 @@ public class TrafficWindow extends JFrame {
                 
                 // We create a separate scenario listener that updates the progress bar
                 final ScenarioListener progressListener = new ScenarioAdapter() {
+                    private float lastCarRemovedTime;
+                    
                     @Override
                     public void scenarioStepped() {
+                        final float timeSinceLastRemoval = scenario.getTime() - lastCarRemovedTime;
+                            
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
                                 progressBar.setValue((int) scenario.getTime());
+                                
+                                if (timeSinceLastRemoval > 30.0f) {
+                                    stalledLabel.setText(String.format("Stuck for %s",
+                                            TimeUtil.formatTime(timeSinceLastRemoval)));
+                                    stalledLabel.setVisible(true);
+                                } else {
+                                    stalledLabel.setVisible(false);
+                                }
                             }
                         });
+                    }
+                    
+                    @Override
+                    public void carRemoved(Car car) {
+                        lastCarRemovedTime = scenario.getTime();
                     }
                 };
                 
