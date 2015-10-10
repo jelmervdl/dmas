@@ -243,9 +243,9 @@ public class Scenario {
     public void jumpTo(float time) throws InterruptedException {
         stop();
         
-        Thread jumpLoop = new Thread(new JumpLoop(60, time));
-        jumpLoop.start();
-        jumpLoop.join();
+        mainLoop = new Thread(new JumpLoop(60, time));
+        mainLoop.start();
+        mainLoop.join();
     }
     
     /**

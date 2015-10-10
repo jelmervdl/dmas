@@ -6,6 +6,7 @@
 package nl.rug.dmas.trafficdemo;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,8 +19,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashSet;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -245,7 +249,7 @@ public class TrafficWindow extends JFrame {
                 final float time = Float.parseFloat(timeString);
                 
                 final JDialog progressDialog = new JDialog(TrafficWindow.this, "Jumping…", JDialog.ModalityType.DOCUMENT_MODAL);
-                progressDialog.setSize(300, 75);
+                progressDialog.setSize(300, 115);
                 progressDialog.setLocationRelativeTo(TrafficWindow.this);
                 
                 JPanel progressPanel = (JPanel) progressDialog.getContentPane();
@@ -256,6 +260,14 @@ public class TrafficWindow extends JFrame {
 
                 final JProgressBar progressBar = new JProgressBar((int) scenario.getTime(), (int) time);
                 progressDialog.getContentPane().add(progressBar, BorderLayout.CENTER);
+                
+                final JPanel buttonPanel = new JPanel();
+                buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+                
+                final JButton abortButton = new JButton("Abort");
+                buttonPanel.add(abortButton);
+                
+                progressDialog.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
                 
                 // We create a separate scenario listener that updates the progress bar
                 final ScenarioListener progressListener = new ScenarioAdapter() {
@@ -269,6 +281,18 @@ public class TrafficWindow extends JFrame {
                         });
                     }
                 };
+                
+                // Also, the abort button should be able to stop a jump
+                abortButton.addActionListener(new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            scenario.stop();
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(TrafficWindow.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                });
 
                 // This worker switches out the listeners and performs the 
                 // actual (blocking) jump. We need to do this in a worker the
@@ -285,7 +309,7 @@ public class TrafficWindow extends JFrame {
 
                             scenario.jumpTo(time);
                         } catch (InterruptedException error) {
-                            // shit
+                            // Jump was aborted? Well, ok then.
                         } finally {
                             scenario.addListener(panel);
                             scenario.removeListener(progressListener);
