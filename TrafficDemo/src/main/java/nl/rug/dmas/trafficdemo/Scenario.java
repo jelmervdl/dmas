@@ -264,6 +264,7 @@ public class Scenario {
         mainLoop = new Thread(new JumpLoop(60, time));
         mainLoop.start();
         mainLoop.join();
+        mainLoop = null;
     }
     
     /**
