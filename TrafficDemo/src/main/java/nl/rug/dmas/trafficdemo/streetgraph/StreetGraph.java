@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map.Entry;
+import nl.rug.dmas.trafficdemo.VecUtils;
 import nl.rug.dmas.trafficdemo.bezier.LinearBezier;
 import nl.rug.dmas.trafficdemo.bezier.QuadraticBezier;
 import org.jbox2d.common.MathUtils;
@@ -120,6 +121,27 @@ public class StreetGraph {
 
     public boolean isSink(Vertex vertex) {
         return getSinks().contains(vertex);
+    }
+    
+    public boolean isTwoWay(Vertex origin, Vertex destination) {
+        return edges.contains(new Edge(origin, destination))
+                && edges.contains(new Edge(destination, origin));
+    }
+    
+    public boolean isTwoWay(Edge edge) {
+        return edges.contains(edge) && edges.contains(edge.reversed());
+    }
+    
+    public boolean isTwoWay(Vertex vertex) {
+        for (Edge edge : edges) {
+            if (isTwoWay(edge)) {
+                if (edge.getOrigin().equals(vertex) || edge.getDestination().equals(vertex)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 
     /**
@@ -238,16 +260,47 @@ public class StreetGraph {
 
     public PointPath generatePointPath(Vertex origin, Vertex destination) throws NoPathException {
         LinkedList<Vertex> path = this.findBFSPath(origin, destination);
-        PointPath pointPath = StreetGraph.generatePointPath(path);
+        PointPath pointPath = generatePointPath(path);
         return pointPath;
     }    
     
-    public static PointPath generatePointPath(LinkedList<Vertex> path) throws NoPathException {
+    public PointPath generatePointPath(LinkedList<Vertex> path) throws NoPathException {
         LinkedList<Vec2> pathOfLocations = new LinkedList<>();
-        ListIterator<Vertex> pathIter = path.listIterator();
-        while (pathIter.hasNext()) {
-            pathOfLocations.add(pathIter.next().getLocation());
+        
+        for (int i = 0; i < path.size(); ++i) {
+            // Shift right if the previous edge is two-way, or the next one is
+            boolean nextTwoWay = i < path.size() - 1 && isTwoWay(path.get(i), path.get(i + 1));
+            boolean prevTwoWay = i > 0 && isTwoWay(path.get(i - 1), path.get(i));
+            boolean shiftRight = prevTwoWay || nextTwoWay;
+            
+            Vec2 pos = path.get(i).getLocation();
+            
+            if (shiftRight) {
+                Vec2 shiftDir;
+                
+                if (i == 0) {
+                    shiftDir = VecUtils.getNormal(
+                            path.get(i).getLocation(),
+                            path.get(i + 1).getLocation());
+                }
+                else if (i == path.size() - 1) {
+                    shiftDir = VecUtils.getNormal(
+                            path.get(i-1).getLocation(),
+                            path.get(i).getLocation());
+                } 
+                else { 
+                    shiftDir = VecUtils.getNormal(
+                            path.get(i-1).getLocation(),
+                            path.get(i).getLocation(),
+                            path.get(i + 1).getLocation());
+                }
+                
+                pos = pos.add(shiftDir.mul(3.0f));
+            }
+            
+            pathOfLocations.add(pos);
         }
+        
         List<Vec2> points = generatePointPathUsingVec2(pathOfLocations, turningRadius);
         return new PointPath(path.getFirst(), path.getLast(), points);
     }
@@ -257,7 +310,7 @@ public class StreetGraph {
         Vec2 originIntermediate = intermediate.sub(origin);
         Vec2 intermediateDestination = destination.sub(intermediate);
         double cross = Vec2.cross(originIntermediate, intermediateDestination);
-        return cross == 0;
+        return Math.abs(cross) < 0.5f;
     }
 
     private static Vec2 computeSupportPoint(Vec2 pointA, Vec2 pointB, float someControlParameter){

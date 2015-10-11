@@ -77,6 +77,8 @@ public class TrafficPanel extends JPanel {
     final Color taillightColor = new Color(1.0f, 0.0f, 0.0f);
     final Color reverselightColor = new Color(1.0f, 1.0f, 1.0f);
     
+    final Stroke roadStroke = new BasicStroke(4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+    
     private Image environmentBufferImage = null;
     
     final ScenarioListener scenarioListener;
@@ -507,7 +509,15 @@ public class TrafficPanel extends JPanel {
 
     private void drawEdge(Graphics2D g2, Edge edge) {
         Vec2 position = edge.getOrigin().getLocation();
-        Vec2 direction = edge.getDestination().getLocation().sub(position);
+        Vec2 direction = VecUtils.getDirection(position, edge.getDestination().getLocation());
+        
+        // move the position a bit away form 
+        Vec2 normDirection = new Vec2(direction);
+        normDirection.normalize();
+        
+        position = position.add(normDirection.mul(1.0f));
+        direction = direction.sub(normDirection.mul(2.0f));
+        
         drawVec(g2, direction, position);
     }
 
@@ -528,35 +538,17 @@ public class TrafficPanel extends JPanel {
         g2.dispose();
     }
 
-    private void drawRoad(Graphics2D g, Edge edge) {
+    private void drawRoad(Graphics2D g, StreetGraph graph, Vertex source, Vertex sink) {
         Graphics2D g2 = (Graphics2D) g.create();
 
-        LinkedList<Vertex> path = new LinkedList<>();
-        path.add(edge.getOrigin());
-        path.add(edge.getDestination());
-        
         try {
-            PointPath points = StreetGraph.generatePointPath(path);
-
-
-            // First draw the road side
-            Stroke roadSideStroke = new BasicStroke(0.3f);
-            g2.setStroke(roadSideStroke);
-            g2.setColor(Color.DARK_GRAY);
-
-            // Both left and right side
-            drawLine(g2, points.translate(1.5f).iterator());
-            drawLine(g2, points.translate(-1.5f).iterator());
-
-            // Then draw the road itself so it overlays all the road side drawing
-            // glitches which occur at the intersections
-            Stroke roadStroke = new BasicStroke(3f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
             g2.setStroke(roadStroke);
             g2.setColor(Color.LIGHT_GRAY);
-
+            
+            List<Vec2> points = graph.generatePointPath(source, sink);
             drawLine(g2, points.iterator());
         } catch (NoPathException ex) {
-            Logger.getLogger(TrafficPanel.class.getName()).log(Level.SEVERE, null, ex);
+            // Ignore, no route possible so no road required
         } finally {
             g2.dispose();
         }
@@ -590,15 +582,18 @@ public class TrafficPanel extends JPanel {
      * @param streetGraph
      */
     private void drawEnvironment(Graphics2D g2, StreetGraph streetGraph) {
-        // First draw the actual road
-        for (Edge edge : streetGraph.getEdges())
-            drawRoad(g2, edge);
+        for (Vertex source : streetGraph.getSources()) {
+            for (Vertex sink : streetGraph.getSinks()) {
+                drawRoad(g2, streetGraph, source, sink);
+            }
+        }
 
         // Then draw the graph as an overlay
-        g2.setColor(Color.BLACK);
-        for (Edge edge : streetGraph.getEdges())
+        g2.setColor(Color.DARK_GRAY);
+        for (Edge edge : streetGraph.getEdges()) {
             drawEdge(g2, edge);
-
+        }
+        
         for (Vertex vertex : streetGraph.getVertices()) {
             if (streetGraph.isSink(vertex))
                 drawSink(g2, vertex);
