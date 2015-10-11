@@ -5,8 +5,8 @@
  */
 package nl.rug.dmas.trafficdemo;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -51,7 +51,7 @@ public class DebugGraphicsQueue {
         }
     }
     
-    final private List<DrawCall> calls = new CopyOnWriteArrayList<>();
+    final private Queue<DrawCall> calls = new ConcurrentLinkedQueue<>();
     
     public void clear() {
         calls.clear();

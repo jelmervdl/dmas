@@ -281,6 +281,8 @@ public class TrafficWindow extends JFrame {
                 final ScenarioListener progressListener = new ScenarioAdapter() {
                     private float lastCarRemovedTime;
                     
+                    private float lastUpdate = 0.0f;
+                    
                     @Override
                     public void carRemoved(Car car) {
                         lastCarRemovedTime = scenario.getTime();
@@ -288,14 +290,20 @@ public class TrafficWindow extends JFrame {
                     
                     @Override
                     public void scenarioStepped() {
-                        final float timeSinceLastRemoval = scenario.getTime() - lastCarRemovedTime;
+                        // only update once every simulated second
+                        if (scenario.getTime() - lastUpdate < 1.0f)
+                            return;
+                        
+                        lastUpdate = scenario.getTime();
+                        
+                        final float timeSinceLastRemoval = lastUpdate - lastCarRemovedTime;
                         
                         // Update the GUI from the Swing thread
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
                                 // Update the progress bar
-                                progressBar.setValue((int) scenario.getTime());
+                                progressBar.setValue((int) lastUpdate);
                                 
                                 // Show the "Shit we are stuck" label if we haven't removed 
                                 // a car for more than 60 seconds.

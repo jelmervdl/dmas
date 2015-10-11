@@ -81,7 +81,7 @@ public class TrafficPanel extends JPanel {
     
     final ScenarioListener scenarioListener;
     
-    final private List<Collision> collisions = new ArrayList<>();
+    final private List<Collision> collisions = Collections.synchronizedList(new ArrayList<Collision>());
     
     static private class Collision {
         final Vec2 position;
@@ -798,23 +798,25 @@ public class TrafficPanel extends JPanel {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setColor(Color.ORANGE);
         
-        Iterator<Collision> iter = collisions.iterator();
-        
-        while (iter.hasNext()) {
-            Collision collision = iter.next();
-            float progress = (scenario.getTime() - collision.time) / 1.0f;
-            
-            // If this collision has run its course, remove it from the list
-            if (progress > 1) {
-                iter.remove();
-                continue;
+        synchronized (collisions) {
+            Iterator<Collision> iter = collisions.iterator();
+
+            while (iter.hasNext()) {
+                Collision collision = iter.next();
+                float progress = (scenario.getTime() - collision.time) / 1.0f;
+
+                // If this collision has run its course, remove it from the list
+                if (progress > 1) {
+                    iter.remove();
+                    continue;
+                }
+
+                float alpha = 1.0f - progress;
+                float radius = 10.0f * progress;
+
+                g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+                drawPosition(g2, collision.position, radius);
             }
-            
-            float alpha = 1.0f - progress;
-            float radius = 10.0f * progress;
-            
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-            drawPosition(g2, collision.position, radius);
         }
         
         g2.dispose();
