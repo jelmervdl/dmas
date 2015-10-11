@@ -7,7 +7,6 @@ import java.util.InputMismatchException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map.Entry;
 import nl.rug.dmas.trafficdemo.VecUtils;
 import nl.rug.dmas.trafficdemo.bezier.LinearBezier;
@@ -28,6 +27,9 @@ public class StreetGraph {
     private final HashMap<Integer, Vertex> sinks;
     private final static int resolution = 15;
     private final static float turningRadius = 5.0f; 
+    
+    // How much do we move a lane to the right on a two-way segment?
+    private final static float rightSideOffset = 2.5f;
 
     /**
      * A graph representing streets, vertices represent intersections, edges
@@ -295,7 +297,7 @@ public class StreetGraph {
                             path.get(i + 1).getLocation());
                 }
                 
-                pos = pos.add(shiftDir.mul(3.0f));
+                pos = pos.add(shiftDir.mul(rightSideOffset));
             }
             
             pathOfLocations.add(pos);
@@ -336,7 +338,7 @@ public class StreetGraph {
         if(queue.size() == 3){
             return new QuadraticBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution, intermediate);
         } else {
-            return generatePointPathUsingVec2(queue, someControlParameter);    
+            return generatePointPathUsingVec2(queue, someControlParameter);
         }
 //        float turningRadius = 7.0f;
 //        Vec2 controlPoint = intermediate.add(new Vec2(turningRadius, turningRadius));
