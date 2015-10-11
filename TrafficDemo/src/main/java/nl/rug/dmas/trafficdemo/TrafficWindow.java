@@ -65,6 +65,7 @@ public class TrafficWindow extends JFrame {
         panel = new TrafficPanel(scenario);
         panel.drawFOV = TrafficDemo.getPreferences().getBoolean("drawFOV", panel.drawFOV); // prefer user stored preference
         panel.drawDirection = TrafficDemo.getPreferences().getBoolean("drawDirection", panel.drawDirection);
+        panel.drawDriverThoughts = TrafficDemo.getPreferences().getBoolean("drawDriverThoughts", panel.drawDriverThoughts);
         add(panel);
         
         // Update the panel when the scenario changes
