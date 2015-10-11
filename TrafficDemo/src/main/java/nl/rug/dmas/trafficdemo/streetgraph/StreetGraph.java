@@ -169,12 +169,25 @@ public class StreetGraph {
 
         if (!this.vertices.containsValue(origin)) {
             throw new NoPathException("The origin of your path could not be found in the graph.");
-        } else if (!this.vertices.containsValue(origin)) {
+        }
+        
+        if (!this.vertices.containsValue(destination)) {
             throw new NoPathException("The destination of your path could not be found in the graph.");
         }
-
+        
         while (!queue.isEmpty()) {
             currentVertex = queue.remove();
+            
+            //Add all nodes that we haven't tried yet to the queue
+            for (Vertex neighbour : currentVertex.getReachableVertices()) {
+                if (visited.contains(neighbour))
+                    continue;
+                
+                queue.add(neighbour);
+                visited.add(neighbour);
+                visitedFrom.put(neighbour, currentVertex);
+            }
+            
             if (visited.contains(destination)) {
                 //We have found our path, convert it to a list of vertices
                 currentVertex = destination;
@@ -185,15 +198,9 @@ public class StreetGraph {
                 }
                 path.addFirst(origin);
                 return path;
-            } else {
-                //Add all nodes that we haven't tried yet to the queue
-                for (Vertex neighbour : currentVertex.getReachableVertices()) {
-                    queue.add(neighbour);
-                    visited.add(neighbour);
-                    visitedFrom.put(neighbour, currentVertex);
-                }
             }
         }
+        
         throw new NoPathException("No path found.");
     }
 
