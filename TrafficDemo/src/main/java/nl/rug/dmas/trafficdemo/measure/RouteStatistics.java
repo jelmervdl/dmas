@@ -5,9 +5,9 @@
  */
 package nl.rug.dmas.trafficdemo.measure;
 
+import javax.swing.table.AbstractTableModel;
 import nl.rug.dmas.trafficdemo.Car;
-import nl.rug.dmas.trafficdemo.ScenarioListener;
-import nl.rug.dmas.trafficdemo.actors.AutonomousDriver;
+import nl.rug.dmas.trafficdemo.ScenarioAdapter;
 import nl.rug.dmas.trafficdemo.actors.Driver;
 import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
 
@@ -15,12 +15,9 @@ import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
  *
  * @author jelmer
  */
-public class RouteStatistics extends AbstractCountingTableModel<PointPath> implements ScenarioListener {
+public class RouteStatistics extends ScenarioAdapter {
     
-    @Override
-    public void carAdded(Car car) {
-        // Do nothing for now :(
-    }
+    final AbstractCountingTableModel<PointPath> model = new AbstractCountingTableModel<>();
     
     @Override
     public void carRemoved(Car car) {
@@ -28,30 +25,15 @@ public class RouteStatistics extends AbstractCountingTableModel<PointPath> imple
             try {
                 Driver driver = car.getDriver();
                 PointPath path = (PointPath) driver.getPath();
-                increment(path);
+                model.increment(path);
             } catch (ClassCastException e) {
                 // So this car is not what we think it is
             }
         }
     }
-    
-    @Override
-    public void scenarioStarted() {
-        // Do nothing, it can be started multiple times!
-    }
-    
-    @Override
-    public void scenarioStepped() {
-        //
-    }
-    
-    @Override
-    public void scenarioStopped() {
-        //
-    }
 
-    @Override
-    public void selectionChanged() {
-        //
+    public AbstractTableModel getModel() {
+        return model;
     }
+    
 }

@@ -73,7 +73,7 @@ public class TrafficWindow extends JFrame {
         add(panel);
         
         // Update the panel when the scenario changes
-        scenario.addListener(panel);
+        scenario.addListener(panel.scenarioListener);
         
         // Allow us to draw on the canvas to create a path for the steerAlongPath behavior of drivers.
         panel.addMouseMotionListener(new MouseAdapter() {
@@ -333,14 +333,14 @@ public class TrafficWindow extends JFrame {
                         scenario.stop();
 
                         try {
-                            scenario.removeListener(panel);
+                            scenario.removeListener(panel.scenarioListener);
                             scenario.addListener(progressListener);
 
                             scenario.jumpTo(time);
                         } catch (InterruptedException error) {
                             // Jump was aborted? Well, ok then.
                         } finally {
-                            scenario.addListener(panel);
+                            scenario.addListener(panel.scenarioListener);
                             scenario.removeListener(progressListener);
                         }
 

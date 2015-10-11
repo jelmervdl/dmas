@@ -5,11 +5,13 @@
  */
 package nl.rug.dmas.trafficdemo;
 
+import org.jbox2d.common.Vec2;
+
 /**
  *
  * @author jelmer
  */
-class ScenarioAdapter implements ScenarioListener {
+public class ScenarioAdapter implements ScenarioListener {
 
     public ScenarioAdapter() {
         //
@@ -42,6 +44,11 @@ class ScenarioAdapter implements ScenarioListener {
 
     @Override
     public void selectionChanged() {
+        //
+    }
+
+    @Override
+    public void carsCollided(Car carA, Car carB, Vec2 position) {
         //
     }
     

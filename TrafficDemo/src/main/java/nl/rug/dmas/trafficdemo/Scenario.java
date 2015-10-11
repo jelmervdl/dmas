@@ -28,6 +28,7 @@ import nl.rug.dmas.trafficdemo.streetgraph.Vertex;
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
+import org.jbox2d.collision.WorldManifold;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.contacts.Contact;
@@ -369,6 +370,19 @@ public class Scenario {
 
             if (contact.observer != null) {
                 contact.observer.addFixtureInSight(contact.fixture);
+            }
+            
+            // If two cars are colliding, also tell everyone
+            if (fixtureContact.getFixtureA().getUserData() instanceof Car
+                    && fixtureContact.getFixtureB().getUserData() instanceof Car) {
+                
+                Vec2 collisionPosition = fixtureContact.getManifold().localPoint;
+                
+                for (ScenarioListener listener : listeners)
+                    listener.carsCollided(
+                        (Car) fixtureContact.getFixtureA().getUserData(),
+                        (Car) fixtureContact.getFixtureB().getUserData(),
+                        collisionPosition);
             }
         }
 

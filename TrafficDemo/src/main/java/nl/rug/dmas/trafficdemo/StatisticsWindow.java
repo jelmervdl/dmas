@@ -42,11 +42,11 @@ public class StatisticsWindow extends JFrame {
         
         RouteStatistics routeStats = new RouteStatistics();
         scenario.addListener(routeStats);
-        statistics.put("Route", routeStats);
+        statistics.put("Route", routeStats.getModel());
         
         DriverTypeStatistics driverStats = new DriverTypeStatistics();
         scenario.addListener(driverStats);
-        statistics.put("Driver types", driverStats);
+        statistics.put("Driver types", driverStats.getModel());
         
         for (Map.Entry<String, AbstractTableModel> statistic : statistics.entrySet()) {
             JPanel panel = new JPanel();

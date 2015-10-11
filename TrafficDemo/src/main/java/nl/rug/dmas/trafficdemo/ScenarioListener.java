@@ -5,6 +5,8 @@
  */
 package nl.rug.dmas.trafficdemo;
 
+import org.jbox2d.common.Vec2;
+
 /**
  *
  * @author jelmer
@@ -22,4 +24,6 @@ public interface ScenarioListener
     public void scenarioStopped();
     
     public void selectionChanged();
+
+    public void carsCollided(Car carA, Car carB, Vec2 position);
 }

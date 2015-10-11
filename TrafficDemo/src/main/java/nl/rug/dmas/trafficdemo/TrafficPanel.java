@@ -31,6 +31,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -61,7 +62,7 @@ import org.jbox2d.dynamics.Fixture;
  *
  * @author jelmer
  */
-public class TrafficPanel extends JPanel implements ScenarioListener {
+public class TrafficPanel extends JPanel {
 
     Scenario scenario;
     float scale = 10f;
@@ -78,11 +79,45 @@ public class TrafficPanel extends JPanel implements ScenarioListener {
     
     private Image environmentBufferImage = null;
     
+    final ScenarioListener scenarioListener;
+    
+    final private List<Collision> collisions = new ArrayList<>();
+    
+    static private class Collision {
+        final Vec2 position;
+        final float time;
+        
+        Collision(Vec2 position, float time) {
+            this.position = position;
+            this.time = time;
+        }
+    }
+    
     public TrafficPanel(Scenario scenarion) {
         this.scenario = scenarion;
         
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
+        
+        scenarioListener = new ScenarioAdapter() {
+            @Override
+            public void scenarioStepped() {
+                repaint();
+            }
+
+            @Override
+            public void selectionChanged() {
+                repaint();
+            }
+
+            @Override
+            public void carsCollided(Car carA, Car carB, Vec2 position) {
+                collisions.add(new Collision(
+                    carA.body.getWorldPoint(position),
+                    scenario.getTime()
+                ));
+            }
+        };
         
         addComponentListener(new ComponentAdapter() {
             @Override
@@ -230,6 +265,8 @@ public class TrafficPanel extends JPanel implements ScenarioListener {
         try {
             // Then on top of those, we draw our cars.
             drawCars(g2, scenario.cars);
+            
+            drawCollisions(g2);
             
             // Draw fields of view of all sensors in the world, if enabled.
             if (drawFOV)
@@ -617,7 +654,7 @@ public class TrafficPanel extends JPanel implements ScenarioListener {
     
     private java.awt.Shape getCircleShape(CircleShape circle, Transform transform) {
         Vec2 center = new Vec2();
-        Transform.mulToOutUnsafe(transform, circle.m_p, center);
+        Transform.mulToOutUnsafe(transform, circle.getVertex(0), center);
         center.addLocal(-circle.getRadius(), -circle.getRadius());
 
         return new Ellipse2D.Float(
@@ -757,33 +794,29 @@ public class TrafficPanel extends JPanel implements ScenarioListener {
         g2.dispose();
     }
 
-    @Override
-    public void carAdded(Car car) {
-        //
-    }
-
-    @Override
-    public void carRemoved(Car car) {
-        //
-    }
-
-    @Override
-    public void scenarioStarted() {
-        //
-    }
-
-    @Override
-    public void scenarioStepped() {
-        repaint();
-    }
-
-    @Override
-    public void scenarioStopped() {
-        //
-    }
-
-    @Override
-    public void selectionChanged() {
-        repaint();
+    private void drawCollisions(Graphics2D g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setColor(Color.ORANGE);
+        
+        Iterator<Collision> iter = collisions.iterator();
+        
+        while (iter.hasNext()) {
+            Collision collision = iter.next();
+            float progress = (scenario.getTime() - collision.time) / 1.0f;
+            
+            // If this collision has run its course, remove it from the list
+            if (progress > 1) {
+                iter.remove();
+                continue;
+            }
+            
+            float alpha = 1.0f - progress;
+            float radius = 10.0f * progress;
+            
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+            drawPosition(g2, collision.position, radius);
+        }
+        
+        g2.dispose();
     }
 }
