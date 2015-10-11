@@ -43,12 +43,14 @@ public class Car {
     Fixture visionFixture;
 
     private final Vec2 initialPosition;
+    private final float initialAngle;
 
-    public Car(Driver driver, float width, float length, Vec2 position) {
+    public Car(Driver driver, float width, float length, Vec2 position, float angle) {
         this.driver = driver;
         this.width = width;
         this.length = length;
         this.initialPosition = position;
+        this.initialAngle = angle;
         this.color = RandomUtil.nextRandomPastelColor();
 
         // Let the driver know which car to steer.
@@ -61,7 +63,7 @@ public class Car {
         BodyDef def = new BodyDef();
         def.type = BodyType.DYNAMIC;
         def.position = initialPosition;
-        def.angle = 0;
+        def.angle = initialAngle;
         def.linearDamping = 0.5f; // gradually reduces velocity, makes the car reduce speed slowly if neither accelerator nor brake is pressed
         def.angularDamping = 0.3f;
         def.bullet = true;  //dedicates more time to collision detection - car travelling at high speeds at low framerates otherwise might teleport through obstacles.

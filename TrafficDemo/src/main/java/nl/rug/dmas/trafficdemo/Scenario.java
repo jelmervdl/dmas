@@ -6,8 +6,10 @@
 package nl.rug.dmas.trafficdemo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -19,6 +21,7 @@ import nl.rug.dmas.trafficdemo.actors.Driver;
 import nl.rug.dmas.trafficdemo.actors.HumanDriver;
 import nl.rug.dmas.trafficdemo.actors.StreetGraphSink;
 import nl.rug.dmas.trafficdemo.actors.StreetGraphSource;
+import nl.rug.dmas.trafficdemo.streetgraph.NoPathException;
 import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
 import nl.rug.dmas.trafficdemo.streetgraph.StreetGraph;
 import nl.rug.dmas.trafficdemo.streetgraph.Vertex;
@@ -121,6 +124,21 @@ public class Scenario {
         listeners.remove(listener);
     }
     
+    public PointPath createPath(Vertex origin) throws NoPathException {
+        List<Vertex> destinations = streetGraph.getSinks();
+        Collections.shuffle(destinations);
+
+        for (Vertex destination : destinations) {
+            try {
+                return streetGraph.generatePointPath(origin, destination);
+            } catch (NoPathException e) {
+                // Try the next one
+            }
+        }
+
+        throw new NoPathException();
+    }
+    
     /**
      * Create a clueless driver. Mostly used when you add a car through the
      * menu, this factory method will give you a driver that drives along the
@@ -145,8 +163,8 @@ public class Scenario {
             : new AutonomousDriver(this, path);
     }
     
-    public Car createCar(Driver driver, Vec2 position) {
-        return new Car(driver, carWidth.getValue(oracle), carLength.getValue(oracle), position);
+    public Car createCar(Driver driver, Vec2 position, float angle) {
+        return new Car(driver, carWidth.getValue(oracle), carLength.getValue(oracle), position, angle);
     }
     
     private float getRandomFloatBetween(float lower, float upper) {

@@ -5,18 +5,19 @@
  */
 package nl.rug.dmas.trafficdemo.actors;
 
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import nl.rug.dmas.trafficdemo.Actor;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.Observer;
 import nl.rug.dmas.trafficdemo.Scenario;
+import nl.rug.dmas.trafficdemo.VecUtils;
 import nl.rug.dmas.trafficdemo.streetgraph.NoPathException;
 import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
 import nl.rug.dmas.trafficdemo.streetgraph.Vertex;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.Shape;
+import org.jbox2d.common.MathUtils;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
@@ -70,32 +71,13 @@ public class StreetGraphSource implements Actor, Observer {
         shape.setRadius(4);
         return shape;
     }
-
-    protected Driver getMeADriver() throws NoPathException {
-        List<Vertex> destinations = scenario.getStreetGraph().getSinks();
-        Collections.shuffle(destinations);
-
-        Iterator<Vertex> destIter = destinations.iterator();
-
-        PointPath path = null;
-
-        while (path == null && destIter.hasNext()) {
-            try {
-                path = scenario.getStreetGraph().generatePointPath(vertex, destIter.next());
-            } catch (NoPathException e) {
-                // Try the next one
-            }
-        }
-
-        if (path == null) {
-            throw new NoPathException();
-        }
-
-        return scenario.createDriver(path);
-    }
-
-    protected Car getMeACar(Driver driver) {
-        return scenario.createCar(driver, vertex.getLocation());
+    
+    private float getInitialAngle(List<Vec2> path) {
+        if (path.size() < 2)
+            return 0f;
+        
+        Vec2 diff = path.get(1).sub(path.get(0));
+        return VecUtils.getAngle(diff);
     }
 
     @Override
@@ -105,8 +87,11 @@ public class StreetGraphSource implements Actor, Observer {
         if ((enabled == null || enabled) && fixturesInSight == 0) {
             try {
                 if (scenario.getTime() - timeOfLastSpawn > timeout) {
-                    Driver driver = getMeADriver();
-                    scenario.add(getMeACar(driver));
+                    PointPath path = scenario.createPath(vertex);
+                    Driver driver = scenario.createDriver(path);
+                    float angle = getInitialAngle(path) + MathUtils.HALF_PI;
+                    Car car = scenario.createCar(driver, vertex.getLocation(), angle);
+                    scenario.add(car);
                     timeOfLastSpawn = scenario.getTime();
                 }
             } catch (NoPathException e) {

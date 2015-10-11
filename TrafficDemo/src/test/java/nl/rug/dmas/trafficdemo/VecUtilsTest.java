@@ -59,6 +59,12 @@ public class VecUtilsTest {
         float expResult = MathUtils.QUARTER_PI;
         float result = VecUtils.getAngle(vector);
         assertEquals(expResult, result, 0.01);
+        
+        vector = new Vec2(1, 0);
+        assertEquals(0.0f, VecUtils.getAngle(vector), 0.0001f);
+        
+        vector = new Vec2(0, 1);
+        assertEquals(MathUtils.HALF_PI, VecUtils.getAngle(vector), 0.0001f);
     }
     
 }
