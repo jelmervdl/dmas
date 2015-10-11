@@ -164,6 +164,11 @@ public class TrafficWindow extends JFrame {
                 } catch (InterruptedException error) {
                     // Do nothing, it will propably quit someday automatically
                 }
+                
+                // Finally, dispose of everything
+                statisticsWindow.dispose();
+                parameterWindow.dispose();
+                dispose();
             }
         });
         
