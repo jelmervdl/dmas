@@ -71,8 +71,8 @@ public class Scenario {
     
     final private Random oracle;
     
-    final Parameter carWidth = Parameter.fromString("1.47-2.55");
-    final Parameter carLength = Parameter.fromString("2.540-6.0"); // Parameter.fromString("2.540-12.0");
+    Parameter carWidth = Parameter.fromString("1.47-2.55");
+    Parameter carLength = Parameter.fromString("2.540-6.0"); // Parameter.fromString("2.540-12.0");
     
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact

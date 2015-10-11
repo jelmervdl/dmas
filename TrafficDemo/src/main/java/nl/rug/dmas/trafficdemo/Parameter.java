@@ -56,6 +56,11 @@ abstract class Parameter {
         public float getValue(Random rng) {
             return lower + rng.nextFloat() * (upper - lower);
         }
+
+        @Override
+        public String toString() {
+            return String.format("%s-%s", lower, upper);
+        }
     }
     
     static public class Fixed extends Parameter {
@@ -68,6 +73,11 @@ abstract class Parameter {
         @Override
         public float getValue(Random rng) {
             return value;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s", value);
         }
     }
     
@@ -93,6 +103,11 @@ abstract class Parameter {
                 value = lower;
             
             return value;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s:%s:%s", lower, stepSize, upper);
         }
     }
 }

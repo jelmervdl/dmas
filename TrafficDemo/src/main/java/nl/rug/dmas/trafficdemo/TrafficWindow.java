@@ -53,6 +53,8 @@ public class TrafficWindow extends JFrame {
     
     private final StatisticsWindow statisticsWindow;
     
+    private final ParameterWindow parameterWindow;
+    
     public TrafficWindow(Scenario scenario) {
         this.scenario = scenario;
         
@@ -60,6 +62,8 @@ public class TrafficWindow extends JFrame {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
         statisticsWindow = new StatisticsWindow(scenario);
+        
+        parameterWindow = new ParameterWindow(scenario);
         
         // The TrafficPanel draws the actual scenario (cars etc.)
         panel = new TrafficPanel(scenario);
@@ -432,6 +436,17 @@ public class TrafficWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 statisticsWindow.setVisible(true);
                 statisticsWindow.toFront();
+            }
+        });
+        
+        final JMenuItem showParameters = new JMenuItem("Parameters");
+        viewMenu.add(showParameters);
+        showParameters.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        showParameters.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                parameterWindow.setVisible(true);
+                parameterWindow.toFront();
             }
         });
         
