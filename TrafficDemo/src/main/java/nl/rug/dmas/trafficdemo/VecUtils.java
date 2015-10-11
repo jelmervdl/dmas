@@ -13,6 +13,7 @@ import org.jbox2d.common.Vec2;
  * @author jelmer
  */
 public class VecUtils {
+
     static public class Intersection
     {
         final public float u, v;
@@ -74,4 +75,32 @@ public class VecUtils {
         normalized.normalize();
         return MathUtils.atan2(normalized.y, normalized.x);
     }
+    
+    public static Vec2 getDirection(Vec2 a, Vec2 b) {
+        return b.sub(a);
+    }
+    
+    public static Vec2 getNormal(Vec2 a, Vec2 b) {
+        Vec2 direction = getDirection(a, b);
+        Vec2 normal = new Vec2(-direction.y, direction.x);
+        normal.normalize();
+        return normal;
+    }
+    
+    public static Vec2 getNormal(Vec2 a, Vec2 b, Vec2 c) {
+        Vec2 normAB = getNormal(a, b);
+        Vec2 normBC = getNormal(b, c);
+        return normAB.add(normBC).mul(0.5f);
+    }
+    
+    /**
+     * Get the center of a line
+     * @param a start of line
+     * @param b end of line
+     * @return center position of a line
+     */
+    public static Vec2 getCenter(Vec2 a, Vec2 b) {
+        return a.add(getDirection(a, b).mul(0.5f));
+    }
+    
 }
