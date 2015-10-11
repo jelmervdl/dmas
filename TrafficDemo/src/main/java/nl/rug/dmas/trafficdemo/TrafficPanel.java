@@ -582,6 +582,8 @@ public class TrafficPanel extends JPanel {
      * @param streetGraph
      */
     private void drawEnvironment(Graphics2D g2, StreetGraph streetGraph) {
+        // First draw the roads by finding all possible paths that can be
+        // traveled with the cars
         for (Vertex source : streetGraph.getSources()) {
             for (Vertex sink : streetGraph.getSinks()) {
                 drawRoad(g2, streetGraph, source, sink);
@@ -594,6 +596,7 @@ public class TrafficPanel extends JPanel {
             drawEdge(g2, edge);
         }
         
+        // Finally mark the vertices, sources and sinks clearly
         for (Vertex vertex : streetGraph.getVertices()) {
             if (streetGraph.isSink(vertex))
                 drawSink(g2, vertex);
