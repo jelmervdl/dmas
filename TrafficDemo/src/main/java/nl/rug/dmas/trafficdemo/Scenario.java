@@ -6,10 +6,10 @@
 package nl.rug.dmas.trafficdemo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -116,6 +116,8 @@ public class Scenario {
         return time;
     }
     
+    // <editor-fold defaultstate="collapsed" desc="Listener methods">
+    
     public void addListener(ScenarioListener listener) {
         listeners.add(listener);
     }
@@ -123,6 +125,38 @@ public class Scenario {
     public void removeListener(ScenarioListener listener) {
         listeners.remove(listener);
     }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Selection methods">
+    
+    public Collection<Car> getSelection() {
+        return Collections.unmodifiableSet(selectedCars);
+    }
+    
+    public void setSelection(Collection<Car> cars) {
+        selectedCars.clear();
+        selectedCars.addAll(cars);
+        
+        for (ScenarioListener listener : listeners)
+            listener.selectionChanged();
+    }
+    
+    public void addSelection(Car car) {
+        selectedCars.add(car);
+        
+        for (ScenarioListener listener : listeners)
+            listener.selectionChanged();
+    }
+    
+    public void clearSelection() {
+        selectedCars.clear();
+        
+        for (ScenarioListener listener : listeners)
+            listener.selectionChanged();
+    }
+    
+    // </editor-fold>
     
     public PointPath createPath(Vertex origin) throws NoPathException {
         List<Vertex> destinations = streetGraph.getSinks();

@@ -19,6 +19,9 @@ import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.GlyphVector;
@@ -30,6 +33,7 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,11 +82,39 @@ public class TrafficPanel extends JPanel implements ScenarioListener {
     public TrafficPanel(Scenario scenarion) {
         this.scenario = scenarion;
         
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
+        
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 // If we are resized, invalidate the already drawn environment
                 environmentBufferImage = null;
+            }
+        });
+        
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (!isFocusOwner())
+                    return;
+                
+                if (e.getKeyChar() == '\t') {
+                    if (scenario.cars.isEmpty())
+                        return;
+                    
+                    Car next = scenario.cars.get(0);
+                    
+                    if (scenario.getSelection().size() > 0) {
+                        Car current = scenario.getSelection().iterator().next();
+                        int pos = scenario.cars.indexOf(current);
+                        int direction = e.isShiftDown() ? -1 : 1;
+                        next = scenario.cars.get((pos + direction) % scenario.cars.size());
+                    }
+
+                    scenario.setSelection(Collections.singleton(next));
+                    e.consume();
+                }
             }
         });
         
@@ -93,12 +125,12 @@ public class TrafficPanel extends JPanel implements ScenarioListener {
                     return;
                 
                 if (!e.isShiftDown())
-                    TrafficPanel.this.scenario.selectedCars.clear();
+                    TrafficPanel.this.scenario.clearSelection();
                 
                 Car car = TrafficPanel.this.getCarAtPosition(e.getPoint());
                 
                 if (car != null) {
-                    TrafficPanel.this.scenario.selectedCars.add(car);
+                    TrafficPanel.this.scenario.addSelection(car);
                     e.consume();
                 }
 
