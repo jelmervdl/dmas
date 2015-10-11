@@ -25,7 +25,7 @@ public class StreetGraph {
     private final ArrayList<Edge> edges;
     private final HashMap<Integer, Vertex> sources;
     private final HashMap<Integer, Vertex> sinks;
-    private final static int resolution = 50;
+    private final static int resolution = 15;
     private final static float turningRadius = 5.0f; 
 
     /**
