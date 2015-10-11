@@ -71,7 +71,12 @@ public class TrafficWindow extends JFrame {
         panel.drawFOV = TrafficDemo.getPreferences().getBoolean("drawFOV", panel.drawFOV); // prefer user stored preference
         panel.drawDirection = TrafficDemo.getPreferences().getBoolean("drawDirection", panel.drawDirection);
         panel.drawDriverThoughts = TrafficDemo.getPreferences().getBoolean("drawDriverThoughts", panel.drawDriverThoughts);
-        add(new JScrollPane(panel));
+        
+        // Put the panel in a scroll pane but disable the border (that turns
+        // ugly blue if you 'focus' the panel)
+        final JScrollPane scrollPane = new JScrollPane(panel);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        add(scrollPane);
         
         // Update the panel when the scenario changes
         scenario.addListener(panel.scenarioListener);
