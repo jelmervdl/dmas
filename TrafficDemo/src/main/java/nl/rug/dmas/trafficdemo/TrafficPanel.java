@@ -83,6 +83,36 @@ public class TrafficPanel extends JPanel {
     final ScenarioListener scenarioListener;
     
     final private List<Collision> collisions = Collections.synchronizedList(new ArrayList<Collision>());
+
+    private void drawTime(Graphics2D g2, Point position) {
+        float time = scenario.getTime();
+        float clockRadius = 5;
+        float fontHeight = 10;
+        float timeOffset = 3;
+        
+        float secondsAngle = -MathUtils.TWOPI * ((time / 60.0f) % 1.0f) - MathUtils.HALF_PI;
+        float minuteAngle = -MathUtils.TWOPI * ((time / 3600.0f) % 1.0f) - MathUtils.HALF_PI;
+        
+        Point2D.Float center = new Point2D.Float(
+                position.x + clockRadius,
+                position.y + clockRadius);
+        
+        g2.draw(new Ellipse2D.Float(
+                position.x, position.y,
+                2 * clockRadius, 2 * clockRadius));
+        
+        g2.draw(new Line2D.Float(
+                center.x, center.y,
+                center.x - MathUtils.cos(secondsAngle) * clockRadius,
+                center.y + MathUtils.sin(secondsAngle) * clockRadius));
+        
+        g2.draw(new Line2D.Float(
+                center.x, center.y,
+                center.x - MathUtils.cos(minuteAngle) * 0.5f * clockRadius,
+                center.y + MathUtils.sin(minuteAngle) * 0.5f * clockRadius));
+        
+        g2.drawString(TimeUtil.formatTime(time), position.x + 2 * clockRadius + timeOffset, position.y + fontHeight);
+    }
     
     static private class Collision {
         final Vec2 position;
@@ -254,18 +284,19 @@ public class TrafficPanel extends JPanel {
         
         // World position Vec2(0,0) is the center of the screen
         // Scale translates one world point to n pixels.
+        Graphics2D gs = (Graphics2D) g2.create();
         Point center = getCenter();
-        g2.translate(center.x, center.y);
-        g2.scale(scale, scale);
+        gs.translate(center.x, center.y);
+        gs.scale(scale, scale);
         
         // Scale the stroke and font back to 1.0 in screen space.
-        g2.setStroke(new BasicStroke(1f / scale));
-        g2.setFont(g2.getFont().deriveFont(g2.getFont().getSize2D() / scale));
+        gs.setStroke(new BasicStroke(1f / scale));
+        gs.setFont(g2.getFont().deriveFont(g2.getFont().getSize2D() / scale));
         
         // Draw the path we paint for debugging purposes
         CopyOnWriteArrayList<Vec2> path = (CopyOnWriteArrayList<Vec2>) scenario.commonKnowledge.get("path");
         if (path != null) {
-            g2.setColor(Color.RED);
+            gs.setColor(Color.RED);
             drawPath(g2, path, -1);
         }
 
@@ -275,25 +306,26 @@ public class TrafficPanel extends JPanel {
         scenario.readLock.lock();
         try {
             // Then on top of those, we draw our cars.
-            drawCars(g2, scenario.cars);
+            drawCars(gs, scenario.cars);
             
-            drawCollisions(g2);
+            drawCollisions(gs);
             
             // Draw fields of view of all sensors in the world, if enabled.
             if (drawFOV)
-                drawFOVs(g2);
+                drawFOVs(gs);
             
             // Draw an outline around the selected cars, if there are any cars selected
             if (!scenario.selectedCars.isEmpty())
-                drawSelection(g2);
+                drawSelection(gs);
         } finally {
             scenario.readLock.unlock();
         }
         
-        g2.dispose();
+        gs.dispose();
         
         // Draw scenario time in top left corner
-        g.drawString(TimeUtil.formatTime(scenario.getTime()), 5, 15);
+        drawTime(g2, new Point(5, 5));
+        g2.dispose();
     }
 
     /**

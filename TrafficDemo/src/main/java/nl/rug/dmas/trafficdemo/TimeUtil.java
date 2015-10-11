@@ -18,10 +18,13 @@ class TimeUtil {
         int minutes = (int) (time / 60);
         time -= minutes * 60;
         
+        int seconds = (int) time;
+        time -= seconds;
+        
         if (hours > 0) {
-            return String.format("%02d:%02d:%02.2f", hours, minutes, time);
+            return String.format("%02d:%02d:%02d.%02d", hours, minutes, seconds, (int) (time * 100));
         } else {
-            return String.format("%02d:%02.2f", minutes, time);
+            return String.format("%02d:%02d.%02d", minutes, seconds, (int) (time * 100));
         }
     }
 }
