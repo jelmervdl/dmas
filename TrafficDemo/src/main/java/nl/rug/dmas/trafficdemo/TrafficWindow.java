@@ -35,6 +35,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -70,7 +71,7 @@ public class TrafficWindow extends JFrame {
         panel.drawFOV = TrafficDemo.getPreferences().getBoolean("drawFOV", panel.drawFOV); // prefer user stored preference
         panel.drawDirection = TrafficDemo.getPreferences().getBoolean("drawDirection", panel.drawDirection);
         panel.drawDriverThoughts = TrafficDemo.getPreferences().getBoolean("drawDriverThoughts", panel.drawDriverThoughts);
-        add(panel);
+        add(new JScrollPane(panel));
         
         // Update the panel when the scenario changes
         scenario.addListener(panel.scenarioListener);

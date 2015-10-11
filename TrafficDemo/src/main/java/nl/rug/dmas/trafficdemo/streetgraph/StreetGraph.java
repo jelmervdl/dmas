@@ -1,5 +1,6 @@
 package nl.rug.dmas.trafficdemo.streetgraph;
 
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -365,5 +366,18 @@ public class StreetGraph {
             res += "\t" + entry.getValue() + "\n";
         }
         return res;
+    }
+
+    public Rectangle2D.Float getBounds() {
+        float minX = 0, maxX = 0, minY = 0, maxY = 0;
+        
+        for (Vertex vertex : vertices.values()) {
+            minX = Math.min(vertex.getLocation().x, minX);
+            minY = Math.min(vertex.getLocation().y, minY);
+            maxX = Math.max(vertex.getLocation().x, maxX);
+            maxY = Math.max(vertex.getLocation().y, maxY);
+        }
+        
+        return new Rectangle2D.Float(minX, minY, maxX - minX, maxY - minY);
     }
 }

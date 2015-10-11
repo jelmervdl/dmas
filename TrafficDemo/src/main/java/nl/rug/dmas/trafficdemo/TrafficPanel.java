@@ -8,6 +8,7 @@ package nl.rug.dmas.trafficdemo;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -66,6 +67,8 @@ public class TrafficPanel extends JPanel {
 
     Scenario scenario;
     float scale = 10f;
+    
+    final int offset = 50;
 
     // Options (for now)
     boolean drawFOV = true;
@@ -212,8 +215,18 @@ public class TrafficPanel extends JPanel {
      * @return centre of panel in pixels
      */
     private Point getCenter() {
-        return new Point(getSize().width / 2, getSize().height / 2);
+        return new Point(getSize().width / 2 - offset, getSize().height / 2);
     }
+
+    @Override
+    public Dimension getPreferredSize() {
+        Rectangle2D.Float worldBounds = scenario.getStreetGraph().getBounds();
+        
+        return new Dimension(
+            (int) Math.ceil(worldBounds.getWidth() * scale) + 2 * offset,
+            (int) Math.ceil(worldBounds.getHeight() * scale) + 2 * offset);
+    }
+    
 
     /**
      * Our custom painting of awesome cars. Do not call directly, but call
@@ -222,13 +235,13 @@ public class TrafficPanel extends JPanel {
      * @param g
      */
     @Override
-    public void paint(Graphics g) {
+    public void paintComponent(Graphics g) {
         // This paint method gets called indirectly every 1/60th of a second
         // by the mainLoop which issues a 'repaint()' request. (AWT then
         // decides on when to do the actual painting, and at that moment this
         // method is called.)
         
-        paintComponent(g);
+        super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
