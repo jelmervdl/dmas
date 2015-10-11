@@ -15,6 +15,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import nl.rug.dmas.trafficdemo.measure.CollisionStatistics;
@@ -33,7 +34,7 @@ public class StatisticsWindow extends JFrame {
     public StatisticsWindow(Scenario scenario) {
         this.scenario = scenario;
         
-        setPreferredSize(new Dimension(300, 300));
+        setPreferredSize(new Dimension(300, 600));
         setTitle("Statistics");
         setType(Type.UTILITY);
         
@@ -64,7 +65,10 @@ public class StatisticsWindow extends JFrame {
             
             JTable table = new JTable(statistic.getValue());
             table.setShowGrid(true);
-            panel.add(table, BorderLayout.CENTER);
+            
+            panel.add(new JScrollPane(table), BorderLayout.CENTER);
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+            table.getColumnModel().getColumn(1).setMaxWidth(100);
             
             content.add(panel);
         }
