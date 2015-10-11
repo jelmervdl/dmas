@@ -211,7 +211,7 @@ public class TrafficPanel extends JPanel {
      * @return centre of panel in pixels
      */
     private Point getCenter() {
-        return new Point(getSize().width / 2 - offset, getSize().height / 2);
+        return new Point(getSize().width / 2, getSize().height / 2);
     }
 
     @Override
