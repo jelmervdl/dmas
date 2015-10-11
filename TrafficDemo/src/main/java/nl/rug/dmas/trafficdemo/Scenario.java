@@ -72,7 +72,10 @@ public class Scenario {
     final private Random oracle;
     
     Parameter carWidth = Parameter.fromString("1.47-2.55");
+    
     Parameter carLength = Parameter.fromString("2.540-6.0"); // Parameter.fromString("2.540-12.0");
+    
+    Parameter ratioAutonomousCars = Parameter.fromString("0.5");
     
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact
@@ -195,9 +198,9 @@ public class Scenario {
      * @return a driver!
      */
     public Driver createDriver(PointPath path) {
-        return oracle.nextBoolean()
-            ? new HumanDriver(this, path)
-            : new AutonomousDriver(this, path);
+        return oracle.nextFloat() < ratioAutonomousCars.getValue(oracle)
+            ? new AutonomousDriver(this, path)
+            : new HumanDriver(this, path);
     }
     
     public Car createCar(Driver driver, Vec2 position, float angle) {

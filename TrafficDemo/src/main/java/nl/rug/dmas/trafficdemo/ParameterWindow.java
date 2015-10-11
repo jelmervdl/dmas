@@ -66,6 +66,18 @@ public class ParameterWindow extends JFrame {
             }
         });
         
+        fields.add(new ParameterField("Autonomous Car Ratio") {
+            @Override
+            public String getValue() {
+                return scenario.ratioAutonomousCars.toString();
+            }
+
+            @Override
+            public void setValue(String value) {
+                scenario.ratioAutonomousCars = Parameter.fromString(value);
+            }
+        });
+        
         for (ParameterField field : fields) {
             JLabel label = new JLabel(field.getLabel(), JLabel.TRAILING);
             JTextField textField = new JTextField(field.getValue(), 15);
