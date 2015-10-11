@@ -5,6 +5,7 @@
  */
 package nl.rug.dmas.trafficdemo;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.jbox2d.common.Vec2;
@@ -66,7 +67,7 @@ public class DebugGraphicsQueue {
     }
     
     public void renderTo(Renderer renderer) {
-        for (DrawCall call : calls)
+        for (DrawCall call : Collections.unmodifiableList(calls))
             call.draw(renderer);
     }
 }
