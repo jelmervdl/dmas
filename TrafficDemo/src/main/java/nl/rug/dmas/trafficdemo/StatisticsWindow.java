@@ -19,6 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import nl.rug.dmas.trafficdemo.measure.CollisionStatistics;
+import nl.rug.dmas.trafficdemo.measure.DriverTimeStatistics;
 import nl.rug.dmas.trafficdemo.measure.DriverTypeStatistics;
 import nl.rug.dmas.trafficdemo.measure.RouteStatistics;
 
@@ -45,9 +46,9 @@ public class StatisticsWindow extends JFrame {
         scenario.addListener(routeStats);
         statistics.put("Route", routeStats.getModel());
         
-        DriverTypeStatistics driverStats = new DriverTypeStatistics();
+        DriverTimeStatistics driverStats = new DriverTimeStatistics();
         scenario.addListener(driverStats);
-        statistics.put("Driver types", driverStats.getModel());
+        statistics.put("Driver times", driverStats.getModel());
         
         CollisionStatistics collisionStats = new CollisionStatistics();
         scenario.addListener(collisionStats);

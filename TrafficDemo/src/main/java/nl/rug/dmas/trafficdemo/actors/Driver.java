@@ -35,23 +35,36 @@ abstract public class Driver implements Actor, Observer {
     
     int pathIndex = 0;
     
-    // A set of all fixtures in the 
+    // A set of all fixtures in the field of view. It is updated by the
+    // scenario step function itself, drivers (actors) don't have access
+    // to anything outside of this list and the public getters of Scenario.
     final protected Set<Fixture> fixturesInSight = new HashSet<>();
     
     final public DebugGraphicsQueue debugDraw = new DebugGraphicsQueue();
+    
+    final private float timeOfCreation;
+    
+    /**
+     * Create a driver that will drive along a predefined route of positions
+     * @param scenario
+     * @param path List of Vec2's in world coordinates
+     */
+    public Driver(Scenario scenario, List<Vec2> path) {
+        this.scenario = scenario;
+        this.path = path;
+        this.timeOfCreation = scenario.getTime();
+    }
     
     /**
      * Create a blank driver in a scenario.
      * @param scenario scenario in which the driver is driving.
      */
     public Driver(Scenario scenario) {
-        this.scenario = scenario;
-        this.path = (CopyOnWriteArrayList<Vec2>) scenario.getCommonKnowledge().get("path");
+        this(scenario, (CopyOnWriteArrayList<Vec2>) scenario.getCommonKnowledge().get("path"));
     }
     
-    public Driver(Scenario scenario, List<Vec2> path) {
-        this.scenario = scenario;
-        this.path = path;
+    public Scenario getScenario() {
+        return scenario;
     }
     
     /**
@@ -78,6 +91,10 @@ abstract public class Driver implements Actor, Observer {
     
     public int getPathIndex() {
         return pathIndex;
+    }
+    
+    public float getTimeOfCreation() {
+        return timeOfCreation;
     }
 
     /**
