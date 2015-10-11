@@ -42,8 +42,9 @@ public class TrafficDemo {
         // Get me a map of the world!
         StreetGraph streetGraph = GraphReader.read(file);
         
-        // Create a scenario with two cars looping left and right (and colliiiddiiingg >:D )
-        Scenario scenario = new Scenario(streetGraph);
+        Scenario scenario = new Scenario(streetGraph, System.currentTimeMillis());
+        
+        // Add a bit of common knowledge used for debugging to the scenario
         scenario.commonKnowledge.put("mouse", new Vec2(0, 0));
         scenario.commonKnowledge.put("path", new CopyOnWriteArrayList<Vec2>());
 
@@ -71,8 +72,10 @@ public class TrafficDemo {
         
         window.setTitle(file.getName());
 
+        // On Mac OS X, show the actual graph file in the window title
         window.getRootPane().putClientProperty("Window.documentFile", file);
         
+        // Keep track of the window
         windows.add(window);
         
         window.addWindowListener(new WindowAdapter() {
@@ -80,6 +83,7 @@ public class TrafficDemo {
             public void windowClosed(WindowEvent e) {
                 windows.remove(e.getWindow());
                 
+                // If all windows are closed, stop the application
                 if (windows.isEmpty())
                     System.exit(0);
             }

@@ -69,7 +69,7 @@ public class Scenario {
     
     private float time = 0f;
     
-    final private Random oracle = new Random();
+    final private Random oracle;
     
     final Parameter carWidth = Parameter.fromString("1.47-2.55");
     final Parameter carLength = Parameter.fromString("2.540-6.0"); // Parameter.fromString("2.540-12.0");
@@ -80,8 +80,11 @@ public class Scenario {
      * throughout the simulation.
      *
      * @param graph Graph of the streets of the world
+     * @param seed seed for the random number generator
      */
-    public Scenario(StreetGraph graph) {
+    public Scenario(StreetGraph graph, long seed) {
+        oracle = new Random(seed);
+        
         streetGraph = graph;
 
         // Create a world without gravity (2d world seen from top, eh!)
@@ -99,7 +102,7 @@ public class Scenario {
         // drivers.
         world.setContactListener(new ObserverContactListener());
     }
-
+    
     public World getWorld() {
         return world;
     }
