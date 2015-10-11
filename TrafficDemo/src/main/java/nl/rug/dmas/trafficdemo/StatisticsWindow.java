@@ -18,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import nl.rug.dmas.trafficdemo.measure.CollisionStatistics;
 import nl.rug.dmas.trafficdemo.measure.DriverTypeStatistics;
 import nl.rug.dmas.trafficdemo.measure.RouteStatistics;
 
@@ -47,6 +48,10 @@ public class StatisticsWindow extends JFrame {
         DriverTypeStatistics driverStats = new DriverTypeStatistics();
         scenario.addListener(driverStats);
         statistics.put("Driver types", driverStats.getModel());
+        
+        CollisionStatistics collisionStats = new CollisionStatistics();
+        scenario.addListener(collisionStats);
+        statistics.put("Collisions", collisionStats.getModel());
         
         for (Map.Entry<String, AbstractTableModel> statistic : statistics.entrySet()) {
             JPanel panel = new JPanel();
