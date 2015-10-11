@@ -13,8 +13,10 @@ import java.util.regex.Pattern;
  *
  * @author jelmer
  */
-abstract class Parameter {
+public abstract class Parameter {
     abstract public float getValue(Random rng);
+    
+    abstract public float getMax();
     
     final static private Pattern pattern = Pattern.compile("^"
         + "(?<fixed>(?<fixedval>[+-]?\\d*\\.?\\d*))"
@@ -58,6 +60,11 @@ abstract class Parameter {
         }
 
         @Override
+        public float getMax() {
+            return upper;
+        }
+        
+        @Override
         public String toString() {
             return String.format("%s-%s", lower, upper);
         }
@@ -72,6 +79,11 @@ abstract class Parameter {
         
         @Override
         public float getValue(Random rng) {
+            return value;
+        }
+
+        @Override
+        public float getMax() {
             return value;
         }
 
@@ -103,6 +115,11 @@ abstract class Parameter {
                 value = lower;
             
             return value;
+        }
+
+        @Override
+        public float getMax() {
+            return upper;
         }
 
         @Override

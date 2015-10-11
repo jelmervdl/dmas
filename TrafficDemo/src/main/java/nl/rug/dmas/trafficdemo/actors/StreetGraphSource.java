@@ -68,7 +68,7 @@ public class StreetGraphSource implements Actor, Observer {
 
     private Shape getFOVShape() {
         Shape shape = new CircleShape();
-        shape.setRadius(4);
+        shape.setRadius(scenario.carLength.getMax());
         return shape;
     }
     
