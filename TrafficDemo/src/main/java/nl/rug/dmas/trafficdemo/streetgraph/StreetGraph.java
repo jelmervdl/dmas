@@ -229,6 +229,10 @@ public class StreetGraph {
         throw new NoPathException("No path found.");
     }
 
+    private static boolean pathHasSuccesiveCurves(LinkedList<Vec2> path, Vec2 intermediate, Vec2 destination){
+        return !pathIsStraight(intermediate, destination, path.peek());
+    }
+    
     private static List<Vec2> generatePointPathUsingVec2(LinkedList<Vec2> path, float someControlParameter) throws NoPathException {
         List<Vec2> points = new ArrayList<>();
         if (path.size() == 2) {
@@ -241,8 +245,7 @@ public class StreetGraph {
         Vec2 origin = path.poll();
         Vec2 intermediate = path.poll();
         Vec2 destination = path.poll();
-
-        //TODO: Dubbele punten vermijden
+        Vec2 pointAfterDestination;
         while (!origin.equals(destinationPoint)) {
             List<Vec2> segmentPoints;
             if (pathIsStraight(origin, intermediate, destination)) {
@@ -251,6 +254,14 @@ public class StreetGraph {
                 intermediate = destination;
                 destination = path.poll();
             } else {
+                pointAfterDestination = path.peek();
+                //Two curves after each other
+                if(pathHasSuccesiveCurves(path, intermediate, destination)){
+                    path.addFirst(destination);
+                    //Find point halfway between intermediate and destination
+                    Vec2 directionVector = destination.sub(intermediate);
+                    destination = intermediate.add(directionVector.mulLocal(0.5f));
+                }
                 segmentPoints = generatePointCurve(origin, intermediate, destination, someControlParameter);
                 origin = destination;
                 intermediate = path.poll();
@@ -309,7 +320,6 @@ public class StreetGraph {
     }
 
     private static boolean pathIsStraight(Vec2 origin, Vec2 intermediate, Vec2 destination) {
-        //TODO If the lines are parallel their cross product is zero, since three points can't define two parallel lines the three points must lie on one line.
         Vec2 originIntermediate = intermediate.sub(origin);
         Vec2 intermediateDestination = destination.sub(intermediate);
         double cross = Vec2.cross(originIntermediate, intermediateDestination);
@@ -341,9 +351,6 @@ public class StreetGraph {
         } else {
             return generatePointPathUsingVec2(queue, someControlParameter);
         }
-//        float turningRadius = 7.0f;
-//        Vec2 controlPoint = intermediate.add(new Vec2(turningRadius, turningRadius));
-//        return new PointPath(new QuadraticBezier(origin, destination).computePointsOnCurve(StreetGraph.resolution, controlPoint));
     }
 
     public static List<Vec2> generatePointLineSegment(Vec2 origin, Vec2 destination) throws NoPathException {
