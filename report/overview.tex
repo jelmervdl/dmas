@@ -7,10 +7,10 @@ The aim of this model is to be able to test whether autonomous vehicles joining 
 \paragraph{State variables and scales}
 \label{par:method:model:overview:state}
 This model contains two different hierarchical levels, the car/driver level and the traffic level. The traffic level contains the roads, and thus all possible paths, and all the vehicles. The car/driver level consists of all parameters necessary for the functioning of a vehicle.  
-\algemeen{Moeten aan de tabelen met parameters geen parameters toegevoegd?}
+\vdbraak{Moeten aan de tabelen met parameters geen parameters toegevoegd?}
 \vdbraak{De parameter \t{driver} is nog een beetje vaag, zou jij die verder kunnen toelichten, eventueel in de tekst.}
-\later{Als dat straks is toegevoegd is het een idee om de \t{driver} als aparte hierarchische laag toe te voegen. Dan krijgt die ook een eigen tabel met parameters, maar dat heeft nu nog niet heel veel nut, want die is nog niet af.}
-\later{Check that the low-level parameters are still accurate}
+\vdbraak{Als dat straks is toegevoegd is het een idee om de \t{driver} als aparte hierarchische laag toe te voegen. Dan krijgt die ook een eigen tabel met parameters, maar dat heeft nu nog niet heel veel nut, want die is nog niet af.}
+\vdbraak{Check that the low-level parameters are still accurate}
 
 \subparagraph{Low-level state variables}
 \Cref{tab:par:method:model:overview:state:lowlevel:car} provides an overview of all parameters that influence the behaviour of a car. Since we use a physics engine to realistically model vehicles we need a lot of information on the physical properties of the car. Each car has a driver, this driver can either be autonomous or human. Currently the only difference between human drivers and autonomous drivers is their field of view, however future versions of this system could also include some of the attributes proposed by \citeauthor{paruchuri2002multi}. 
@@ -21,7 +21,7 @@ The \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car
 
 \jelmer{Er zijn eenheden toegevoegd, aan deze tabel, zou jij kunnen checken of die kloppen.}
 \jelmer{Wat is de eenheid van power?}
-\algemeen{De vision range is een beetje vreemd zo, best nuttig zo'n verslag, maar dat wordt uiteindelijk een eigenschap van de versschillende drivers. Mij lijkt hem splitsen in hoek, 360 graden voor autonomous, 60 ofzo voor human, en een radius niet zo heel gek. }
+\vdbraak{De vision range is een beetje vreemd zo, best nuttig zo'n verslag, maar dat wordt uiteindelijk een eigenschap van de versschillende drivers. Mij lijkt hem splitsen in hoek, 360 graden voor autonomous, 60 ofzo voor human, en een radius niet zo heel gek. }
 	\begin{table}
 		\centering
 		\begin{tabularx}{\textwidth}{>{\ttfamily}llX}
@@ -76,12 +76,11 @@ The \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car
 		\label{tab:par:method:model:overview:state:lowlevel:car}
 	\end{table}
 
-	\later{Check that the high-level parameters are still accurate}
+	\vdbraak{Check that the high-level parameters are still accurate}
 	\subparagraph{Higher-level entities}
 	The parameters at the simulation level are presented in \cref{tab:par:method:model:overview:state:highlevel:sim}.
 
 	The properties of cars are described in \cref{tab:par:method:model:overview:state:lowlevel:car}. The graph represents the streets, it is input as a connected directed graph with two special types of vertices; sources and sinks. Sources are vertices where cars can enter the simulation, these vertices have no incoming edges, the opposite type of vertex is a sink; vertices without outgoing edges where cars leave the simulation. In terms of traffic a source is the point of departure and a sink is the destination. To determine the \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car} we try to find a path from a randomly chosen source to a randomly chosen sink using breadth-first search. The found path is represented as a list of edges, which are then converted to the set of points that make up the \t{path}.
-	\algemeen{Meer uitleg over hoe het gegenereerd wordt? Verwacht eerlijk gezegd niet dat de rest van dit verhaal heel boeiend is, bochten zien er mooier uit, maar kan me niet voorstellen dat het heel veel uitmaakt verder.}
 	
 	\begin{table}[H]
 		\centering
@@ -103,17 +102,16 @@ The \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car
 	\jelmer{Klopt dit?}
 	At each time step the cars move forward along their \t{paths} one by one. 
 
-\algemeen{Een time horizon (hoe lang de simulatie draait?) kiezen en hier rapporteren.}
+\jelmer{Een time horizon (hoe lang de simulatie draait?) kiezen en hier rapporteren.}
 
-	\later{Als er iets in tijdsstappen of planning verandert moet dit geupdate}
+	\jelmer{Als er iets in tijdsstappen of planning verandert moet dit geupdate}
+	\jelmer{Batch mode in ieder geval noemen.}
 
 
 
 \paragraph{Process overview and scheduling}
 \label{par:method:model:overview:process}
 % \algemeen{Welkeb processen zitten in het model, eventueel met tabel.}
-
-\algemeen{Hier wordt in het kort uitgelegd wat de auto's doen.}
 The processes active in the model are \t{steerToAvoidCars} and \t{steerTowardsPath}. The first process checks if there is another vehicle or other object in its vicinity and if it is going to hit it given its current driving angle. If a collision seems imminent, the vector describing the direction vector of the vehicle is negated, causing the vehicle to decelerate or turn.
 
 The process \t{steerTowardsPath} is the driving of the vehicle in the direction of the target. As a car is added to the simulation it is passed its path, which is defined as multiple discrete points.  A vehicle drives in the direction of the next point on its path, and when it is close enough, drives to its next target, the next point on its path. Eventually the agent will reach its goal, even when it gets diverted by other vehicles along the way.

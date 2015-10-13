@@ -3,9 +3,9 @@
 \label{par:method:model:details:initialization}
 % \algemeen{How are the environment and the individuals created at the start of a simulation run, i.e. what are the initial values of the state variables? Is initialisation always the same, or was it varied among simulations? Were the initial values chosen arbitrarily or based on data? References to those data should be provided}
 The initial variables are partly fixed, partly variable, an overview of all variables relating to cars and their initial values is presented in \cref{tab:par:method:model:details:init:car:value}. The variability is between agents, but not necessarily between simulations. These varying values are chosen arbitrarily for each run of the simulation.
-\jelmer{Met java rand? Welke distirbutie samplet die? Als het een linear congruential generator is, is er een maximuum aantal random nummers voor hij herhaalt, hebben wij daar last van? Jelmer: Op het moment is niets willekeurig, behalve de keuze of er een Human driver of een Autonomous Driver wordt geïnstantieerd (middels Random.nextBoolean(), maar dat wordt anders), en wat de bestemming van de nieuwe bestuurder is. (middels Collections.shuffle())}
+\jelmer{Met java rand? Welke distirbutie samplet die? Als het een linear congruential generator is, is er een maximuum aantal random nummers voor hij herhaalt, hebben wij daar last van? Jelmer: Op het moment is niets willekeurig, behalve de keuze of er een Human driver of een Autonomous Driver wordt geïnstantieerd (middels Random.nextBoolean(), maar dat wordt anders), en wat de bestemming van de nieuwe bestuurder is. (middels Collections.shuffle()) Dit verhaal omzetten in verslag tekst.}
 
-The \t{path} of a car depends on where it starts and its randomly chosen destination. Its \t{initialPosition} is the same as the location of its point of departure, thus although the \t{path} and \t{initialLocation} differ per vehicle they are dependent within a vehicle. \vdbraak{`differ per vehicle but dependent within a vehicle'? Ik begrijp dit niet helemaal.}
+The \t{path} of a car depends on where it starts and its randomly chosen destination. Its \t{initialPosition} is the same as the location of its point of departure, thus although the \t{path} and \t{initialLocation} differ per vehicle they are dependent within a vehicle. \baakman{`differ per vehicle but dependent within a vehicle'? Ik begrijp dit niet helemaal.}
 
 The type of driver is selected randomly but in such a way that we adhere to the input ratio of human drivers versus autonomous cars.
 
@@ -54,7 +54,8 @@ We choose the size of a car randomly, to avoid strangely shaped cars we selected
 	\label{tab:par:method:model:details:init:car:value}
 \end{table} 
 
-\algemeen{Hebben we geen vaste init parameters voor de simulatie?}
+\jelmer{Hebben we geen vaste init parameters voor de simulatie? En als het random is, waaorm is het ranodm? Random uit welke distributie. Wat is constant, welke waarde heft het dan? Waarom die waarden?}
+
 The simulation variables differ per simulation, and so have no fixed initialisation settings.
 
 
