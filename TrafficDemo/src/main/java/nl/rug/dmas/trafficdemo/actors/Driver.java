@@ -63,10 +63,6 @@ abstract public class Driver implements Actor, Observer {
         this(scenario, (CopyOnWriteArrayList<Vec2>) scenario.getCommonKnowledge().get("path"));
     }
     
-    public Scenario getScenario() {
-        return scenario;
-    }
-    
     /**
      * Called by Car when a Driver is passed in
      * @param car 
@@ -93,8 +89,8 @@ abstract public class Driver implements Actor, Observer {
         return pathIndex;
     }
     
-    public float getTimeOfCreation() {
-        return timeOfCreation;
+    public float getDrivingTime() {
+        return scenario.getTime() - timeOfCreation;
     }
 
     /**
