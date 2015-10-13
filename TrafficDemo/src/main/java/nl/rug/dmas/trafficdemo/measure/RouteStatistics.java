@@ -17,7 +17,7 @@ import nl.rug.dmas.trafficdemo.streetgraph.PointPath;
  */
 public class RouteStatistics extends ScenarioAdapter {
     
-    final AbstractCountingTableModel<PointPath> model = new AbstractCountingTableModel<>();
+    final AbstractAveragingTableModel<PointPath> model = new AbstractAveragingTableModel<>();
     
     @Override
     public void carRemoved(Car car) {
@@ -25,7 +25,7 @@ public class RouteStatistics extends ScenarioAdapter {
             try {
                 Driver driver = car.getDriver();
                 PointPath path = (PointPath) driver.getPath();
-                model.increment(path);
+                model.add(path, driver.getDrivingTime());
             } catch (ClassCastException e) {
                 // So this car is not what we think it is
             }

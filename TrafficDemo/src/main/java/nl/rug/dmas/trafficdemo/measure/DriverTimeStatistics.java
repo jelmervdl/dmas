@@ -22,8 +22,7 @@ public class DriverTimeStatistics extends ScenarioAdapter {
     public void carRemoved(Car car) {
         if (car.getDriver().reachedDestination()) {
             Driver driver = car.getDriver();
-            model.add(driver.getClass().getSimpleName(),
-                    driver.getScenario().getTime() - driver.getTimeOfCreation());
+            model.add(driver.getClass().getSimpleName(), driver.getDrivingTime());
         }
     }
 
