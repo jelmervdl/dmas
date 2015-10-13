@@ -20,7 +20,6 @@ import org.jbox2d.common.Vec2;
  * @author lauravandebraak
  */
 public class HumanDriver extends Driver{
-    private double viewAngle = 40;
     private float viewLength = 8;
     
     public HumanDriver(Scenario scenario) {
@@ -30,46 +29,6 @@ public class HumanDriver extends Driver{
     public HumanDriver(Scenario scenario, List<Vec2> path) {
         super(scenario, path);
     }
-    
-    private double sinAngle(){
-        double angle = Math.toRadians(getViewAngle());
-        angle = Math.sin(angle);
-        return Math.toDegrees(angle);
-    }
-    
-    private double cosAngle(){
-        double angle = Math.toRadians(getViewAngle());
-        angle = Math.cos(angle);
-        return Math.toDegrees(angle);
-    }
-    
-//    /**
-//     * Get field of view shape of the driver, an arc
-//     * @return field of view
-//     */
-//    @Override
-//    public Shape getFOVShape() {
-//        PolygonShape shape = new PolygonShape();
-//        float rotateAngle = (float) (-0.25 * Math.PI);
-//        float length = (float) (getViewLength() / 100);
-//        float startHeight =(float) (cosAngle() * length);
-//        float topHeight = (float) (length - startHeight);
-//        float carWidth = (float) (car.getWidth() / 4);
-//        float width = (float) (sinAngle() * length) + carWidth;
-//        //Vec2[] vertices = {new Vec2(width, startHeight), new Vec2(-width, topHeight), new Vec2(-width, -topHeight),new Vec2(width, -startHeight)};
-//        Vec2[] vertices = {
-//            VecUtils.rotate(new Vec2(-carWidth, 0), rotateAngle),
-//            VecUtils.rotate(new Vec2(-width, startHeight), rotateAngle), 
-//            VecUtils.rotate(new Vec2(0, length), rotateAngle), 
-//            VecUtils.rotate(new Vec2(width, startHeight), rotateAngle), 
-//            VecUtils.rotate(new Vec2(carWidth, 0), rotateAngle),
-//            VecUtils.rotate(new Vec2(width, -startHeight), rotateAngle),
-//            VecUtils.rotate(new Vec2(0, -length), rotateAngle),
-//            VecUtils.rotate(new Vec2(-width, -startHeight), rotateAngle)
-//        };
-//        shape.set(vertices,8);
-//        return shape;
-//    }
 
     /**
      * Get Field of view shape
@@ -162,20 +121,6 @@ public class HumanDriver extends Driver{
         // d < 0: I'm there first, we should speed up a bit maybe?
         // d > 0: other is there first, we should brake?
         return d;
-    }
-    
-    /**
-     * @return the viewAngle
-     */
-    public double getViewAngle() {
-        return viewAngle;
-    }
-
-    /**
-     * @param viewAngle the viewAngle to set
-     */
-    public void setViewAngle(double viewAngle) {
-        this.viewAngle = viewAngle;
     }
 
     /**
