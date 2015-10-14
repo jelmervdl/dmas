@@ -5,11 +5,18 @@
 The initial variables are partly fixed, partly variable, an overview of all variables relating to cars and their initial values is presented in \cref{tab:par:method:model:details:init:car:value}. The variability is between agents, but not necessarily between simulations. These varying values are chosen arbitrarily for each run of the simulation.
 \jelmer{Met java rand? Welke distirbutie samplet die? Als het een linear congruential generator is, is er een maximuum aantal random nummers voor hij herhaalt, hebben wij daar last van? Jelmer: Op het moment is niets willekeurig, behalve de keuze of er een Human driver of een Autonomous Driver wordt geïnstantieerd (middels Random.nextBoolean(), maar dat wordt anders), en wat de bestemming van de nieuwe bestuurder is. (middels Collections.shuffle()) Dit verhaal omzetten in verslag tekst.}
 
-The \t{path} of a car depends on where it starts and its randomly chosen destination. Its \t{initialPosition} is the same as the location of its point of departure, thus although the \t{path} and \t{initialLocation} differ per vehicle they are dependent within a vehicle. \baakman{`differ per vehicle but dependent within a vehicle'? Ik begrijp dit niet helemaal.}
 
-The type of driver is selected randomly but in such a way that we adhere to the input ratio of human drivers versus autonomous cars.
+% Initial position
+The \t{initialPosition} of a car, i.e. its point of departure, is uniformly and independently sampled from the \t{sources} of the \t{StreetGraph}. 
 
-We choose the size of a car randomly, to avoid strangely shaped cars we selected the ranges for the length and width of a car in such a way that they are no smaller than a 2004 Smart Coupe and no larger than the maximum size of a private car allowed by the Dutch legislation. 
+% Path
+The \t{path} of a car starts at the \t{initialPosition} of the car and ends at its destination which is uniformly and independently sampled from the \t{sinks} of the \t{streetGraph}.
+
+% Drivers
+The type of \t{driver} is chosen randomly, weighted with the ratio of human driven vehicles to autonomous cars. I.e. if we have nine human drivers for each autonomous car, a driver is nine times as likely to get be driven by a human. 
+
+% Car size
+We sample the width and length of a car independently from a uniform distribution. The minimum and the maximum of this distribution are chosen in such a way that cars are no smaller than a 2004 Smart Coupe and no larger than the maximum size of a private car allowed by the Dutch legislation. The exact ranges are presented in \cref{tab:par:method:model:details:init:car:value}.
 
 
 \begin{table}
@@ -56,7 +63,7 @@ We choose the size of a car randomly, to avoid strangely shaped cars we selected
 
 \jelmer{Hebben we geen vaste init parameters voor de simulatie? En als het random is, waaorm is het ranodm? Random uit welke distributie. Wat is constant, welke waarde heft het dan? Waarom die waarden?}
 
-The simulation variables differ per simulation, and so have no fixed initialisation settings.
+The simulation variables differ per simulation, and have no fixed initialisation settings.
 
 
 \paragraph{Input}
