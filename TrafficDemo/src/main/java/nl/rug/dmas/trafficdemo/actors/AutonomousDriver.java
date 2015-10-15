@@ -6,30 +6,32 @@
 package nl.rug.dmas.trafficdemo.actors;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 import nl.rug.dmas.trafficdemo.Acceleration;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.Scenario;
 import nl.rug.dmas.trafficdemo.VecUtils;
+import org.jbox2d.callbacks.RayCastCallback;
 import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.Shape;
+import org.jbox2d.common.MathUtils;
 import org.jbox2d.common.Vec2;
+import org.jbox2d.dynamics.Fixture;
 
 /**
  *
  * @author jelmer
  */
 public class AutonomousDriver extends Driver {
+    
+    private int stuck = 0;
+    
     public AutonomousDriver(Scenario scenario) {
         super(scenario);    
     }
     
     public AutonomousDriver(Scenario scenario, List<Vec2> path) {
         super(scenario, path);
-    }
-    
-    public List<Vec2> getPath() {
-        return path;
     }
     
     @Override
@@ -53,16 +55,32 @@ public class AutonomousDriver extends Driver {
     {
         debugDraw.clear();
         
-        car.setSteeringDirection(steerTowardsPath().negate());
-       
-        if (steerTowardsPath().length() == 0)
-            car.setAcceleration(Acceleration.NONE);
-        else if (speedAdjustmentToAvoidCars() < 0)
+        float steeringAngle = VecUtils.getAngle(steerTowardsPath().negate());
+        
+        car.setSteeringDirection(steeringAngle);
+        
+        float distance = speedAdjustmentToPreventColission(steeringAngle, 2.0f, 10);
+        
+        if (distance > 0 && distance < 1.0f && car.getLocalVelocity().y > 0.0f && stuck > 5) {
+            car.setAcceleration(Acceleration.REVERSE);
+            stuck++;
+        } else if (distance > 0) { // && distance < 2.0f, but that is implicit
             car.setAcceleration(Acceleration.BRAKE);
-        else if (car.getSpeedKMH() < 30)
-            car.setAcceleration(Acceleration.ACCELERATE);
-        else
+            stuck++;
+        } else if (steerTowardsPath().length() == 0) {
             car.setAcceleration(Acceleration.NONE);
+            stuck = 0;
+        } else if (speedAdjustmentToAvoidCars() < 0) {
+            car.setAcceleration(Acceleration.BRAKE);
+            stuck = 0;
+        } else if (car.getSpeedKMH() < 30) {
+            car.setAcceleration(Acceleration.ACCELERATE);
+            stuck = 0;
+        }
+        else {
+            car.setAcceleration(Acceleration.NONE);
+            stuck = 0;
+        }
     }
     
     /**
@@ -73,6 +91,50 @@ public class AutonomousDriver extends Driver {
         Vec2 direction = new Vec2(0, 0);
         
         return direction;
+    }
+    
+    private float speedAdjustmentToPreventColission(float steeringAngle, float rayLength, int numberOfRays) {
+        float originStart = -car.getWidth() / 2;
+        float originEnd = car.getWidth() / 2;
+        float originStep = (originEnd - originStart) / (numberOfRays - 1);
+        
+        float originY = -car.getLength() / 2; // front of the car
+        
+        // The arcs bent with the steering of the car
+        float arcStart = MathUtils.min(2.5f * MathUtils.QUARTER_PI - steeringAngle + MathUtils.HALF_PI, MathUtils.PI);
+        float arcStop = MathUtils.max(1.5f * MathUtils.QUARTER_PI - steeringAngle + MathUtils.HALF_PI, 0);
+        float arcStep = (arcStop - arcStart) / (numberOfRays - 1);
+        
+        final AtomicReference<Float> hit = new AtomicReference<>();
+        
+        for (int i = 0; i < numberOfRays; ++i) {
+            final float angle = arcStart + i * arcStep;
+            final Vec2 origin = car.getWorldPoint(new Vec2(originStart + i * originStep, originY));
+            final Vec2 direction = car.getWorldVector(new Vec2(rayLength * MathUtils.cos(angle), rayLength * -MathUtils.sin(angle)));
+            
+            debugDraw.draw(origin, direction);
+            
+            scenario.getWorld().raycast(new RayCastCallback() {
+                @Override
+                public float reportFixture(Fixture fixture, Vec2 point, Vec2 normal, float fraction) {
+                    if (!(fixture.getUserData() instanceof Car))
+                        return 1;
+                    
+                    // I have to make copies of point and normal as they are
+                    // reused by raycast() for the next call to the callback.
+                    debugDraw.draw(new Vec2(point), new Vec2(normal));
+                    
+                    float dist = point.sub(origin).length();
+                    if (hit.get() == null || hit.get() > dist) {
+                        hit.set(dist);
+                    }
+                    
+                    return fraction;
+                }
+            }, origin, origin.add(direction));
+        }
+        
+        return hit.get() == null ? 0 : hit.get();
     }
     
     private float speedAdjustmentToAvoidCars() {

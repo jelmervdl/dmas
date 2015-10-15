@@ -199,6 +199,14 @@ public class Car {
     public Vec2 getLocalPoint(Vec2 worldPoint) {
         return this.body.getLocalPoint(worldPoint);
     }
+    
+    public Vec2 getWorldPoint(Vec2 localPoint) {
+        return this.body.getWorldPoint(localPoint);
+    }
+    
+    public Vec2 getWorldVector(Vec2 localVector) {
+        return this.body.getWorldVector(localVector);
+    }
 
     /**
      * Position of the center of the car in world space.
@@ -233,13 +241,13 @@ public class Car {
 
     /**
      * Set the steering direction. The angle is relative to the angle of the
-     * body. So if you steer 90deg and your car is pointed east, you are
+     * body. So if you steer PI/2 and your car is pointed east, you are
      * steering south.
      *
-     * @param angle relative angle in degrees
+     * @param angle relative angle in radians
      */
     public void setSteeringDirection(float angle) {
-        targetBodyAngle = body.getAngle() + angle * MathUtils.DEG2RAD;
+        targetBodyAngle = body.getAngle() + angle - MathUtils.HALF_PI;
     }
 
     /**
@@ -252,7 +260,7 @@ public class Car {
     public void setSteeringDirection(Vec2 direction) {
         direction = direction.clone();
         direction.normalize();
-        setSteeringDirection((MathUtils.atan2(direction.y, direction.x) - MathUtils.HALF_PI) * MathUtils.RAD2DEG);
+        targetBodyAngle = body.getAngle() + MathUtils.atan2(direction.y, direction.x) - MathUtils.HALF_PI;
     }
 
     /**
@@ -290,6 +298,10 @@ public class Car {
 
         // Todo: incorporate increase and steeringSpeed into this very simple hack that controls steering
         wheelAngleDeg = MathUtils.clamp(steerAngle, -maxSteerAngleDeg, maxSteerAngleDeg);
+        
+        // If we are backing up, steer the other way
+        if (acceleration == Acceleration.REVERSE)
+            wheelAngleDeg *= -1;
 
         // Apply force to wheels
         Vec2 forceVec = new Vec2(0, 0); //vector pointing in the direction force will be applied to a wheel ; relative to the wheel.
