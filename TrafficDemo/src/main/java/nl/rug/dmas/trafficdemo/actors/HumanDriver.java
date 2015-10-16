@@ -20,16 +20,17 @@ import org.jbox2d.common.Vec2;
  */
 public class HumanDriver extends Driver{
     private float viewLength;
-    private int actPeriod = 100;
+    private int actPeriod;
     
     public HumanDriver(Scenario scenario, float view) {
         super(scenario);
         this.viewLength = view;
     }
     
-    public HumanDriver(Scenario scenario, List<Vec2> path, float view) {
+    public HumanDriver(Scenario scenario, List<Vec2> path, float view, int actPeriod) {
         super(scenario, path);
         this.viewLength = view;
+        this.actPeriod = actPeriod;
     }
 
     /**
@@ -51,10 +52,6 @@ public class HumanDriver extends Driver{
     @Override
     public int getActPeriod() {
         return actPeriod;
-    }
-    
-    public void setActPeriod(int act) {
-        this.actPeriod = act;
     }
 
     /**

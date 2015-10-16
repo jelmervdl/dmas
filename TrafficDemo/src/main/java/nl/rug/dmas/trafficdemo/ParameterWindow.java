@@ -78,7 +78,7 @@ public class ParameterWindow extends JFrame {
             }
         });
         
-        fields.add(new ParameterField("View Length Human Drivers") {
+        fields.add(new ParameterField("Viewlength Human Drivers") {
             @Override
             public String getValue() {
                 return scenario.viewLength.toString();
@@ -87,6 +87,18 @@ public class ParameterWindow extends JFrame {
             @Override
             public void setValue(String value) {
                 scenario.viewLength = Parameter.fromString(value);
+            }
+        });
+        
+        fields.add(new ParameterField("Act Period Human Drivers") {
+            @Override
+            public String getValue() {
+                return scenario.actPeriod.toString();
+            }
+
+            @Override
+            public void setValue(String value) {
+                scenario.actPeriod = Parameter.fromString(value);
             }
         });
         
