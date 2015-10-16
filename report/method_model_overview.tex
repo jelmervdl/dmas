@@ -13,12 +13,12 @@ This model contains two different hierarchical levels, the car/driver level and 
 \vdbraak{Check that the low-level parameters are still accurate}
 
 \subparagraph{Low-level state variables}
-\Cref{tab:par:method:model:overview:state:lowlevel:car} provides an overview of all parameters that influence the behaviour of a car. Since we use a physics engine to realistically model vehicles we need a lot of information on the physical properties of the car. Each car has a driver, this driver can either be autonomous or human. Currently the only difference between human drivers and autonomous drivers is their field of view, however future versions of this system could also include some of the attributes proposed by \citeauthor{paruchuri2002multi}. 
+\Cref{tab:par:method:model:overview:state:lowlevel:car} provides an overview of all parameters that influence the behaviour of a car. Since we use a physics engine to realistically model vehicles we need a lot of information on the physical properties of the car. Each car has a driver, this driver can either be autonomous or human. Currently the only difference between human drivers and autonomous drivers is their field of view, however future versions of this system could also include some of the attributes proposed by \citeauthor{paruchuri2002multi}. \vdbraak{Physics engine? Explain.}
 
 The \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car} is a set of points in the two dimensional simulation space, the origin of this space lies in the middle of the panels shown in \cref{fig:model:simulation}. 
 
 % The dimensions must be clearly defined for all parameters and variables in the tables.
-
+\jelmer{Target? Who you're trying to hit?}
 \jelmer{Er zijn eenheden toegevoegd, aan deze tabel, zou jij kunnen checken of die kloppen.}
 \jelmer{Wat is de eenheid van power?}
 \vdbraak{De vision range is een beetje vreemd zo, best nuttig zo'n verslag, maar dat wordt uiteindelijk een eigenschap van de versschillende drivers. Mij lijkt hem splitsen in hoek, 360 graden voor autonomous, 60 ofzo voor human, en een radius niet zo heel gek. }
