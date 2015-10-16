@@ -6,7 +6,6 @@
 package nl.rug.dmas.trafficdemo.actors;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import nl.rug.dmas.trafficdemo.Acceleration;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.Scenario;
@@ -20,14 +19,17 @@ import org.jbox2d.common.Vec2;
  * @author lauravandebraak
  */
 public class HumanDriver extends Driver{
-    private float viewLength = 8;
+    private float viewLength;
+    private int actPeriod = 100;
     
-    public HumanDriver(Scenario scenario) {
+    public HumanDriver(Scenario scenario, float view) {
         super(scenario);
+        this.viewLength = view;
     }
     
-    public HumanDriver(Scenario scenario, List<Vec2> path) {
+    public HumanDriver(Scenario scenario, List<Vec2> path, float view) {
         super(scenario, path);
+        this.viewLength = view;
     }
 
     /**
@@ -48,7 +50,11 @@ public class HumanDriver extends Driver{
 
     @Override
     public int getActPeriod() {
-        return 0;
+        return actPeriod;
+    }
+    
+    public void setActPeriod(int act) {
+        this.actPeriod = act;
     }
 
     /**

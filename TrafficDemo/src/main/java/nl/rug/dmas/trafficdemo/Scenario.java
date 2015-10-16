@@ -78,6 +78,8 @@ public class Scenario {
     
     public Parameter ratioAutonomousCars = Parameter.fromString("0.5");
     
+    public Parameter viewLength = Parameter.fromString("4.00-12.00");
+    
     /**
      * A scenario takes an instance of a JBox2D world and sets the contact
      * listener. This listener updates the fixturesInSight list of the drivers
@@ -201,7 +203,7 @@ public class Scenario {
     public Driver createDriver(PointPath path) {
         return oracle.nextFloat() < ratioAutonomousCars.getValue(oracle)
             ? new AutonomousDriver(this, path)
-            : new HumanDriver(this, path);
+            : new HumanDriver(this, path, viewLength.getValue(oracle));
     }
     
     public Car createCar(Driver driver, Vec2 position, float angle) {

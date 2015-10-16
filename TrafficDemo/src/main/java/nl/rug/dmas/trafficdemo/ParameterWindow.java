@@ -78,6 +78,18 @@ public class ParameterWindow extends JFrame {
             }
         });
         
+        fields.add(new ParameterField("View Length Human Drivers") {
+            @Override
+            public String getValue() {
+                return scenario.viewLength.toString();
+            }
+
+            @Override
+            public void setValue(String value) {
+                scenario.viewLength = Parameter.fromString(value);
+            }
+        });
+        
         for (ParameterField field : fields) {
             JLabel label = new JLabel(field.getLabel(), JLabel.TRAILING);
             JTextField textField = new JTextField(field.getValue(), 15);
