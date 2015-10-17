@@ -9,9 +9,10 @@ import java.util.List;
 import nl.rug.dmas.trafficdemo.Acceleration;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.Scenario;
+import nl.rug.dmas.trafficdemo.ShapeUtil;
 import nl.rug.dmas.trafficdemo.VecUtils;
-import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.collision.shapes.Shape;
+import org.jbox2d.common.MathUtils;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -39,9 +40,7 @@ public class HumanDriver extends Driver{
      */
     @Override
     public Shape getFOVShape() {
-        PolygonShape shape  = new PolygonShape();
-        shape.setAsBox(viewLength/2, viewLength/2, new Vec2(0,-car.getLength()), (float) Math.toRadians(45));
-        return shape;
+        return ShapeUtil.createArc(viewLength, 3 * MathUtils.QUARTER_PI, 1 * MathUtils.QUARTER_PI);
     }
     
     @Override
