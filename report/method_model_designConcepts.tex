@@ -2,7 +2,15 @@
 % \algemeen{Bespreek (een subset van) de volgende elementen, niet noodzakelijk in deze volgorde.}
 % Ik heb alles waar niet echt iets stond eruit gehaald om het stacato waar Bart het over had eruit te halen.
 
-\vdbraak{Hier kan vrij snel ook uitleggen over gedragingen van de drivers en waarom, met iets aan theorie-achtergrond. Hiervoor moeten we eerst iets meer gedraging hebben.}
+\vdbraak{Hier moet iets meer soepelheid qua tekst in.}
+
+\paragraph{Agents}
+The differences between human drivers and autonomous agents are the following:
+\begin{itemize}
+	\item the view of the human drivers is limited. Where the autonomous drivers have a circular view in a radius of 12 meters, the human drivers have an arc-shaped view of differing radius (between 4 and 8 meters).
+	\item The human drivers have an \t{actPeriod} of 100 \si{\milli\second}, which means that 100 \si{\milli\second} pass between each updated step. This causes them to have a slower reaction to the environment. Autonomous drivers have an \t{actPeriod} of 0 \si{\milli\second}, which means they always react instantly. 
+\end{itemize}
+
 
 % \paragraph{Emergence} 
 % % \algemeen{Which system-level phenomena truly emerge from individual traits, and which phenomena are merely imposed?}
@@ -24,9 +32,7 @@
 % \algemeen{What internal and environmental state variables are individuals assumed to sense or “know” and consider in their adaptive decisions?}
 Individual vehicles can sense other vehicles and other objects if they are close enough to `see' them. They cannot see into each other's state variables, or those of the simulation. What is actual perceived by an agent depends on its type, self-driving versus human driver, and in the case of the human agent its state. 
 
-Although vehicles can observe other vehicles and objects they cannot interact with them. 
-\vdbraak{Dus wat kan een mens waarnemen?} 
-\vdbraak{Wat kan een self-driving car waarnemen?}
+Although vehicles can observe other vehicles and objects they cannot interact with them. Both humans and autonomous vehicles can only see other objects if they appear within that agents' field of view. The field of view of an autonomous driver is larger, and is updated more often, so they will see more.
 
 % \paragraph{Interaction} 
 % % \algemeen{What kinds of interactions among individuals are assumed?}

@@ -6,22 +6,20 @@ The aim of this model is to be able to test whether autonomous vehicles joining 
 
 \paragraph{State variables and scales}
 \label{par:method:model:overview:state}
-This model contains two different hierarchical levels, the car/driver level and the traffic level. The traffic level contains the roads, and thus all possible paths, and all the vehicles. The car/driver level consists of all parameters necessary for the functioning of a vehicle.  
+This model contains three different hierarchical levels, the car level, driver level and the traffic level. The traffic level contains the roads, and thus all possible paths, and all the vehicles. The car and driver levels consist of all parameters necessary for the functioning of a vehicle. The car level concerns the vehicle itsself, while the driver level implements the driver agent.
 \vdbraak{Moeten aan de tabelen met parameters geen parameters toegevoegd?}
 \vdbraak{De parameter \t{driver} is nog een beetje vaag, zou jij die verder kunnen toelichten, eventueel in de tekst.}
-\vdbraak{Als dat straks is toegevoegd is het een idee om de \t{driver} als aparte hierarchische laag toe te voegen. Dan krijgt die ook een eigen tabel met parameters, maar dat heeft nu nog niet heel veel nut, want die is nog niet af.}
 \vdbraak{Check that the low-level parameters are still accurate}
 
 \subparagraph{Low-level state variables}
 \Cref{tab:par:method:model:overview:state:lowlevel:car} provides an overview of all parameters that influence the behaviour of a car. Since we use a physics engine to realistically model vehicles we need a lot of information on the physical properties of the car. Each car has a driver, this driver can either be autonomous or human. Currently the only difference between human drivers and autonomous drivers is their field of view, however future versions of this system could also include some of the attributes proposed by \citeauthor{paruchuri2002multi}. \jelmer{Physics engine? Explain.}
 
-The \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car} is a set of points in the two dimensional simulation space, the origin of this space lies in the middle of the panels shown in \cref{fig:model:simulation}. 
+The \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:driver} is a set of points in the two dimensional simulation space, the origin of this space lies in the middle of the panels shown in \cref{fig:model:simulation}. 
 
 % The dimensions must be clearly defined for all parameters and variables in the tables.
 \jelmer{Target? Who you're trying to hit?}
 \jelmer{Er zijn eenheden toegevoegd, aan deze tabel, zou jij kunnen checken of die kloppen.}
 \jelmer{Wat is de eenheid van power?}
-\vdbraak{De vision range is een beetje vreemd zo, best nuttig zo'n verslag, maar dat wordt uiteindelijk een eigenschap van de versschillende drivers. Mij lijkt hem splitsen in hoek, 360 graden voor autonomous, 60 ofzo voor human, en een radius niet zo heel gek. }
 	\begin{table}
 		\centering
 		\begin{tabularx}{\textwidth}{>{\ttfamily}llX}
@@ -45,10 +43,7 @@ The \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car
 				& The current angle of the wheel, relative to the body of the vehicle. \\ 
 			steeringSpeed 			
 				& \si{\meter\per\second}
-				& The speed with which a vehicle can turn (the turning radius). \\ 
-			visionRange 			
-				& \si{\meter}
-				& The radius of the circle that covers the are that is perceived by the driver.\\ 
+				& The speed with which a vehicle can turn (the turning radius). \\  
 			width 					
 				& \si{meter} 
 				& The width of the vehicle. \\ 
@@ -67,13 +62,31 @@ The \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car
 			targetSpeedKMH			
 				& \si{\kilo\meter\per\hour}
 				& The maximum speed of the agent. \\ 
-			path					
-				& n.a. 
-				& The path the agent is going to follow. \\ 
 			\bottomrule
 		\end{tabularx}
 		\caption{An overview of the parameters that indicate the state of a car.}
 		\label{tab:par:method:model:overview:state:lowlevel:car}
+	\end{table}
+
+	\begin{table}
+		\centering
+		\begin{tabularx}{\textwidth}{>{\ttfamily}llX}
+			\toprule
+			\normalfont{Parameter}	&Unit & Purpose \\ 
+			\midrule
+			path					
+				& n.a. 
+				& The path the agent is going to follow. \\ 
+			viewLength 			
+				& \si{\meter}
+				& The radius of the arc that covers the area that is perceived by the driver.\\ 
+			actPeriod
+				& \si{\milli\second}
+				& The period of time to wait before a driver's next \t{act}. 
+			\bottomrule
+		\end{tabularx}
+		\caption{An overview of the parameters that indicate the state of a driver.}
+		\label{tab:par:method:model:overview:state:lowlevel:driver}
 	\end{table}
 
 	\vdbraak{Check that the high-level parameters are still accurate}
@@ -112,6 +125,7 @@ The \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car
 \paragraph{Process overview and scheduling}
 \label{par:method:model:overview:process}
 % \algemeen{Welkeb processen zitten in het model, eventueel met tabel.}
+\vdbraak{Updaten!}
 The processes active in the model are \t{steerToAvoidCars} and \t{steerTowardsPath}. The first process checks if there is another vehicle or other object in its vicinity and if it is going to hit it given its current driving angle. If a collision seems imminent, the vector describing the direction vector of the vehicle is negated, causing the vehicle to decelerate or turn.
 
 The process \t{steerTowardsPath} is the driving of the vehicle in the direction of the target. As a car is added to the simulation it is passed its path, which is defined as multiple discrete points.  A vehicle drives in the direction of the next point on its path, and when it is close enough, drives to its next target, the next point on its path. Eventually the agent will reach its goal, even when it gets diverted by other vehicles along the way.
