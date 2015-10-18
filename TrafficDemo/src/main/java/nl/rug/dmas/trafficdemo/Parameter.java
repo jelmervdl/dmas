@@ -56,7 +56,12 @@ public abstract class Parameter {
         
         @Override
         public float getValue(Random rng) {
-            return lower + rng.nextFloat() * (upper - lower);
+            // 4 - 12
+            // mean: 4 + 4 = 8
+            // sd: 3/4 * (upper - lower)
+            float mean = lower + (upper - lower) / 2f;
+            float sd = (upper - lower) / 2f;
+            return mean + (float) rng.nextGaussian() * sd;
         }
 
         @Override
