@@ -6,10 +6,11 @@
 package nl.rug.dmas.trafficdemo;
 
 import java.io.File;
-import java.io.InputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -127,11 +128,6 @@ public class Batch {
                 this.route = route;
                 this.drivingTime = drivingTime;
             }
-            
-            @Override
-            public String toString() {
-                return String.format("%s, %s, %f", driver.getSimpleName(), route, drivingTime);
-            }
         }
         
         List<Entry> entries = new ArrayList<>();
@@ -184,7 +180,7 @@ public class Batch {
                 }
             }
             
-            System.out.println(String.format("%d/%d completed", completedFutures, futures.size()));
+            System.err.println(String.format("%d/%d completed", completedFutures, futures.size()));
             
             try {
                 threadPool.awaitTermination(500, TimeUnit.MILLISECONDS);
@@ -193,25 +189,63 @@ public class Batch {
             }
         }
         
+        List<String> headers = new ArrayList<>();
+        headers.add("Scenario");
+        
+        List<Field> fields = new ArrayList<>();
+        
+        for (Field field : Scenario.class.getFields()) {
+                if (Parameter.class.isAssignableFrom(field.getType())) {
+                    fields.add(field);
+                    headers.add(field.getName());
+                }
+        }
+        
+        headers.add("Driver");
+        headers.add("Route");
+        headers.add("DrivingTime");
+        
+        // Print the headers
+        printRow(headers, System.out);
+        
         for (Map.Entry<Scenario, Measurer> entry : statistics.entrySet()) {
-            // Print the scenario parameters
-            System.out.println(entry.getKey());
-            for (Field field : Scenario.class.getFields()) {
+            Scenario scenario = entry.getKey();
+            Measurer measurer = entry.getValue();
+            
+            List<String> variables = new ArrayList<>();
+            variables.add(scenario.toString());
+            
+            // First collect the common rows which describe the scenario
+            for (Field field : fields) {
                 try {
-                    if (Parameter.class.isAssignableFrom(field.getType())) {
-                        System.out.println(String.format("%s = %s", field.getName(), field.get(entry.getKey())));
-                    }
-                } catch (IllegalAccessException e) {
-                    System.out.println(String.format("(cannot access %s)", field.getName()));
+                    variables.add(((Parameter) field.get(scenario)).toString());
+                } catch (IllegalArgumentException | IllegalAccessException e) {
+                    variables.add("");
                 }
             }
             
-            // Print the statistics
-            for (Measurer.Entry measurement : entry.getValue().entries) {
-                System.out.println(measurement);
+            // then print a row for each of the entries
+            for (Measurer.Entry measurement : measurer.entries) {
+                List<String> row = new ArrayList<>(variables);
+                row.add(measurement.driver.getSimpleName());
+                row.add(measurement.route);
+                row.add(Float.toString(measurement.drivingTime));
+                printRow(row, System.out);
             }
-            
-            System.out.println();
+        }
+    }
+    
+    static private void printRow(List<String> row, PrintStream out) {
+        Iterator<String> it = row.iterator();
+        
+        while (true) {
+            out.print(it.next());
+            if (it.hasNext()) {
+                out.print(",");
+            } else {
+                out.println();
+                break;
+            }
         }
     }
     
