@@ -773,6 +773,7 @@ public class TrafficPanel extends JPanel {
             @Override
             public void run() {
                 updateEnvironmentBuffer();
+                repaint();
             }
         }, 100, TimeUnit.MILLISECONDS);
     }
