@@ -44,6 +44,10 @@ abstract public class Driver implements Actor, Observer {
     
     final private float timeOfCreation;
     
+    final float skipAheadPointDistance = 3.0f;
+    
+    final float moveToNextPointDistance = 5.0f;
+    
     /**
      * Create a driver that will drive along a predefined route of positions
      * @param scenario
@@ -131,10 +135,23 @@ abstract public class Driver implements Actor, Observer {
     
     protected Vec2 steerTowardsPath() {
         if (path != null) {
+            // first, try to find the closest point
+            for (int i = pathIndex; i < path.size(); ++i) {
+                Vec2 directionToNextPoint = car.getDriverPoint(path.get(i));
+                
+                // but stop after the first one because we shouldn't skip too much
+                if (directionToNextPoint.length() < skipAheadPointDistance) {
+                    pathIndex = i;
+                    break;
+                }
+            }
+            
+            // then try to find the next point far way enough from the car to 
+            // drive towards
             while (pathIndex < path.size()) {
-                Vec2 directionToNextPoint = car.getLocalPoint(path.get(pathIndex));
-
-                if (directionToNextPoint.length() > 3.0f) {
+                Vec2 directionToNextPoint = car.getDriverPoint(path.get(pathIndex));
+                
+                if (directionToNextPoint.length() > moveToNextPointDistance) {
                     return directionToNextPoint;
                 } else {
                     pathIndex += 1;
