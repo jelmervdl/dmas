@@ -1,45 +1,29 @@
 %!TEX root = report.tex
-To test if the ratio of autonomous vehicles to human driven vehicles influences the flow of traffic and the number of collisions we run our simulation in batch mode with different initialisations. \Cref{ss:method:experiment:init} presents the different initialisations we used, \cref{ss:method:experiment:measures} discusses what measure, how we measure it en how it relates to real world traffic. 
+To test if the ratio of autonomous vehicles to human driven vehicles influences the flow of traffic and the number of collisions we run our simulation in batch mode with different initialisations. \Cref{ss:method:experiment:init} presents the different initialisations we use, \cref{ss:method:experiment:measures} discusses what measure, how we measure it en how it relates to real world traffic. 
 
 \subsubsection{Initialisation}
 \label{ss:method:experiment:init}
 As described in \cref{ss:method:experiment:init} we need to decide on a graph to use and the ratio of human driven vehicles to autonomous cars. 
 
-We measure the influence of adding self-driving cars to traffic in two different graphs, both are presented in c
+We measure the influence of adding self-driving cars to traffic in two different graphs, both are presented in \cref{fig:method:experimentGraphs}. \Cref{fig:method:experiment:merging} \baakman{Describe why merging traffic is interesting}. \Cref{fig:method:experiment:intersection} \baakman{describe why intersecting traffic is intereseting.}
 
 
 \begin{figure}
 	\centering
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		% \includegraphics[width=\textwidth]{./img/method_experiment_merging}
-	\begin{tikzpicture}[shorten >=1pt,node distance=2cm,auto]
-
-		\node[state,initial, initial text={}]   (q_0)                 		{$q_0$};
-		\node[state, accepting]           		(q_1) [above of=q_0]        {$q_1$};
-		\node[state, accepting]           		(q_2) [below of=q_0]        {$q_2$};
-		\node[state, accepting]           		(q_3) [right of=q_0]        {$q_3$};
-
-		\path[->]		(q_0) edge	[loop left]			node		{$a \; \varepsilon/A$}							();
-		\path[->]		(q_0) edge						node		{$b \; \varepsilon/\varepsilon$}				(q_1);
-		\path[->]		(q_0) edge						node		{$\varepsilon \; \varepsilon/\varepsilon$}		(q_2);
-		\path[->]		(q_0) edge						node		{$\varepsilon \; \varepsilon/\varepsilon$}		(q_3);
-		\path[->]		(q_1) edge	[loop right]		node		{$a \; A/\varepsilon$}							();
-		\path[->]		(q_2) edge	[loop right]		node		{$a \; \varepsilon/\varepsilon$}				();
-		\path[->]		(q_3) edge	[loop right]		node		{$b \; \varepsilon/\varepsilon$}				();
-	\end{tikzpicture}		
+		\includegraphics[width=\textwidth]{./img/method_experiment_merging}
 		\caption{Merging traffic}
 		\label{fig:method:experiment:merging}
 	\end{subfigure}
 	\begin{subfigure}{0.45\textwidth}
 		\centering
-		% \includegraphics[width=\textwidth]{./img/method_experiment_intersection}
-		\missingfigure{Intersection}
+		\includegraphics[width=\textwidth]{./img/method_experiment_intersection}
 		\caption{Intersecting traffic}
 		\label{fig:method:experiment:intersection}
 	\end{subfigure}	
 	\caption{The graphs representing the network of streets used in our experiment, \subref{fig:method:experiment:merging} shows a graph that forces traffic to merge into a different lane with traffic, \subref{fig:method:experiment:intersection} presents a graph that forces cars to cross other traffic.}
-	\label{fig:method:experiment}
+	\label{fig:method:experimentGraphs}
 \end{figure}
 % Welke grafen gebruiken we
 % Welke ratios gebruiken we
