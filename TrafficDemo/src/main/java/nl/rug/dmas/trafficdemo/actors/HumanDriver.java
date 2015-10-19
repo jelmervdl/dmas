@@ -62,10 +62,11 @@ public class HumanDriver extends Driver{
     {
         debugDraw.clear();
         
-        if (steerTowardsPath().length() == 0)
         float steeringAngle = VecUtils.getAngle(steerTowardsPath().negate());
         
         car.setSteeringDirection(steeringAngle);
+        
+        if (steerTowardsPath().length() == 0)
             car.setAcceleration(Acceleration.NONE);
         else if (speedAdjustmentToAvoidCars() < 0)
             car.setAcceleration(Acceleration.BRAKE);
