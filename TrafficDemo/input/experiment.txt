@@ -1,5 +1,5 @@
 time = 500
-iterations = 500
+iterations = 100
 
 [variable]
 ratioAutonomousCars = 0.0:0.1:1.0
