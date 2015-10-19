@@ -2,15 +2,13 @@
 % \algemeen{Bespreek (een subset van) de volgende elementen, niet noodzakelijk in deze volgorde.}
 % Ik heb alles waar niet echt iets stond eruit gehaald om het stacato waar Bart het over had eruit te halen.
 
-\vdbraak{Hier moet iets meer soepelheid qua tekst in.}
 
 \paragraph{Agents}
-The differences between human drivers and autonomous agents are the following:
-\begin{itemize}
-	\item the view of the human drivers is limited. Where the autonomous drivers have a circular view in a radius of 12 meters, the human drivers have an arc-shaped view of differing radius (between 4 and 8 meters).
-	\item The human drivers have an \t{actPeriod} of 100 \si{\milli\second}, which means that 100 \si{\milli\second} pass between each updated step. This causes them to have a slower reaction to the environment. Autonomous drivers have an \t{actPeriod} of 0 \si{\milli\second}, which means they always react instantly. 
-\end{itemize}
+There are a couple differences between human drivers and autonomous agents. Firstly, the view of the human drivers is limited, compared to that of autonomous drivers. Where the autonomous drivers have a circular view in a radius of 12 meters, the human drivers have an arc-shaped view of differing radius. This radius differs per vehicle. As the drivers are built, they get assigned a \t{viewLength}. This is sampled from a random distribution with a mean of 8 meters and a standard deviation of 2. 
 
+Furthermore, the human drivers have an \t{actPeriod} of 100 \si{\milli\second}, which means that 100 \si{\milli\second} pass between each updated step. This causes them to have a slower reaction to the environment. Autonomous drivers have an \t{actPeriod} of 0 \si{\milli\second}, which means they always react instantly. 
+
+Lastly, the way they react to other vehicles in the neighbourhood differs. This is already explained in \cref{par:method:model:overview:process}. 
 
 % \paragraph{Emergence} 
 % % \algemeen{Which system-level phenomena truly emerge from individual traits, and which phenomena are merely imposed?}
