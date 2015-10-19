@@ -7,8 +7,6 @@ The aim of this model is to be able to test whether autonomous vehicles joining 
 \paragraph{State variables and scales}
 \label{par:method:model:overview:state}
 This model contains three different hierarchical levels, the car level, driver level and the traffic level. The traffic level contains the roads, and thus all possible paths, and all the vehicles. The car and driver levels consist of all parameters necessary for the functioning of a vehicle. The car level concerns the vehicle itsself, while the driver level implements the driver agent.
-\vdbraak{Moeten aan de tabelen met parameters geen parameters toegevoegd?}
-\vdbraak{De parameter \t{driver} is nog een beetje vaag, zou jij die verder kunnen toelichten, eventueel in de tekst.}
 \vdbraak{Check that the low-level parameters are still accurate}
 
 \subparagraph{Low-level state variables}
@@ -82,14 +80,15 @@ The \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:dri
 				& The radius of the arc that covers the area that is perceived by the driver.\\ 
 			actPeriod
 				& \si{\milli\second}
-				& The period of time to wait before a driver's next \t{act}. 
+				& The period of time to wait before a driver's next \t{act}. \\
 			\bottomrule
 		\end{tabularx}
 		\caption{An overview of the parameters that indicate the state of a driver.}
 		\label{tab:par:method:model:overview:state:lowlevel:driver}
 	\end{table}
 
-	\vdbraak{Check that the high-level parameters are still accurate}
+	The \t{driver} level, as described in \cref{tab:par:method:model:overview:state:lowlevel:driver}, can be of two different types, `autonomous' or `human'. These are further elaborated on in \cref{sub:method:design}.
+
 	\subparagraph{Higher-level entities}
 	The parameters at the simulation level are presented in \cref{tab:par:method:model:overview:state:highlevel:sim}.
 
@@ -125,10 +124,17 @@ The \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:dri
 \paragraph{Process overview and scheduling}
 \label{par:method:model:overview:process}
 % \algemeen{Welkeb processen zitten in het model, eventueel met tabel.}
-\vdbraak{Updaten!}
-The processes active in the model are \t{steerToAvoidCars} and \t{steerTowardsPath}. The first process checks if there is another vehicle or other object in its vicinity and if it is going to hit it given its current driving angle. If a collision seems imminent, the vector describing the direction vector of the vehicle is negated, causing the vehicle to decelerate or turn.
+
+
+The processes active in the model are \t{steerTowardsPath()}, \t{speedAdjustmentToAvoidCars()} and \t{speedAdjustmentToPreventColission()}. 
 
 The process \t{steerTowardsPath} is the driving of the vehicle in the direction of the target. As a car is added to the simulation it is passed its path, which is defined as multiple discrete points.  A vehicle drives in the direction of the next point on its path, and when it is close enough, drives to its next target, the next point on its path. Eventually the agent will reach its goal, even when it gets diverted by other vehicles along the way.
+
+Both \t{speedAdjustmentToAvoidCars()} and \t{speedAdjustmentToPreventColission()} are used next to the \t{steerTowardsPath} process. The first is used by human drivers, and checks if there is another vehicle or other object in its vicinity and if it is going to hit it given its current driving angle. If a collision seems imminent, the vector describing the direction vector of the vehicle is negated, causing the vehicle to decelerate.
+
+The second is used by autonomous drivers. 
+\jelmer{Wat is hier precies het verschil?}
+
 
 % \algemeen{Bespreek scheduling van processen, welke volgorde uitgevoerd?}
 % \algemeen{Are some actions executed in a random order?}
