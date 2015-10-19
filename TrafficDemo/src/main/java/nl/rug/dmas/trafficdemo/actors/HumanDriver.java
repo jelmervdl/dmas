@@ -40,7 +40,7 @@ public class HumanDriver extends Driver{
      */
     @Override
     public Shape getFOVShape() {
-        return ShapeUtil.createArc(viewLength, 3 * MathUtils.QUARTER_PI, 1 * MathUtils.QUARTER_PI);
+        return ShapeUtil.createArc(viewLength, 3 * MathUtils.QUARTER_PI, 1 * MathUtils.QUARTER_PI, car.getDriverPosition());
     }
     
     @Override

@@ -24,7 +24,17 @@ public class ParameterTest {
     
     @Before
     public void setUp() {
-        oracle = new Random(1);
+        oracle = new Random() {
+            @Override
+            public float nextFloat() {
+                return 1.5f;
+            }
+
+            @Override
+            public synchronized double nextGaussian() {
+                return 0.0f;
+            }
+        };
     }
 
     /**
@@ -46,7 +56,7 @@ public class ParameterTest {
     public void testRangeGetValue() {
         Parameter parameter = new Parameter.Range(1.0f, 5.0f);
         float result = parameter.getValue(oracle);
-        float expResult = 3.9235127f;
+        float expResult = 3.0f;
         assertEquals(expResult, result, 0.005);
     }
     
@@ -106,14 +116,14 @@ public class ParameterTest {
     public void testRangeFromString() {
         Parameter result = Parameter.fromString("1-5");
         assertTrue(result instanceof Parameter.Range);
-        assertEquals(result.getValue(oracle), 3.9235127f, 0.005);
+        assertEquals(result.getValue(oracle), 3.0f, 0.005);
     }
     
     @Test
     public void testRangeFloatFromString() {
         Parameter result = Parameter.fromString("1.0-5.0");
         assertTrue(result instanceof Parameter.Range);
-        assertEquals(result.getValue(oracle), 3.9235127f, 0.005);
+        assertEquals(result.getValue(oracle), 3.0f, 0.005);
     }
     
     @Test

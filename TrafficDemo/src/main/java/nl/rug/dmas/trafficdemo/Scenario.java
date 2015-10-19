@@ -70,6 +70,8 @@ public class Scenario {
     
     private float time = 0f;
     
+    final long seed;
+    
     final private Random oracle;
     
     public Parameter carWidth = Parameter.fromString("1.47-2.55");
@@ -91,6 +93,8 @@ public class Scenario {
      * @param seed seed for the random number generator
      */
     public Scenario(StreetGraph graph, long seed) {
+        this.seed = seed;
+        
         oracle = new Random(seed);
         
         streetGraph = graph;
@@ -109,6 +113,11 @@ public class Scenario {
         // Keep a contact listener that monitors whether cars are in sight of
         // drivers.
         world.setContactListener(new ObserverContactListener());
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("%s(seed: %d)", super.toString(), seed);
     }
     
     public World getWorld() {
@@ -306,10 +315,14 @@ public class Scenario {
     public void jumpTo(float time) throws InterruptedException {
         stop();
         
-        mainLoop = new Thread(new JumpLoop(60, time));
+        mainLoop = new Thread(getJumpLoop(time));
         mainLoop.start();
         mainLoop.join();
         mainLoop = null;
+    }
+    
+    JumpLoop getJumpLoop(float time) {
+        return new JumpLoop(60, time);
     }
     
     /**
@@ -332,7 +345,7 @@ public class Scenario {
             for (Car car : cars)
                 car.update(dt);
 
-            world.step(dt, 3, 8);
+            world.step(dt, 8, 3);
         } finally {
             readLock.unlock();
         }

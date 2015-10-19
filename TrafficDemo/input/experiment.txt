@@ -1,0 +1,11 @@
+time = 150
+iterations = 3
+
+[variable]
+ratioAutonomousCars = 0.0:0.1:1.0
+
+[fixed]
+carWidth = 1.47-2.55
+carLength = 2.540-6.0
+viewLength = 4.00-12.00
+actPeriod = 100

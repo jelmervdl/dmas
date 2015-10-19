@@ -43,8 +43,9 @@ public class Car {
     Fixture visionFixture;
 
     private final Vec2 initialPosition;
+    
     private final float initialAngle;
-
+    
     public Car(Driver driver, float width, float length, Vec2 position, float angle) {
         this.driver = driver;
         this.width = width;
@@ -128,6 +129,10 @@ public class Car {
         return driver;
     }
     
+    public Vec2 getDriverPosition() {
+        return new Vec2(0, -0.1f * getLength());
+    }
+    
     /**
      * Creates a Fixture recipe based on the width and length of the vehicle.
      *
@@ -206,6 +211,10 @@ public class Car {
     
     public Vec2 getWorldVector(Vec2 localVector) {
         return this.body.getWorldVector(localVector);
+    }
+    
+    public Vec2 getDriverPoint(Vec2 worldPoint) {
+        return getLocalPoint(worldPoint).add(getDriverPosition());
     }
 
     /**
