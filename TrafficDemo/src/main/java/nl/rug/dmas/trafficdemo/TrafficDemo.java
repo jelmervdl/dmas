@@ -133,7 +133,8 @@ public class TrafficDemo {
         }
         // Otherwise, try to open the last opened file
         else {
-            File file = getLastOpenedFile();
+            File file = null;
+//            File file = getLastOpenedFile();
             
             // No last opened file? Try the default input/graaf.txt
             if (file == null || !file.exists())
