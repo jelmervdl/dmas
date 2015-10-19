@@ -98,7 +98,8 @@ public class AutonomousDriver extends Driver {
         float originEnd = car.getWidth() / 2;
         float originStep = (originEnd - originStart) / (numberOfRays - 1);
         
-        float originY = -car.getLength() / 2; // front of the car
+        float originOffset = 0.2f; // how far away from the front of the car does the ray start.
+        float originY = -car.getLength() / 2 - originOffset; // front of the car
         
         // The arcs bent with the steering of the car
         float arcStart = MathUtils.min(2.5f * MathUtils.QUARTER_PI - steeringAngle + MathUtils.HALF_PI, MathUtils.PI);
