@@ -5,15 +5,17 @@
  */
 package nl.rug.dmas.trafficdemo;
 
+import java.util.Iterator;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jbox2d.common.MathUtils;
 
 /**
  *
  * @author jelmer
  */
-public abstract class Parameter {
+public abstract class Parameter implements Iterable<Float> {
     abstract public float getValue(Random rng);
     
     abstract public float getMax();
@@ -73,6 +75,11 @@ public abstract class Parameter {
         public String toString() {
             return String.format("%s-%s", lower, upper);
         }
+
+        @Override
+        public Iterator<Float> iterator() {
+            throw new UnsupportedOperationException("Not supported yet due to infinite possibilties.");
+        }
     }
     
     static public class Fixed extends Parameter {
@@ -95,6 +102,37 @@ public abstract class Parameter {
         @Override
         public String toString() {
             return String.format("%s", value);
+        }
+
+        @Override
+        public Iterator<Float> iterator() {
+            return new FixedIterator(this);
+        }
+    }
+    
+    static public class FixedIterator implements Iterator<Float> {
+        final private Fixed parameter;
+        
+        boolean end = false;
+        
+        public FixedIterator(Fixed parameter) {
+            this.parameter = parameter;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return !end;
+        }
+
+        @Override
+        public Float next() {
+            end = true;
+            return parameter.getValue(null);
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Not supported.");
         }
     }
     
@@ -130,6 +168,34 @@ public abstract class Parameter {
         @Override
         public String toString() {
             return String.format("%s:%s:%s", lower, stepSize, upper);
+        }
+
+        @Override
+        public Iterator<Float> iterator() {
+            return new SequenceIterator(this);
+        }
+    }
+    
+    static public class SequenceIterator implements Iterator<Float> {
+        final private Sequence parameter;
+        
+        public SequenceIterator(Sequence parameter) {
+            this.parameter = parameter;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return parameter.value + parameter.stepSize <= parameter.upper;
+        }
+
+        @Override
+        public Float next() {
+            return parameter.getValue(null);
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Not supported.");
         }
     }
 }
