@@ -7,7 +7,7 @@ As described in \cref{ss:method:experiment:init} we need to decide on a graph to
 
 If one does not take the effect of right-of-way rules or various traffic signs into account there are only two interesting `interactions' between cars, namely two lines of cars that zip merge and lines of cars that intersect each other. \Cref{fig:method:experimentGraphs} presents a graph representation of these situations in respectively \cref{fig:method:experiment:merging} and \cref{fig:method:experiment:intersection}.
 
-Since we are interested in the influence human-autonomous ratio we vary this ratio in the range 0, 0.05, 0.1, $\dotsc$, 0.9, 0.95, 1.0. A ratio of zero results in a simulation with only human drivers, when the ratio is one we have only autonomous cars. 
+Since we are interested in the influence human-autonomous ratio we vary this ratio in the range 0, 0.1, $\dotsc$, 0.9, 1.0. A ratio of zero results in a simulation with only human drivers, when the ratio is one we have only autonomous cars. For each graph we ran the simulation 100 times for 500 seconds. We kept the values of other parameter equal to the initialisations mentioned in \cref{tab:par:method:model:details:init:car:value}.
 
 \begin{figure}
 	\centering
@@ -32,23 +32,4 @@ Since we are interested in the influence human-autonomous ratio we vary this rat
 
 \subsubsection{Measures}
 \label{ss:method:experiment:measures}
-\baakman{Wat meten we, hoe heeft dat relatie met RL}
-\baakman{Hoe meten we het}
-
-\baakman{Hoe lang laten we het spul lopen enzo.}
-
-
-
-
-
-% To test if autonomous vehicles have an influence on traffic delays and crashes, we run the simulation multiple times, with different autonomous vehicle to human driver ratios.
-
-% For each of these runs, we measure the time it takes for each agent to reach its goal, relative to the distance they have to travel from their initial position to the target. Furthermore we keep track of the number of collisions with other agents. 
-
-% Using these measurements, we  determine if the number of collisions and the delay time are influenced by the ratio of autonomous agents to the human ones. 
-
-% \baakman{Welke statistieken hebben we? Hoe rekenen we ze uit? Waarom zijn ze relevant.}
-
-% \baakman{Welke twee grafen (Invoegen, T-splitsing) gebruiken we, waarom deze, plaatjes enzo.}
-
-% \baakman{Hoe vaak runnen we, met welke initiele parameters runnen we. Hoe lang runnen we.}
+We measure how long it takes a car to get from its source to its destination. Since we know the distance between all sources and destinations, we can compute the average speed of the car on its route. Although this average speed can hide some fluctuations it is a reasonable indicator in our case since each route has exactly one obstacle that can influence the time needed to traverse it. 
