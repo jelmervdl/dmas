@@ -48,13 +48,13 @@ import org.jbox2d.common.Vec2;
  * @author jelmer
  */
 public class TrafficWindow extends JFrame {
-    private final Scenario scenario;
+    final Scenario scenario;
     
-    private final TrafficPanel panel;
+    final TrafficPanel panel;
     
-    private final StatisticsWindow statisticsWindow;
+    final StatisticsWindow statisticsWindow;
     
-    private final ParameterWindow parameterWindow;
+    final ParameterWindow parameterWindow;
     
     public TrafficWindow(Scenario scenario) {
         this.scenario = scenario;
@@ -475,6 +475,38 @@ public class TrafficWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 parameterWindow.setVisible(true);
                 parameterWindow.toFront();
+            }
+        });
+        
+        viewMenu.addSeparator();
+        
+        final JMenuItem zoomIn = new JMenuItem("Zoom in");
+        viewMenu.add(zoomIn);
+        zoomIn.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PLUS, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        zoomIn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                panel.setScale(Math.round(panel.getScale() + 1.0f));
+            }
+        });
+        
+        final JMenuItem zoomOut = new JMenuItem("Zoom out");
+        viewMenu.add(zoomOut);
+        zoomOut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        zoomOut.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                panel.setScale(Math.round(panel.getScale() - 1.0f));
+            }
+        });
+        
+        final JMenuItem zoomFit = new JMenuItem("Zoom to Fit");
+        viewMenu.add(zoomFit);
+        zoomFit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        zoomFit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                panel.scaleToFit(panel.getParent());
             }
         });
         
