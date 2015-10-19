@@ -7,25 +7,28 @@ As described in \cref{ss:method:experiment:init} we need to decide on a graph to
 
 If one does not take the effect of right-of-way rules or various traffic signs into account there are only two interesting `interactions' between cars, namely two lines of cars that zip merge and lines of cars that intersect each other. \Cref{fig:method:experimentGraphs} presents a graph representation of these situations in respectively \cref{fig:method:experiment:merging} and \cref{fig:method:experiment:intersection}.
 
+Since we are interested in the human-autonomous ratio we vary this ratio in the range 0, 0.5, $\dotsc$, 0.95, 1.0. 
 
 \begin{figure}
 	\centering
-	\begin{subfigure}{0.45\textwidth}
+	\begin{subfigure}{0.49\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{./img/method_experiment_merging}
+		% \includegraphics[width=\textwidth]{./img/method_experiment_merging}
+		\input{img/experiment_method_img_merging.tex}
 		\caption{Merging traffic}
 		\label{fig:method:experiment:merging}
 	\end{subfigure}
-	\begin{subfigure}{0.45\textwidth}
+	\begin{subfigure}{0.49\textwidth}
 		\centering
-		\includegraphics[width=\textwidth]{./img/method_experiment_intersection}
+		% \includegraphics[width=\textwidth]{./img/method_experiment_intersection}
+		\input{img/experiment_method_img_intersecting.tex}
 		\caption{Intersecting traffic}
 		\label{fig:method:experiment:intersection}
 	\end{subfigure}	
-	\caption{The graphs representing the network of streets used in our experiment, \subref{fig:method:experiment:merging} shows a graph that forces traffic to merge into a different lane with traffic, \subref{fig:method:experiment:intersection} presents a graph that forces cars to cross other traffic. In these graphs solid black circles indicate `normal' vertices, white circles with a black border are sources and the grey crossed out circles denote sinks.}
+	% \caption{The graphs representing the network of streets used in our experiment, \subref{fig:method:experiment:merging} shows a graph that forces traffic to merge into a different lane with traffic, \subref{fig:method:experiment:intersection} presents a graph that forces cars to cross other traffic. In these graphs solid black circles indicate `normal' vertices, white circles with a black border are sources and the grey crossed out circles denote sinks.}
+	\caption{The graphs representing the network of streets used in our experiment, \subref{fig:method:experiment:merging} shows a graph that forces traffic to merge into a different lane with traffic, \subref{fig:method:experiment:intersection} presents a graph that forces cars to cross other traffic. In these graphs filled vertices with a double border indicate sinks. A thick arrow indicates sources, which have a red border. Associated with each node is a location in the simulation space and a name.}
 	\label{fig:method:experimentGraphs}
 \end{figure}
-\baakman{Welke ratios gebruiken we}
 
 \subsubsection{Measures}
 \label{ss:method:experiment:measures}
