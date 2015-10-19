@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.prefs.Preferences;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import nl.rug.dmas.trafficdemo.streetgraph.GraphReader;
@@ -38,11 +39,11 @@ public class TrafficDemo {
         return path == null ? null : new File(path);
     }
     
-    static public Scenario readScenarioFromFile(File file) {
+    static public Scenario readScenarioFromFile(File file, long seed) {
         // Get me a map of the world!
         StreetGraph streetGraph = GraphReader.read(file);
         
-        Scenario scenario = new Scenario(streetGraph, System.currentTimeMillis());
+        Scenario scenario = new Scenario(streetGraph, seed);
         
         // Add a bit of common knowledge used for debugging to the scenario
         scenario.commonKnowledge.put("mouse", new Vec2(0, 0));
@@ -50,8 +51,21 @@ public class TrafficDemo {
 
         return scenario;
     }
-
+    
     static public void openFile() {
+        openFile(System.currentTimeMillis());
+    }
+    
+    static public void openFileWithSpecificSeed() {
+        String seedString = JOptionPane.showInputDialog(null, "Seed:", "");
+        if (seedString == null)
+            return;
+        
+        long seed = Long.parseLong(seedString);
+        openFile(seed);
+    }
+
+    static private void openFile(long seed) {
         FileDialog fileChooser = new FileDialog((Frame) null, "Open a graph…", FileDialog.LOAD);
         File lastOpenedFile = getLastOpenedFile();
         if (lastOpenedFile != null)
@@ -59,13 +73,21 @@ public class TrafficDemo {
         fileChooser.setVisible(true);
         for (File file : fileChooser.getFiles()) {
             prefs.put("lastOpenedFile", file.getPath());
-            runFile(file);
+            runFile(file, seed);
         }
     }
     
     static public void runFile(File file) {
-        Scenario scenario = readScenarioFromFile(file);
-
+        Scenario scenario = readScenarioFromFile(file, System.currentTimeMillis());
+        runScenario(scenario, file);
+    }
+    
+    static public void runFile(File file, long seed) {
+        Scenario scenario = readScenarioFromFile(file, seed);
+        runScenario(scenario, file);
+    }
+    
+    static public void runScenario(Scenario scenario, File file) {
         // Pony up a simple window, our only entrypoint to the app
         TrafficWindow window = new TrafficWindow(scenario);
         window.setSize(800, 600);

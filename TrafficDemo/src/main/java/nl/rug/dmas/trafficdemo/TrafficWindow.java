@@ -199,6 +199,15 @@ public class TrafficWindow extends JFrame {
             }
         });
         
+        final JMenuItem openScenarioWithSeed = new JMenuItem("Open with Seed…");
+        fileMenu.add(openScenarioWithSeed);
+        openScenarioWithSeed.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TrafficDemo.openFileWithSpecificSeed();
+            }
+        });
+        
         fileMenu.addSeparator();
         
         final JMenuItem closeWindow = new JMenuItem("Close Window");
