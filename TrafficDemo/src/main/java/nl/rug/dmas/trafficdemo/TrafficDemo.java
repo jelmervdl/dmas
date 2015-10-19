@@ -114,6 +114,7 @@ public class TrafficDemo {
         // Show the window, and start the loop!
         window.setLocationByPlatform(true);
         window.setVisible(true);
+        window.panel.scaleToFit(window);
         scenario.start();
     }
 

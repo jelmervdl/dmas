@@ -8,6 +8,7 @@ package nl.rug.dmas.trafficdemo;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -18,6 +19,11 @@ import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -66,7 +72,7 @@ public class TrafficPanel extends JPanel {
     Scenario scenario;
     float scale = 10f;
     
-    final int offset = 3;
+    final int offset = 6;
 
     // Options (for now)
     boolean drawFOV = true;
@@ -238,12 +244,57 @@ public class TrafficPanel extends JPanel {
             (int) Math.ceil((worldBounds.getHeight() + 2 * offset) * scale));
     }
     
+    /**
+     * Get the world bounds from the street graph with offset spacing. Note that
+     * the offsets may be negative since this returns a rectangle in world
+     * coordinates which has 0,0 as its centre.
+     * @return rectangle in world coordinates
+     */
+    public Rectangle2D.Float getWorldBounds() {
+        Rectangle2D.Float worldBounds = scenario.getStreetGraph().getBounds();
+        return new Rectangle2D.Float(
+                worldBounds.x - offset,
+                worldBounds.y - offset,
+                worldBounds.width + 2 * offset,
+                worldBounds.height + 2 * offset);   
+    }
+    
+    /**
+     * Change the scale of the drawing. If needed it will cause a repaint and
+     * revalidation so the background gets redrawn.
+     * @param newScale number of pixels per world meter.
+     */
     public void setScale(float newScale) {
+        if (newScale < 0.1 || newScale > 100)
+            throw new IllegalArgumentException("Only scales between 0.1 and 100 are allowed to maintain stability");
+        
         if (newScale != scale) {
             scale = newScale;
             revalidate();
             repaint();
         }
+    }
+    
+    /**
+     * Return the current scale. Scale can be seen as the number of pixels used
+     * to draw one meter in the simulated world.
+     * @return scale in number of pixels per meter
+     */
+    public float getScale() {
+        return scale;
+    }
+    
+    /**
+     * Scale to fit the graph in the bounds of the container. It will include a
+     * bit of offset.
+     * @param container from which to obtain the dimensions.
+     */
+    public void scaleToFit(Container container) {
+        Rectangle2D.Float worldBounds = getWorldBounds();
+        Dimension sizeToFit = container.getSize();
+        setScale(Math.min(
+                (sizeToFit.width - 32) / worldBounds.width, 
+                (sizeToFit.height - 32) / worldBounds.height));
     }
 
     @Override
@@ -743,12 +794,7 @@ public class TrafficPanel extends JPanel {
     }
 
     private synchronized void updateEnvironmentBuffer() {
-        Rectangle2D.Float worldBounds = scenario.getStreetGraph().getBounds();
-        Rectangle2D.Float bufferBounds = new Rectangle2D.Float(
-                worldBounds.x - offset,
-                worldBounds.y - offset,
-                worldBounds.width + 2 * offset,
-                worldBounds.height + 2 * offset);
+        Rectangle2D.Float bufferBounds = getWorldBounds();
         
         float bufferScale = scale * 2f; // scale plus 2x for HighDPI;
         
@@ -772,6 +818,10 @@ public class TrafficPanel extends JPanel {
         g2.dispose();
         
         // Make the image and associated bounds available
+        if (environmentBufferImage != null) {
+            environmentBufferImage.flush();
+        }
+        
         environmentBufferBounds = bufferBounds;
         environmentBufferImage = image;
     }
