@@ -18,8 +18,6 @@ import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -68,7 +66,7 @@ public class TrafficPanel extends JPanel {
     Scenario scenario;
     float scale = 10f;
     
-    final int offset = 50;
+    final int offset = 3;
 
     // Options (for now)
     boolean drawFOV = true;
@@ -84,7 +82,9 @@ public class TrafficPanel extends JPanel {
     
     ScheduledThreadPoolExecutor backgroundThreadPool = new ScheduledThreadPoolExecutor(1);
     private Future<?> environmentBufferUpdateTask = null;
+    
     private Image environmentBufferImage = null;
+    private Rectangle2D.Float environmentBufferBounds;
     
     final ScenarioListener scenarioListener;
     
@@ -106,6 +106,7 @@ public class TrafficPanel extends JPanel {
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
         
+        // Listen to the scenario for repaints and collisions
         scenarioListener = new ScenarioAdapter() {
             @Override
             public void scenarioStepped() {
@@ -126,14 +127,8 @@ public class TrafficPanel extends JPanel {
             }
         };
         
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                // If we are resized, invalidate the already drawn environment
-                revalidate();
-            }
-        });
-        
+        // Listen for [tab] key to modify the selected car
+        // (Shift + [tab] will do the selection in the other direction.)
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -159,6 +154,7 @@ public class TrafficPanel extends JPanel {
             }
         });
         
+        // Allow clicking on cars to select them
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -174,21 +170,18 @@ public class TrafficPanel extends JPanel {
                     TrafficPanel.this.scenario.addSelection(car);
                     e.consume();
                 }
-
-                // Todo: notify through selectionChanged
             }
         });
         
+        // Use ctrl + mouse wheel to zoom
         addMouseWheelListener(new MouseAdapter() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
                 if (e.isControlDown()) {
-                    double delta = 0.05f * e.getPreciseWheelRotation();
-                    scale += delta;
-
                     e.consume();
-                    revalidate();
-                    repaint();
+                    
+                    float delta = 0.05f * (float) e.getPreciseWheelRotation();
+                    setScale(MathUtils.clamp(scale + delta, 1.0f, 50f));
                 } else {
                     getParent().dispatchEvent(e);
                 }
@@ -241,8 +234,16 @@ public class TrafficPanel extends JPanel {
         Rectangle2D.Float worldBounds = scenario.getStreetGraph().getBounds();
         
         return new Dimension(
-            (int) Math.ceil(worldBounds.getWidth() * scale) + 2 * offset,
-            (int) Math.ceil(worldBounds.getHeight() * scale) + 2 * offset);
+            (int) Math.ceil((worldBounds.getWidth() + 2 * offset)  * scale),
+            (int) Math.ceil((worldBounds.getHeight() + 2 * offset) * scale));
+    }
+    
+    public void setScale(float newScale) {
+        if (newScale != scale) {
+            scale = newScale;
+            revalidate();
+            repaint();
+        }
     }
 
     @Override
@@ -264,7 +265,6 @@ public class TrafficPanel extends JPanel {
         // by the mainLoop which issues a 'repaint()' request. (AWT then
         // decides on when to do the actual painting, and at that moment this
         // method is called.)
-        
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g.create();
@@ -272,18 +272,21 @@ public class TrafficPanel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         
-        // Draw the street-graph
-        if (scenario.streetGraph != null) {
-            if (environmentBufferImage != null) {
-                g2.drawImage(environmentBufferImage, 0, 0, getWidth(), getHeight(), null);
-            }
-        }
-        
         // World position Vec2(0,0) is the center of the screen
         // Scale translates one world point to n pixels.
         Graphics2D gs = (Graphics2D) g2.create();
         Point center = getCenter();
         gs.translate(center.x, center.y);
+        
+        // Draw the street-graph
+        if (scenario.streetGraph != null && environmentBufferImage != null) {
+            g2.drawImage(environmentBufferImage,
+                    (int) (center.x + environmentBufferBounds.x * scale),
+                    (int) (center.y + environmentBufferBounds.y * scale),
+                    (int) Math.ceil(environmentBufferBounds.width * scale),
+                    (int) Math.ceil(environmentBufferBounds.height * scale), null);
+        }
+        
         gs.scale(scale, scale);
         
         // Scale the stroke and font back to 1.0 in screen space.
@@ -321,7 +324,10 @@ public class TrafficPanel extends JPanel {
         gs.dispose();
         
         // Draw scenario time in top left corner
+        // Todo: do this outside this panel, because now the values are obscured
+        // by the scroll pane.
         drawTime(g2, new Point(5, 5));
+        drawScale(g2, new Point(5, getHeight() - 15));
         g2.dispose();
     }
 
@@ -736,33 +742,41 @@ public class TrafficPanel extends JPanel {
         pathPainter.dispose();
     }
 
-    private void updateEnvironmentBuffer() {
-        Image image = createImage(getWidth() * 2, getHeight() * 2);
+    private synchronized void updateEnvironmentBuffer() {
+        Rectangle2D.Float worldBounds = scenario.getStreetGraph().getBounds();
+        Rectangle2D.Float bufferBounds = new Rectangle2D.Float(
+                worldBounds.x - offset,
+                worldBounds.y - offset,
+                worldBounds.width + 2 * offset,
+                worldBounds.height + 2 * offset);
+        
+        float bufferScale = scale * 2f; // scale plus 2x for HighDPI;
+        
+        Image image = createImage(
+                (int) Math.ceil(bufferBounds.width * bufferScale),
+                (int) Math.ceil(bufferBounds.height * bufferScale));
         
         Graphics2D g2 = (Graphics2D) image.getGraphics();
-        g2.scale(2, 2); // First, scale for the image
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
         
-        Point center = getCenter();
-        g2.translate(center.x, center.y);
-        g2.scale(scale, scale); // then, scale for the drawing
+        g2.scale(bufferScale, bufferScale); // scale for the drawing
+        g2.translate(-bufferBounds.x, -bufferBounds.y); // and re-center to world 0.0
         
         // Scale the stroke and font back to 1.0 in screen space.
-        g2.setStroke(new BasicStroke(1f / scale));
-        g2.setFont(g2.getFont().deriveFont(g2.getFont().getSize2D() / scale));
+        g2.setStroke(new BasicStroke(1f / bufferScale));
+        g2.setFont(g2.getFont().deriveFont(g2.getFont().getSize2D() / bufferScale));
         
         drawEnvironment(g2, scenario.streetGraph);
         
         g2.dispose();
         
+        // Make the image and associated bounds available
+        environmentBufferBounds = bufferBounds;
         environmentBufferImage = image;
     }
     
     private void repaintEnvironment() {
-        // Dump the current buffer so it doesn't get seen anymore
-        environmentBufferImage = null;
-        
         // Try to cancel a previous update
         if (environmentBufferUpdateTask != null && !environmentBufferUpdateTask.isDone()) {
             environmentBufferUpdateTask.cancel(false);
@@ -775,10 +789,8 @@ public class TrafficPanel extends JPanel {
                 updateEnvironmentBuffer();
                 repaint();
             }
-        }, 100, TimeUnit.MILLISECONDS);
+        }, 250, TimeUnit.MILLISECONDS);
     }
-
-    
     
     private void drawVertexName(Graphics2D g, Vertex vertex) {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -913,5 +925,10 @@ public class TrafficPanel extends JPanel {
                 center.y + MathUtils.sin(minuteAngle) * 0.5f * clockRadius));
         
         g2.drawString(TimeUtil.formatTime(time), position.x + 2 * clockRadius + timeOffset, position.y + fontHeight);
+    }
+    
+    private void drawScale(Graphics2D g2, Point position) {
+        float fontHeight = 10;
+        g2.drawString(String.format("%.2fpx/m", scale), position.x, position.y + fontHeight);
     }
 }
