@@ -332,7 +332,7 @@ public class Scenario {
             for (Car car : cars)
                 car.update(dt);
 
-            world.step(dt, 3, 8);
+            world.step(dt, 8, 3);
         } finally {
             readLock.unlock();
         }
