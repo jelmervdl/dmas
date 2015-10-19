@@ -60,8 +60,8 @@ public abstract class Parameter {
             // mean: 4 + 4 = 8
             // sd: 3/4 * (upper - lower)
             float mean = lower + (upper - lower) / 2f;
-            float sd = (upper - lower) / 2f;
-            return mean + (float) rng.nextGaussian() * sd;
+            float sd = (upper - lower) / 3f;
+            return mean + MathUtils.clamp((float) rng.nextGaussian(), -3f, 3f) * sd;
         }
 
         @Override
