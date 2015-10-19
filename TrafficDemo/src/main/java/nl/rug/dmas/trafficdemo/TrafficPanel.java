@@ -599,6 +599,10 @@ public class TrafficPanel extends JPanel {
     private void drawLine(Graphics2D g2, Iterator<Vec2> pointIter) {
         Path2D.Float path = new Path2D.Float();
         
+        // if it is an empty line, don't draw it at all
+        if (!pointIter.hasNext())
+            return;
+        
         Vec2 point = pointIter.next();
         path.moveTo(point.x, point.y);
         
