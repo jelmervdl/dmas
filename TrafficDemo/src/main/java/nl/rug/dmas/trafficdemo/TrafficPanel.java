@@ -24,6 +24,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
@@ -38,6 +39,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import nl.rug.dmas.trafficdemo.actors.Driver;
@@ -78,42 +82,14 @@ public class TrafficPanel extends JPanel {
     
     final Stroke roadStroke = new BasicStroke(4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
     
+    ScheduledThreadPoolExecutor backgroundThreadPool = new ScheduledThreadPoolExecutor(1);
+    private Future<?> environmentBufferUpdateTask = null;
     private Image environmentBufferImage = null;
     
     final ScenarioListener scenarioListener;
     
     final private List<Collision> collisions = Collections.synchronizedList(new ArrayList<Collision>());
 
-    private void drawTime(Graphics2D g2, Point position) {
-        float time = scenario.getTime();
-        float clockRadius = 5;
-        float fontHeight = 10;
-        float timeOffset = 3;
-        
-        float secondsAngle = -MathUtils.TWOPI * ((time / 60.0f) % 1.0f) - MathUtils.HALF_PI;
-        float minuteAngle = -MathUtils.TWOPI * ((time / 3600.0f) % 1.0f) - MathUtils.HALF_PI;
-        
-        Point2D.Float center = new Point2D.Float(
-                position.x + clockRadius,
-                position.y + clockRadius);
-        
-        g2.draw(new Ellipse2D.Float(
-                position.x, position.y,
-                2 * clockRadius, 2 * clockRadius));
-        
-        g2.draw(new Line2D.Float(
-                center.x, center.y,
-                center.x - MathUtils.cos(secondsAngle) * clockRadius,
-                center.y + MathUtils.sin(secondsAngle) * clockRadius));
-        
-        g2.draw(new Line2D.Float(
-                center.x, center.y,
-                center.x - MathUtils.cos(minuteAngle) * 0.5f * clockRadius,
-                center.y + MathUtils.sin(minuteAngle) * 0.5f * clockRadius));
-        
-        g2.drawString(TimeUtil.formatTime(time), position.x + 2 * clockRadius + timeOffset, position.y + fontHeight);
-    }
-    
     static private class Collision {
         final Vec2 position;
         final float time;
@@ -154,7 +130,7 @@ public class TrafficPanel extends JPanel {
             @Override
             public void componentResized(ComponentEvent e) {
                 // If we are resized, invalidate the already drawn environment
-                environmentBufferImage = null;
+                revalidate();
             }
         });
         
@@ -200,6 +176,22 @@ public class TrafficPanel extends JPanel {
                 }
 
                 // Todo: notify through selectionChanged
+            }
+        });
+        
+        addMouseWheelListener(new MouseAdapter() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                if (e.isControlDown()) {
+                    double delta = 0.05f * e.getPreciseWheelRotation();
+                    scale += delta;
+
+                    e.consume();
+                    revalidate();
+                    repaint();
+                } else {
+                    getParent().dispatchEvent(e);
+                }
             }
         });
     }
@@ -252,6 +244,12 @@ public class TrafficPanel extends JPanel {
             (int) Math.ceil(worldBounds.getWidth() * scale) + 2 * offset,
             (int) Math.ceil(worldBounds.getHeight() * scale) + 2 * offset);
     }
+
+    @Override
+    public void invalidate() {
+        repaintEnvironment();
+        super.invalidate();
+    }
     
 
     /**
@@ -276,10 +274,9 @@ public class TrafficPanel extends JPanel {
         
         // Draw the street-graph
         if (scenario.streetGraph != null) {
-            if (environmentBufferImage == null)
-                updateEnvironmentBuffer();
-              
-            g2.drawImage(environmentBufferImage, 0, 0, getWidth(), getHeight(), null);
+            if (environmentBufferImage != null) {
+                g2.drawImage(environmentBufferImage, 0, 0, getWidth(), getHeight(), null);
+            }
         }
         
         // World position Vec2(0,0) is the center of the screen
@@ -740,9 +737,9 @@ public class TrafficPanel extends JPanel {
     }
 
     private void updateEnvironmentBuffer() {
-        environmentBufferImage = createImage(getWidth() * 2, getHeight() * 2);
+        Image image = createImage(getWidth() * 2, getHeight() * 2);
         
-        Graphics2D g2 = (Graphics2D) environmentBufferImage.getGraphics();
+        Graphics2D g2 = (Graphics2D) image.getGraphics();
         g2.scale(2, 2); // First, scale for the image
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
@@ -758,7 +755,29 @@ public class TrafficPanel extends JPanel {
         drawEnvironment(g2, scenario.streetGraph);
         
         g2.dispose();
+        
+        environmentBufferImage = image;
     }
+    
+    private void repaintEnvironment() {
+        // Dump the current buffer so it doesn't get seen anymore
+        environmentBufferImage = null;
+        
+        // Try to cancel a previous update
+        if (environmentBufferUpdateTask != null && !environmentBufferUpdateTask.isDone()) {
+            environmentBufferUpdateTask.cancel(false);
+        }
+        
+        // and schedule a new one
+        environmentBufferUpdateTask = backgroundThreadPool.schedule(new Runnable() {
+            @Override
+            public void run() {
+                updateEnvironmentBuffer();
+            }
+        }, 100, TimeUnit.MILLISECONDS);
+    }
+
+    
     
     private void drawVertexName(Graphics2D g, Vertex vertex) {
         Graphics2D g2 = (Graphics2D) g.create();
@@ -863,5 +882,35 @@ public class TrafficPanel extends JPanel {
         }
         
         g2.dispose();
+    }
+    
+    private void drawTime(Graphics2D g2, Point position) {
+        float time = scenario.getTime();
+        float clockRadius = 5;
+        float fontHeight = 10;
+        float timeOffset = 3;
+        
+        float secondsAngle = -MathUtils.TWOPI * ((time / 60.0f) % 1.0f) - MathUtils.HALF_PI;
+        float minuteAngle = -MathUtils.TWOPI * ((time / 3600.0f) % 1.0f) - MathUtils.HALF_PI;
+        
+        Point2D.Float center = new Point2D.Float(
+                position.x + clockRadius,
+                position.y + clockRadius);
+        
+        g2.draw(new Ellipse2D.Float(
+                position.x, position.y,
+                2 * clockRadius, 2 * clockRadius));
+        
+        g2.draw(new Line2D.Float(
+                center.x, center.y,
+                center.x - MathUtils.cos(secondsAngle) * clockRadius,
+                center.y + MathUtils.sin(secondsAngle) * clockRadius));
+        
+        g2.draw(new Line2D.Float(
+                center.x, center.y,
+                center.x - MathUtils.cos(minuteAngle) * 0.5f * clockRadius,
+                center.y + MathUtils.sin(minuteAngle) * 0.5f * clockRadius));
+        
+        g2.drawString(TimeUtil.formatTime(time), position.x + 2 * clockRadius + timeOffset, position.y + fontHeight);
     }
 }
