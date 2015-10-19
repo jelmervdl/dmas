@@ -1,0 +1,22 @@
+%!TEX root = ../report.tex
+
+\begin{tikzpicture}
+
+	\node[label=left:{(0, 10)}, state, initial, initial text={}, initial where=above, accepting, source, sink]		
+		(s_0)						{$s_0$};
+	\node[vertex, label=below:{(0, -10)}, state]														
+		(v_0) 	[below of=s_0]    	{$v_0$};
+	\node[label=below:{(10, -10)}, state, initial, initial text={}, initial where=right, accepting, source, sink]		
+		(s_1)	[right of=v_0] 		{$s_1$};
+	\node[label=below:{(-10, -10)}, state, initial, initial text={}, initial where=left, accepting, source, sink]	
+		(s_2)	[left of=v_0] 		{$s_2$};
+
+	\path[->] (s_0) edge[edgeStyle] (v_0);
+	\path[->] (v_0) edge[edgeStyle] (s_0);
+
+	\path[->] (s_1) edge[edgeStyle] (v_0);
+	\path[->] (v_0) edge[edgeStyle] (s_1);	
+
+	\path[->] (s_2) edge[edgeStyle] (v_0);
+	\path[->] (v_0) edge[edgeStyle] (s_2);		
+\end{tikzpicture}
