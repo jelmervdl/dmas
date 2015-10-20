@@ -1,5 +1,5 @@
 %!TEX root = report.tex
-To test if and how the ratio of autonomous vehicles to human driven vehicles influences the flow of traffic we run our simulation in batch mode with different initialisations. \Cref{ss:method:experiment:init} presents the different initialisations we use, \cref{ss:method:experiment:measures} discusses what we measure, how we measure it en how it relates to real world traffic. 
+To test if and how the ratio of autonomous vehicles to human driven vehicles influences the flow of traffic we run our simulation multiple times with different initialisations and a fixed simulated duration. \Cref{ss:method:experiment:init} presents the different initialisations we use, \cref{ss:method:experiment:measures} discusses what we measure, how we measure it en how it relates to real world traffic. 
 
 \subsubsection{Initialisation}
 \label{ss:method:experiment:init}
@@ -7,7 +7,7 @@ As described in \cref{ss:method:experiment:init} we need a graph representing a 
 
 If one does not take the effect of right-of-way rules or various traffic signs into account there are only two interesting `interactions' between cars, namely two lines of cars that zip merge and lines of cars that intersect each other. \Cref{fig:method:experimentGraphs} presents a graph representation of these situations in respectively \cref{fig:method:experiment:merging} and \cref{fig:method:experiment:intersection}.
 
-Since we are interested in the influence human-autonomous ratio we vary this ratio in the range 0, 0.1, $\dotsc$, 0.9, 1.0. A ratio of zero results in a simulation with only human drivers, when the ratio is one we have only autonomous cars. For each graph we run the simulation 30 times for 60 seconds. We kept the values of other parameter equal to the initialisations mentioned in \cref{tab:par:method:model:details:init:car:value}.
+Since we are interested in the influence human-autonomous ratio we vary this ratio in the range 0, 0.1, $\dotsc$, 0.9, 1.0. A ratio of zero results in a simulation with only human drivers, when the ratio is one we have only autonomous cars. For each graph we run the simulation 30 times for a simulated duration of \si{60\second}. We kept the values of the other parameters equal to the initialisations mentioned in \cref{tab:par:method:model:details:init:car:value}.
 
 \begin{figure}
 	\centering
@@ -15,7 +15,7 @@ Since we are interested in the influence human-autonomous ratio we vary this rat
 		\centering
 		% \includegraphics[width=\textwidth]{./img/method_experiment_merging}
 		\input{img/experiment_method_img_merging.tex}
-		\caption{Merging traffic}
+		\caption{Zip-merging traffic}
 		\label{fig:method:experiment:merging}
 	\end{subfigure}
 	\begin{subfigure}{0.49\textwidth}
