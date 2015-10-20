@@ -6,7 +6,7 @@
 \paragraph{Agents}
 There are a couple differences between human drivers and autonomous agents. Firstly, the view of the human drivers is limited, compared to that of autonomous drivers. Where the autonomous drivers have a circular view in a radius of \si{12 \meter}, the human drivers have an arc-shaped view of differing radius. This radius differs per driver. As the drivers are built, they get assigned a \t{viewLength}. This is sampled from a random distribution with a mean of \si{8 \meter} and a standard deviation of \si{\div{4}{3} \meter}. If the sampled values are below zero, they are clamped to zero, to avoid negative a negative \t{viewLength}. 
 
-Furthermore, human drivers have an \t{actPeriod} of \SI{100}{\milli\second}, which means that \SI{100}{\milli\second} pass between each update step. This causes them to have a slower reaction to the environment than autonomous drivers, which have an \t{actPeriod} of \SI{0}{\milli\second}, which means they always react instantly. 
+Furthermore, human drivers have an \t{actPeriod} of \si{100\milli\second}, which means that \SI{100 \milli\second} pass between each update step. This causes them to have a slower reaction to the continuous changes in the environment than autonomous drivers, which have an \t{actPeriod} equal to that of the simulation step time, namely\SI{\div{1}{60} \second}. 
 
 Lastly, the way drivers react to other vehicles in their neighbourhood differs, this process is discussed in  \cref{par:method:model:overview:process}. 
 
@@ -28,10 +28,9 @@ Lastly, the way drivers react to other vehicles in their neighbourhood differs, 
 
 \paragraph{Sensing \& Interaction} 
 % \algemeen{What internal and environmental state variables are individuals assumed to sense or “know” and consider in their adaptive decisions?}
-Individual vehicles can sense other vehicles and other objects if they are close enough to `see' them. Whether or not a driver is close enough to observe an object depends on its \t{viewLength}. They cannot see into each other's state variables, or those of the simulation. What is actually perceived by an agent depends on its type, self-driving versus human driver, and in the case of the human agent its state. 
-\vdbraak{Hoe hangt het van hun state af?}
+Individual vehicles can sense other vehicles and other objects if they are close enough to `see' them. Whether or not a driver is close enough to observe an object depends on its \t{viewShape} and \t{viewLength}. Even when two drivers see each other, they can only see the \t{position} and \t{velocity} of each other.
 
-Although drivers can observe other vehicles and objects they cannot interact with them. Both humans and autonomous vehicles can only see other objects if they appear within that agents' field of view. The field of view of an autonomous driver is larger, and is updated more often, consequently they observe more.
+Although drivers can observe other vehicles and objects they cannot interact with them. Both human driven and autonomous vehicles can only see other objects if they appear within that agents' field of view. The field of view of an autonomous driver is larger and circular while the field of view of a human driver is limited to an arc of \si{90\degrees} towards the front of the car. The radius of that arc is defined by \t{viewLength}.
 
 % \paragraph{Interaction} 
 % % \algemeen{What kinds of interactions among individuals are assumed?}
@@ -47,6 +46,6 @@ Although drivers can observe other vehicles and objects they cannot interact wit
 
 \paragraph{Observation} 
 % \algemeen{How are data collected from the IBM for testing, understanding, and analysing it?}
-We measure how long a vehicle takes to get from its point of departure to its destination. The exact measurements  are discussed extensively in \cref{sub:method:design}.
+We measure how long a vehicle takes to get from its point of departure to its destination. The exact measurements are discussed extensively in \cref{sub:method:design}.
 
 

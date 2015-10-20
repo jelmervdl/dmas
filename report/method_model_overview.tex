@@ -140,7 +140,7 @@ The simulation can be run indefinitely to observe the behaviour of the cars visu
 
 \paragraph{Process overview and scheduling}
 \label{par:method:model:overview:process}
-Our simulation uses a Java port of the Box2D physics engine to simulate a continuous world. Each time step, the physics engine calculates the new positions and velocities of all cars in the simulation, signals and simulates the effects of any collisions, and updates the \t{fixturesInSight} list for each driver.
+Our simulation uses a Java port of the Box2D physics engine to simulate a continuous world. Each time step, the physics engine updates the forces that affect the car through the \t{acceleration} parameter by applying \t{power} or \t{brakePower} to the cars wheels along the direction of the wheels. It then calculates the new positions and velocities of all cars in the simulation, signals and simulates the effects of any collisions, and updates the \t{fixturesInSight} list for each driver based on their field of view.
 
 The sources and sinks in the simulation determine each time step whether to respectively add or remove cars from the simulation. A source will add a car if there is no car in a radius of the maximum value of \t{length} from \cref{tab:par:method:model:overview:state:lowlevel:car} and no car has been created by this source for at least \si{one \second}. A sink will remove a car if it is no more than \si{four \meter} away and the driver has reached the end of its \t{path}.
 
@@ -152,6 +152,7 @@ The process \t{steerTowardsPath} ensures that the vehicle steers towards its nex
 
 Both \t{speedAdjustmentToAvoidCars()} and \t{speedAdjustmentToPreventCollision()} are used next to the \t{steerTowardsPath()} process to adjust the acceleration of the driver. The first is used by both drivers, and checks if the driver is going to intersect paths with another vehicle based in both their position and velocity as seen from the drivers point of view. If a collision with any of the vehicles in the \t{fixturesInSight} list seems imminent (i.e. the intersection of the paths is estimated to take place in front of the driver, not behind), the acceleration of the car is set to \t{BRAKE}.
 The \t{speedAdjustmentToPreventCollision()} is only used by the autonomous driver and work by looking at the space directly in front of the drivers car and determine whether any of the other obstacles intersects with that space. The space is roughly equal to that of a trapezoid with the side near the car the same size as the width of the car and a height of \si{two \meter}. The corners are \si{45 \degree} when driving forwards but are skewed to the steering direction to compensate for the change in direction when steering. If an obstacle enters the space the acceleration of the car is set to \t{BRAKE}. If the obstacle is in this space and less than \si{one \meter} away from the bumper of the car for five consecutive time steps, the acceleration is set to \t{REVERSE} to regain a safe distance.
+If neither of these procedures define an acceleration, the preferred acceleration is \t{ACCELERATE} unless the velocity of the car is greater or equal to \si{30\kilometer\per\hour}. Then the acceleration is set to \t{NONE}.
 
 % \algemeen{Bespreek scheduling van processen, welke volgorde uitgevoerd?}
 % \algemeen{Are some actions executed in a random order?}
