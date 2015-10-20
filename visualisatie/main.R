@@ -80,7 +80,7 @@ plotSpeedAsFunctionOfRatio <- function(dataToPlot, outputFile) {
     theme(
       legend.position = "top",
       plot.title = element_text(family = font.family, size=font.size),
-      plot.margin=unit(x=c(0,0,0,0),units="mm"),
+      plot.margin=unit(x=c(0,2,0,0),units="mm"),
       legend.margin=unit(-0.45,"cm")
   );
   file.path()
@@ -88,7 +88,7 @@ plotSpeedAsFunctionOfRatio <- function(dataToPlot, outputFile) {
   ggsave(
     filename = file.path("../report/img", outputFile),
     plot = plot,
-    width = tex.textwidth - 0.2, height = (tex.textheight / 3) - 2, unit = "cm"
+    width = tex.textwidth - 0.1, height = (tex.textheight / 3) - 2, unit = "cm"
   )
   
 }
