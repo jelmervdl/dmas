@@ -1,5 +1,10 @@
 %!TEX root = report.tex
-In this section we first discuss the design of our model, after which we explain the set-up of the experiments performed with the models in \cref{sub:method:design}.
+% Informal description
+Informally our simulation defines a network of streets in which cars have to find their way from their point of departure to their destination. The behaviour of a car is completely controlled by the wish to reach its destination and to not have a collision with other cars. Depending on the type of driver of a car, the size and shape of its field of view changes. 
+% Dat is het idee van de actperiod, right?
+Furthermore human drivers have a higher reaction time than autonomous drivers. It should be noted that we do not model traffic rules or signs, neither do we simulate overtaking behaviour. 
+
+\Cref{sub:method:model} presents a formal description of a model, the set-up of the experiments performed with the model are discussed in \cref{sub:method:design}.
 
 \subsection{Simulation Model}
 \label{sub:method:model}
