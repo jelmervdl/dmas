@@ -180,7 +180,7 @@ public class Scenario {
     
     public PointPath createPath(Vertex origin) throws NoPathException {
         List<Vertex> destinations = streetGraph.getSinks();
-        Collections.shuffle(destinations);
+        Collections.shuffle(destinations, oracle);
 
         for (Vertex destination : destinations) {
             try {
