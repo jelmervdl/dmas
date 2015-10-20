@@ -6,7 +6,8 @@ colours = list(
 font.size = 10;
 font.family ="Garamond";
 
-tex.textwidth = 14.92038; #cm
+tex.textwidth = 14.49794; #cm
+tex.textheight = 23.69662; #cm
 
 resetPar <- function() {
   dev.new()
