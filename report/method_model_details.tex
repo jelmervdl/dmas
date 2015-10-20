@@ -32,7 +32,9 @@ We sample the width and length of a car independently from a uniform distributio
 		maxSteerAngleDeg 		
 			& \SI[mode=text]{40}{\radian} \\ 
 		power 					
-			& \SI[mode=text]{250}{?}\\ 
+			& \SI[mode=text]{30}{?}\\ 
+		brakePower 		
+			& \SI{50}{\meter\per\square\second}\\
 		wheelAngleDeg 			
 			& \SI[mode=text]{0}{\radian} \\ 
 		steeringSpeed 			
@@ -50,11 +52,7 @@ We sample the width and length of a car independently from a uniform distributio
 		targetSpeedKMH			
 			& \SI[mode=text]{0}{\kilo\meter\per\hour} \\ 
 		path					
-			& differs per vehicle \\ 
-	% 
-		% bodyFixture 			& \\ 
-		% visionFixture 		& \\ 
-		% colour 				& differs per driver type \\ 		
+			& differs per vehicle \\ 		
 		\bottomrule
 	\end{tabularx}
 	\caption{An overview of the initialisation of car-owned state parameters.}
@@ -70,7 +68,4 @@ The simulation variables differ per simulation, and have no fixed initialisation
 \paragraph{Input}
 \label{par:method:model:details:input}
 % \algemeen{The dynamics of many IBMs are driven by some environmental conditions which change over space and time. All these environmental conditions are “input”, i.e. imposed dynamics of certain state variables.}
-This simulation requires a graph, sources and sinks, traffic signs, vertex locations and the human-autonomous ratio. The graph represents the connections between the streets, since we are not interested in graph visualisation one also needs to indication the location of each vertex in the world space. Vertices can be marked as a source or a sink, making it the starting point or destination for drivers. Each traffic sign is associated with an edge and is placed near the right side of the edge near the destination of the edge. The human-autonomous ratio indicates how many human drivers we have relative to the number of autonomous cars. This ratio determines the ratio of human cars to autonomous cars that are generated at each source.
-% \paragraph{Submodels}
-% \label{par:method:model:details:submodels}
-%  No clue
+This simulation requires a graph, sources and sinks in that graph, the locations of vertices in that graph, the human-autonomous ratio and optionally how long the simulation should run. The graph represents the connections between the streets, since we are not interested in graph visualisation one also needs to indicate the location of each vertex in the world space. Vertices can be marked as a source or as a sink, or both, making that vertex a possible starting point or destination for drivers. The human-autonomous ratio indicates how many human drivers we have relative to the number of autonomous cars. It controls the ratio of human cars to autonomous cars that are generated at each source.
