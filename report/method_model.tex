@@ -1,9 +1,5 @@
 %!TEX root = report.tex
-The model decription presented below follows the ODD format first proposed in \textcite{grimm2006standard} and then updated in \textcite{grimm2010odd}. We start with a general overview of the agent-based model in \cref{subsub:method:model:overview}, followed by explanations of the design concepts in \cref{subsub:method:model:design}, after which we discuss the details of the model in \cref{subsub:method:model:details}. 
-
-Our model is a traffic simulation with `autonomous' and `human-driven' vehicles. They drive over roads, and have to work with intersections and crossings. 
-\todo[inline]{commentaar van Bart hier was: Perhaps first informally describe your simulation, then move to the ODD description. Otherwise too abstract, no fun to read.}
-
+The model decription presented below follows the ODD format first proposed in \textcite{grimm2006standard} and then updated in \textcite{grimm2010odd}. We start with a general overview of the agent-based model in \cref{subsub:method:model:overview}, followed by a discussion of the design concepts in \cref{subsub:method:model:design}, after which we go into the details of the model in \cref{subsub:method:model:details}. 
 
 \begin{figure}
 	\centering
@@ -19,7 +15,7 @@ Our model is a traffic simulation with `autonomous' and `human-driven' vehicles.
 		\caption{With visible field of view.}
 		\label{fig:model:simulation:nofix}
 	\end{subfigure}	
-	\caption{The traffic simulation with \subref{fig:model:simulation:fix} visible field of view and \subref{fig:model:simulation:nofix} without the field of view shown. Coloured dots represent vertices of the graph that we use to represent the road map, vehicles can enter the simulation at green points, and can leave it at red points. The numbers near the coloured dots represent the names of these point used in the statistics. Note that although the images show only one source, in green, and one destination point, in red, the simulation can handle multiple sources and destinations. The field of views around the source and sink indicate the area that is observed by that vertex.}
+	\caption{The traffic simulation with \subref{fig:model:simulation:fix} visible field of view and \subref{fig:model:simulation:nofix} without the field of view shown. Dots represent vertices of the graph that we use to represent the road map, vehicles can enter the simulation at the dots with concentric white and black circles, e.g. node 0 or 1 in \subref{fig:model:simulation:fix}, and can leave it a the black circles with a white cross, e.g. node 2 in \subref{fig:model:simulation:fix}. Simple black circles represent vertices along a path. The names of the vertices are shown in the circles that represent them. The field of views around the source and sink indicate the area that is observed by that vertex.}
 	\label{fig:model:simulation}
 \end{figure}
 
