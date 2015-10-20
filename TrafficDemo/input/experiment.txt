@@ -2,7 +2,7 @@ time = 60
 iterations = 30
 
 [variable]
-ratioAutonomousCars = 0.0:0.1:1.0
+ratioAutonomousCars = 0.0:0.1:1.1
 
 [fixed]
 carWidth = 1.47-2.55
