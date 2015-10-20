@@ -1,13 +1,13 @@
 %!TEX root = ../report.tex
 
 \begin{tikzpicture}
-	\node[source, label={left:(-100, 50)}, state, initial, initial text={}, initial where=above]			
+	\node[source, label={left:(100, 50)}, state, initial, initial text={}, initial where=above]			
 		(c_0)						{$\mathbf{s_0}$};
-	\node[source, label=below:{(-100, -50)}, state, initial, initial text={}, initial where=right]		
+	\node[source, label=below:{(100, -50)}, state, initial, initial text={}, initial where=right]		
 		(c_1)	[below of=c_0] 		{$\mathbf{s_1}$};
 	\node[vertex, label=below:{(0, -50)}, state]														
 		(v_0) 	[left of=c_1]    	{$v_0$};
-	\node[sink, label=below:{(100, -50)}, state, accepting]										
+	\node[sink, label=below:{(-100, -50)}, state, accepting]										
 		(k_0) 	[left of=v_0]		{$\mathbf{s_2}$};
 
 	\path[->] (c_0) edge[edgeStyle] (v_0);
