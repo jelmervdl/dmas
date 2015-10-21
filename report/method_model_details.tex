@@ -64,11 +64,29 @@ We sample the width and length of a car independently from a normal distribution
 		visionShape 			
 			& differs per driver type \\
 		visionRange 			
-			& differs per driver, in the range \SIrange{4.0}{12.0}{\meter} \\
+			& differs per driver, in the range \SIrange{8.0}{16.0}{\meter} \\
 		path
 			& differs per driver \\
 		pathIndex
 			& 0 \\
+		skipAheadTargetDistance
+			& \si{3\meter} \\
+		moveToNextTargetDistance
+			& \si{5\meter} \\
+		brakeDistance
+			& \si{3\meter} \\
+		reverseDistance
+			& \si{0\meter} \\
+		slowDistance
+			& \si{5\meter} \\
+		maxSpeed
+			& \si{30\kilo\meter\per\hour}\\
+		slowSpeed
+			& \si{5\kilo\meter\per\hour} \\
+		patienceTime
+			& \si{30\second} \\
+		stuckTime
+			& \si{10\second} \\
 		\bottomrule
 	\end{tabularx}
 	\caption{An overview of the initialisation of driver-owned state parameters.}

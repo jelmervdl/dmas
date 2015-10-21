@@ -97,6 +97,33 @@ Each car has a driver, which can either be autonomous or human. These are furthe
 		actPeriod
 			& \si{\milli\second}
 			& The period of simulated time to wait before a driver's next \t{act}. \\
+		skipAheadTargetDistance
+			& \si{\meter}
+			& The maximal distance to a coordinate in the path to skip ahead and change \t{pathIndex} to its index. \\
+		moveToNextTargetDistance
+			& \si{\meter}
+			& The maximal distance to the target coordinate to move on to the next one in the \t{path}.\\
+		brakeDistance
+			& \si{\meter}
+			& Maximal distance between the car and an object before the driver starts to brake. \\
+		reverseDistance
+			& \si{\meter}
+			& Maximal distance between the car and an object before the driver backs up.\\
+		slowDistance
+			& \si{\meter}
+			& Maximal distance between the car and an object before the driver will not accelerate beyond \t{slowSpeed}.\\
+		maxSpeed
+			& \si{\kilo\meter\per\hour}
+			& Maximal speed the driver will attain. If the speed of the car is equal or greater, the driver will not accelerate any further.\\
+		slowSpeed
+			& \si{\kilo\meter\per\hour}
+			& Maximal speed while close to an object. Works the same as \t{maxSpeed} but only when an object is in the range of \t{slowDistance}.\\
+		patienceTime
+			& \si{\second}
+			& Time before the driver loses its patience with anyone who might cross in front of him.\\
+		stuckTime
+			& \si{\second}
+			& Minimal seconds of an object in the \t{reverseDistance} proximity before a driver will start backing up.\\
 		\bottomrule
 	\end{tabularx}
 	\caption{An overview of the parameters that indicate the state of a driver.}
