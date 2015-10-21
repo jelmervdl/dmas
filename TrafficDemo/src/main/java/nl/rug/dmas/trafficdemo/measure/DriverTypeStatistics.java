@@ -19,7 +19,7 @@ public class DriverTypeStatistics extends ScenarioAdapter {
     
     @Override
     public void carRemoved(Car car) {
-        if (car.getDriver().reachedDestination())
+        if (!car.getDriver().reachedDestination())
             model.increment(car.getDriver().getClass().getSimpleName());
     }
 

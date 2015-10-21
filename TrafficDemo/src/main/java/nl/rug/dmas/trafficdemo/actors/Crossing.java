@@ -24,23 +24,28 @@ import org.jbox2d.dynamics.FixtureDef;
  *
  * @author jelmer
  */
-public class StreetGraphSink implements Actor, Observer {
+public class Crossing implements Actor, Observer {
     private final Vertex vertex;
     
     private final Scenario scenario;
     
     private final Set<Car> carsInSight = new HashSet<>();
     
-    public StreetGraphSink(Scenario scenario, Vertex vertex) {
+    private final float stuckTime;
+    
+    private float lastUpdate;
+    
+    public Crossing(Scenario scenario, Vertex vertex, float radius, float stuckTime) {
         this.scenario = scenario;
         this.vertex = vertex;
+        this.stuckTime = stuckTime;
         
         BodyDef def = new BodyDef();
         def.type = BodyType.STATIC;
         def.position = vertex.getLocation();
         
         FixtureDef fovDef = new FixtureDef();
-        fovDef.shape = getFOVShape();
+        fovDef.shape = getFOVShape(radius);
         fovDef.isSensor = true;
         fovDef.userData = this;
         
@@ -53,29 +58,34 @@ public class StreetGraphSink implements Actor, Observer {
         return 0;
     }
     
-    private Shape getFOVShape() {
+    private Shape getFOVShape(float radius) {
         Shape shape = new CircleShape();
-        shape.setRadius(10);
+        shape.setRadius(radius);
         return shape;
     }
     
     @Override
     public void act() {
-        for (Car car : carsInSight)
-            if (car.getDriver() != null && car.getDriver().reachedDestination()) {
+        if (scenario.getTime() - lastUpdate > stuckTime) {
+            for (Car car : carsInSight) {
                 scenario.remove(car);
             }
+        }
     }
 
     @Override
     public void addFixtureInSight(Fixture fixture) {
-        if (fixture.getUserData() instanceof Car)
+        if (fixture.getUserData() instanceof Car) {
             carsInSight.add((Car) fixture.getUserData());
+            lastUpdate = scenario.getTime();
+        }
     }
 
     @Override
     public void removeFixtureInSight(Fixture fixture) {
-        if (fixture.getUserData() instanceof Car)
+        if (fixture.getUserData() instanceof Car) {
             carsInSight.remove((Car) fixture.getUserData());
+            lastUpdate = scenario.getTime();
+        }
     }
 }

@@ -19,11 +19,6 @@ import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -624,7 +619,7 @@ public class TrafficPanel extends JPanel {
 
         for (Body body = scenario.getWorld().getBodyList(); body != null; body = body.getNext()) {
             for (Fixture fixture = body.getFixtureList(); fixture != null; fixture = fixture.getNext()) {
-                if (fixture.isSensor() && fixture.getUserData() instanceof Observer) {
+                if (fixture.isSensor() && fixture.getUserData() instanceof Driver) {
                     fillShape(g2, fixture.getShape(), body.getTransform());
                 }
             }
@@ -634,8 +629,12 @@ public class TrafficPanel extends JPanel {
     }
 
     private void drawRoad(Graphics2D g, StreetGraph graph, Vertex source, Vertex sink) {
-        Graphics2D g2 = (Graphics2D) g.create();
+        // Skip if the source and sink are the same.
+        if (source.equals(sink))
+            return;
 
+        Graphics2D g2 = (Graphics2D) g.create();
+        
         try {
             g2.setStroke(roadStroke);
             g2.setColor(Color.LIGHT_GRAY);

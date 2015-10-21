@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import nl.rug.dmas.trafficdemo.actors.AutonomousDriver;
+import nl.rug.dmas.trafficdemo.actors.Crossing;
 import nl.rug.dmas.trafficdemo.actors.Driver;
 import nl.rug.dmas.trafficdemo.actors.HumanDriver;
 import nl.rug.dmas.trafficdemo.actors.StreetGraphSink;
@@ -28,7 +29,6 @@ import nl.rug.dmas.trafficdemo.streetgraph.Vertex;
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
-import org.jbox2d.collision.WorldManifold;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 import org.jbox2d.dynamics.contacts.Contact;
@@ -112,6 +112,9 @@ public class Scenario {
         for (Vertex sink : streetGraph.getSinks())
             actors.put(new StreetGraphSink(this, sink), 0l);
         
+        for (Vertex crossing : streetGraph.getCrossings())
+            actors.put(new Crossing(this, crossing, 4f, 30), 0l);
+        
         // Keep a contact listener that monitors whether cars are in sight of
         // drivers.
         world.setContactListener(new ObserverContactListener());
@@ -185,6 +188,10 @@ public class Scenario {
         Collections.shuffle(destinations, oracle);
 
         for (Vertex destination : destinations) {
+            // Do not accept a destination that is the same as the origin
+            if (destination.equals(origin))
+                continue;
+            
             try {
                 return streetGraph.generatePointPath(origin, destination);
             } catch (NoPathException e) {
@@ -347,7 +354,7 @@ public class Scenario {
             for (Car car : cars)
                 car.update(dt);
 
-            world.step(dt, 8, 3);
+            world.step(dt, 3, 3);
         } finally {
             readLock.unlock();
         }

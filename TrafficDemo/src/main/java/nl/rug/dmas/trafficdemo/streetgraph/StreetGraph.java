@@ -26,11 +26,13 @@ public class StreetGraph {
     private final ArrayList<Edge> edges;
     private final HashMap<Integer, Vertex> sources;
     private final HashMap<Integer, Vertex> sinks;
+    private final HashMap<Integer, Vertex> crossings;
+    
     private final static int resolution = 15;
     private final static float turningRadius = 5.0f; 
     
     // How much do we move a lane to the right on a two-way segment?
-    private final static float rightSideOffset = 2.5f;
+    private final static float rightSideOffset = 3.5f;
 
     /**
      * A graph representing streets, vertices represent intersections, edges
@@ -40,6 +42,7 @@ public class StreetGraph {
     public StreetGraph() {
         this.sources = new HashMap<>();
         this.sinks = new HashMap<>();
+        this.crossings = new HashMap<>();
 
         this.vertices = new HashMap<>();
         this.edges = new ArrayList<>();
@@ -95,6 +98,10 @@ public class StreetGraph {
     protected void setSinks(HashSet<Integer> indices) {
         vertexHashSetToHashMap(indices, this.sinks);
     }
+    
+    protected void setCrossings(HashSet<Integer> indices) {
+        vertexHashSetToHashMap(indices, crossings);
+    }
 
     /**
      * @return the sources of the graph
@@ -108,6 +115,10 @@ public class StreetGraph {
      */
     public ArrayList<Vertex> getSinks() {
         return new ArrayList<>(sinks.values());
+    }
+    
+    public ArrayList<Vertex> getCrossings() {
+        return new ArrayList<>(crossings.values());
     }
 
     public List<Vertex> getVertices() {
@@ -316,6 +327,9 @@ public class StreetGraph {
         }
         
         List<Vec2> points = generatePointPathUsingVec2(pathOfLocations, turningRadius);
+        
+        prunePoints(points, 2);
+        
         return new PointPath(path.getFirst(), path.getLast(), points);
     }
 
@@ -364,6 +378,30 @@ public class StreetGraph {
         return StreetGraph.generatePointLineSegment(
                 edge.getOrigin().getLocation(),
                 edge.getDestination().getLocation());
+    }
+    
+    public static void prunePoints(List<Vec2> points, float minDist) {
+        float minDistSquared = minDist * minDist;
+        Iterator<Vec2> it = points.iterator();
+        Vec2 prev = it.next();
+        
+        while (it.hasNext()) {
+            Vec2 point = it.next();
+            
+            if (!it.hasNext()) {
+                // point is the last point, don't alter it.
+                break;
+            }
+            
+            // If the point is very close to the current point
+            if (point.sub(prev).lengthSquared() < minDistSquared) {
+                // remove it
+                it.remove();
+            } else {
+                // otherwise move to the next point.
+                prev = point;
+            }
+        }
     }
 
     @Override

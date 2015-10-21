@@ -54,6 +54,10 @@ public class StatisticsWindow extends JFrame {
         scenario.addListener(collisionStats);
         statistics.put("Collisions", collisionStats.getModel());
         
+        DriverTypeStatistics driverTypeStats = new DriverTypeStatistics();
+        scenario.addListener(driverTypeStats);
+        statistics.put("Removed due to grid lock", driverTypeStats.getModel());
+        
         for (Map.Entry<String, AbstractTableModel> statistic : statistics.entrySet()) {
             JPanel panel = new JPanel();
             panel.setLayout(new BorderLayout(4, 4));

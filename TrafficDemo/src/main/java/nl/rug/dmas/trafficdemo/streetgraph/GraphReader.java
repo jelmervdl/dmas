@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 import org.jbox2d.common.Vec2;
 
 /**
@@ -23,6 +24,23 @@ public class GraphReader {
         if (GraphReader.scanner.nextLine().equals("")) {
             GraphReader.scanner.nextLine();
         }
+    }
+    
+    private static boolean readHeaderRow(String header) {
+        while (scanner.hasNextLine()) {
+            if (scanner.hasNext(Pattern.compile("^$"))) {
+                scanner.nextLine();// consume the empty line
+            }
+            else if (scanner.hasNext(header)) {
+                scanner.nextLine(); // consume the header
+                return true; // found the header
+            }
+            else {
+                return false; // found something else
+            }
+        }
+        
+        return false;
     }
 
     private static int readNaturalNumber(String descriptionOfInt) throws InputMismatchException {
@@ -76,6 +94,14 @@ public class GraphReader {
         return sinks;
     }
 
+    private static HashSet<Integer> readCrossings() {
+        if (readHeaderRow("Crossings")) {
+            return readSetOfNaturalNumbersFromLine(GraphReader.numNodes);
+        } else {
+            return new HashSet<>();
+        }
+    }
+    
     private static void readEdges() {
         readHeaderRow();
         for (int i = 0; i < GraphReader.numEdges; i++) {
@@ -83,7 +109,7 @@ public class GraphReader {
                     checkNodeValues(GraphReader.scanner.nextInt()));
         }
     }
-
+    
     private static HashSet<Integer> readSources() {
         readHeaderRow();
         HashSet<Integer> sources = readSetOfNaturalNumbersFromLine(GraphReader.numNodes);
@@ -111,10 +137,12 @@ public class GraphReader {
             readNumNodesAndEdges();
             HashSet<Integer> sources = readSources();
             HashSet<Integer> sinks = readSinks();
+            HashSet<Integer> crossings = readCrossings();
 
             readEdges();
             GraphReader.graph.setSinks(sinks);
             GraphReader.graph.setSources(sources);
+            GraphReader.graph.setCrossings(crossings);
 
             readNodeLocations();
         } catch (InputMismatchException ex) {
