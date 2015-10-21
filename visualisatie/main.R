@@ -66,7 +66,7 @@ plotSpeedAsFunctionOfRatio <- function(dataToPlot, outputFile) {
     geom_point() +
     xlab("Ratio of autonomous to human drivers") +
     ylab("Speed (m/s)") +
-    ylim(0.10, 0.20) +
+    ylim(0.00, 0.80) +
     scale_colour_manual(
       values = c(colours$red, colours$blue),
       name = "Driver",
@@ -125,8 +125,8 @@ handleFile <- function(filePath, pathLengths) {
 }
 
 mergingTraffic <- function() {
-  pathLengths <- list(`From 0 to 3` = 100 + 100,
-                      `From 1 to 3` = 100 + sqrt(100 ^ 2 + 100 ^ 2))
+  pathLengths <- list(`From 0 to 3` = 50 + 50,
+                      `From 1 to 3` = 50 + sqrt(50 ^ 2 + 50 ^ 2))
   subsets <- list(
     list(factor = "From 0 to 3",
          fileName = "results_merging_03.png"),
@@ -137,18 +137,18 @@ mergingTraffic <- function() {
       fileName = "results_merging.png"
     )
   );
-  inputData <- handleFile("../TrafficDemo/output/merging.csv");
+  inputData <- handleFile("experiment-2-merging.csv");
   prepareData(inputData, pathLengths, subsets)
 }
 
 intersectingTraffic <- function() {
   pathLengths <- list(
-    `From 0 to 3` = 100 + 100,
-    `From 3 to 0` = 100 + 100,
-    `From 1 to 3` = 100 + 100,
-    `From 3 to 1` = 100 + 100,
-    `From 0 to 1` = 100 + 100,
-    `From 1 to 0` = 100 + 100
+    `From 0 to 3` = 50 + 50,
+    `From 3 to 0` = 50 + 50,
+    `From 1 to 3` = 50 + 50,
+    `From 3 to 1` = 50 + 50,
+    `From 0 to 1` = 50 + 50,
+    `From 1 to 0` = 50 + 50
   )
   subsets <- list(
     list(
@@ -167,7 +167,7 @@ intersectingTraffic <- function() {
     )
   );
   inputData <-
-    handleFile("../TrafficDemo/output/intersecting.csv");
+    handleFile("experiment-2-intersection.csv");
   prepareData(inputData, pathLengths, subsets)
 }
 
