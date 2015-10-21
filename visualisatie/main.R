@@ -68,10 +68,13 @@ plotSpeedAsFunctionOfRatio <- function(dataToPlot, outputFile) {
     ylab("Speed (m/s)") +
     ylim(0.00, 0.80) +
     scale_colour_manual(
-      values = c(colours$red, colours$blue),
+      values = c(colours$black, colours$grey),
       name = "Driver",
       breaks = c("AutonomousDriver", "HumanDriver"),
       labels = c("Autonomous", "Human")
+    ) +
+    scale_shape(
+      breaks = c("AutonomousDriver", "HumanDriver")  
     ) +
     scale_x_discrete(
       limits=levels(dataToPlot$ratioAutonomousCars), 
@@ -82,7 +85,7 @@ plotSpeedAsFunctionOfRatio <- function(dataToPlot, outputFile) {
       plot.title = element_text(family = font.family, size=font.size),
       plot.margin=unit(x=c(0,2,0,0),units="mm"),
       legend.margin=unit(-0.45,"cm")
-  );
+    );
   file.path()
   print(plot);
   ggsave(

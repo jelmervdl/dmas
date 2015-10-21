@@ -1,7 +1,9 @@
 # Settings for the plots
 colours = list(
   red 	= "#AF3547",
-  blue   	= "#0074BC"
+  blue   	= "#0074BC",
+  black  = "#000000",
+  grey = "#999999"
 )
 font.size = 10;
 font.family ="Garamond";
