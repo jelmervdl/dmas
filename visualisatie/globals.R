@@ -3,7 +3,7 @@ colours = list(
   red 	= "#AF3547",
   blue   	= "#0074BC",
   black  = "#000000",
-  grey = "#999999"
+  grey = "#777777"
 )
 font.size = 10;
 font.family ="Garamond";

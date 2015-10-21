@@ -132,12 +132,12 @@ mergingTraffic <- function() {
                       `From 1 to 3` = 50 + sqrt(50 ^ 2 + 50 ^ 2))
   subsets <- list(
     list(factor = "From 0 to 3",
-         fileName = "results_merging_03.png"),
+         fileName = "results_merging_03.pdf"),
     list(factor = "From 1 to 3",
-         fileName = "results_merging_13.png"),
+         fileName = "results_merging_13.pdf"),
     list(
       factor = list("From 0 to 3", "From 1 to 3"),
-      fileName = "results_merging.png"
+      fileName = "results_merging.pdf"
     )
   );
   inputData <- handleFile("experiment-2-merging.csv");
@@ -156,17 +156,17 @@ intersectingTraffic <- function() {
   subsets <- list(
     list(
       factor = list("From 0 to 3", "From 0 to 1", "From 1 to 0", "From 3 to 0"),
-      fileName = "results_intersecting_03_01.png"
+      fileName = "results_intersecting_03_01.pdf"
     ),
     list(
       factor = list("From 1 to 3", "From 3 to 1"),
-      fileName = "results_intersecting_13.png"
+      fileName = "results_intersecting_13.pdf"
     ),
     list(
       factor = list(
         "From 0 to 3", "From 0 to 1", "From 1 to 0", "From 3 to 0", "From 1 to 3", "From 3 to 1"
       ),
-      fileName = "results_intersecting.png"
+      fileName = "results_intersecting.pdf"
     )
   );
   inputData <-
