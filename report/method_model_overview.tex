@@ -172,7 +172,9 @@ The sources and sinks in the simulation determine each time step whether to resp
 
 Each time step all drivers are asked through \t{act} to alter the acceleration and steering direction of their car, but only if they haven't been asked for at least the delay defined by \t{actPeriod}.
 
+\begin{sloppypar}
 The processes active in the driver behaviour model are \t{steerTowardsPath()}, \t{speedAdjustmentToAvoidCars()} and \t{speedAdjustmentToPreventColission()}.
+\end{sloppypar}
 
 The process \t{steerTowardsPath} ensures that the vehicle steers towards its next target along the path of coordinates. As a car is added to the simulation it is passed its \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car}. When the position of the driver inside the car is fewer than \t{moveToNextTargetDistance} away from the coordinate, it drives to its next target, the next coordinate on its path. To prevent the driver from having to reverse when missing a coordinate, it will jump ahead in its path when it is less than \t{skipAheadTargetDistance} away from a further coordinate in their path. Eventually the agent will reach its destination, even when it gets diverted by other vehicles along the way. The sink at that position will then remove the car from the simulation in the next time step.
 
