@@ -2,13 +2,13 @@
 
 \begin{tikzpicture}
 
-	\node[label=left:{(0, 50)}, state, initial, initial text={}, initial where=above, accepting, source, sink]		
+	\node[label=left:{(0, 25)}, state, initial, initial text={}, initial where=above, accepting, source, sink]		
 		(s_0)						{$\mathbf{s_0}$};
-	\node[vertex, label=below:{(0, -50)}, state]														
+	\node[vertex, label=below:{(0, -25)}, state]														
 		(v_0) 	[below of=s_0]    	{$v_0$};
-	\node[label=below:{(100, -50)}, state, initial, initial text={}, initial where=right, accepting, source, sink]		
+	\node[label=below:{(50, -25)}, state, initial, initial text={}, initial where=right, accepting, source, sink]		
 		(s_1)	[right of=v_0] 		{$\mathbf{s_1}$};
-	\node[label=below:{(-100, -50)}, state, initial, initial text={}, initial where=left, accepting, source, sink]	
+	\node[label=below:{(-50, -25)}, state, initial, initial text={}, initial where=left, accepting, source, sink]	
 		(s_2)	[left of=v_0] 		{$\mathbf{s_2}$};
 
 	\path[->] (s_0) edge[edgeStyle] (v_0);
