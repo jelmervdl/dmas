@@ -6,10 +6,8 @@
 package nl.rug.dmas.trafficdemo.actors;
 
 import java.util.List;
-import nl.rug.dmas.trafficdemo.Acceleration;
 import nl.rug.dmas.trafficdemo.Scenario;
 import nl.rug.dmas.trafficdemo.ShapeUtil;
-import nl.rug.dmas.trafficdemo.VecUtils;
 import org.jbox2d.collision.shapes.Shape;
 import org.jbox2d.common.MathUtils;
 import org.jbox2d.common.Vec2;
@@ -19,17 +17,10 @@ import org.jbox2d.common.Vec2;
  * @author lauravandebraak
  */
 public class HumanDriver extends Driver{
-    private float viewLength;
     private int actPeriod;
     
-    public HumanDriver(Scenario scenario, float view) {
-        super(scenario);
-        this.viewLength = view;
-    }
-    
-    public HumanDriver(Scenario scenario, List<Vec2> path, float view, int actPeriod) {
-        super(scenario, path);
-        this.viewLength = view;
+    public HumanDriver(Scenario scenario, List<Vec2> path, float viewLength, int actPeriod) {
+        super(scenario, path, viewLength);
         this.actPeriod = actPeriod;
     }
 
@@ -43,52 +34,7 @@ public class HumanDriver extends Driver{
     }
     
     @Override
-    public boolean reachedDestination() {
-        return path != null && pathIndex == path.size();
-    }
-
-    @Override
     public int getActPeriod() {
         return actPeriod;
     }
-
-    /**
-     * Update the steering direction of the car we drive
-     */
-    
-    //todo: update
-    @Override
-    public void act()
-    {
-        debugDraw.clear();
-        
-        float steeringAngle = VecUtils.getAngle(steerTowardsPath().negate());
-        
-        car.setSteeringDirection(steeringAngle);
-        
-        if (steerTowardsPath().length() == 0)
-            car.setAcceleration(Acceleration.NONE);
-        else if (speedAdjustmentToAvoidCars() < 0)
-            car.setAcceleration(Acceleration.BRAKE);
-        else if (car.getSpeedKMH() < 30)
-            car.setAcceleration(Acceleration.ACCELERATE);
-        else
-            car.setAcceleration(Acceleration.NONE);
-    }
-    
-    /**
-     * @return the viewLength
-     */
-    public float getViewLength() {
-        return viewLength;
-    }
-
-    /**
-     * @param viewLength the viewLength to set
-     */
-    public void setViewLength(float viewLength) {
-        this.viewLength = viewLength;
-    }
-    
-    
 }

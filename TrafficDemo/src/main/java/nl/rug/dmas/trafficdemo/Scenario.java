@@ -80,7 +80,9 @@ public class Scenario {
     
     public Parameter ratioAutonomousCars = Parameter.fromString("0.5");
     
-    public Parameter viewLength = Parameter.fromString("4.00-12.00");
+    public Parameter humanViewLength = Parameter.fromString("8.00-16.00");
+    
+    public Parameter autonomousViewLength = Parameter.fromString("16.0");
     
     public Parameter actPeriod = Parameter.fromString("100");
     
@@ -200,21 +202,21 @@ public class Scenario {
      * @return 
      */
     public Driver createDriver() {
-        return new AutonomousDriver(this, (List<Vec2>) commonKnowledge.get("path"));
+        return new AutonomousDriver(this,
+                (List<Vec2>) commonKnowledge.get("path"),
+                autonomousViewLength.getValue(oracle));
     }
     
     /**
      * Create a purposeful driver. This driver will try to drive along the path
      * you pass to this factory method.
-     * Todo: here we should create drivers randomly according to the ratio human
-     * vs autonomous we want to test.
      * @param path
      * @return a driver!
      */
     public Driver createDriver(PointPath path) {
         return oracle.nextFloat() < ratioAutonomousCars.getValue(oracle)
-            ? new AutonomousDriver(this, path)
-            : new HumanDriver(this, path, viewLength.getValue(oracle), (int) actPeriod.getValue(oracle));
+            ? new AutonomousDriver(this, path, autonomousViewLength.getValue(oracle))
+            : new HumanDriver(this, path, humanViewLength.getValue(oracle), (int) actPeriod.getValue(oracle));
     }
     
     public Car createCar(Driver driver, Vec2 position, float angle) {

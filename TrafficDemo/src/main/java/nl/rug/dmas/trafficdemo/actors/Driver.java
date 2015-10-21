@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import nl.rug.dmas.trafficdemo.Acceleration;
 import nl.rug.dmas.trafficdemo.Actor;
 import nl.rug.dmas.trafficdemo.Car;
 import nl.rug.dmas.trafficdemo.DebugGraphicsQueue;
@@ -39,6 +40,8 @@ abstract public class Driver implements Actor, Observer {
     
     int pathIndex = 0;
     
+    float lastMovement = 0;
+    
     // A set of all fixtures in the field of view. It is updated by the
     // scenario step function itself, drivers (actors) don't have access
     // to anything outside of this list and the public getters of Scenario.
@@ -46,29 +49,38 @@ abstract public class Driver implements Actor, Observer {
     
     final public DebugGraphicsQueue debugDraw = new DebugGraphicsQueue();
     
-    final private float timeOfCreation;
+    final float timeOfCreation;
+    
+    final float viewLength;
     
     final float skipAheadPointDistance = 3.0f;
     
     final float moveToNextPointDistance = 5.0f;
+    
+    final float brakeDistance = 3.0f; // meter
+    
+    final float reverseDistance = 0.0f; // meter (0 -> disabled)
+    
+    final float maxSpeed = 30f; // kph
+    
+    final float stuckTime = 10f; // seconds
+    
+    final float slowDistance = 5.0f;
+    
+    final float slowSpeed = 5f; // kph
+    
+    final float patienceTime = 30; // seconds
     
     /**
      * Create a driver that will drive along a predefined route of positions
      * @param scenario
      * @param path List of Vec2's in world coordinates
      */
-    public Driver(Scenario scenario, List<Vec2> path) {
+    public Driver(Scenario scenario, List<Vec2> path, float viewLength) {
         this.scenario = scenario;
         this.path = path;
+        this.viewLength = viewLength;
         this.timeOfCreation = scenario.getTime();
-    }
-    
-    /**
-     * Create a blank driver in a scenario.
-     * @param scenario scenario in which the driver is driving.
-     */
-    public Driver(Scenario scenario) {
-        this(scenario, (CopyOnWriteArrayList<Vec2>) scenario.getCommonKnowledge().get("path"));
     }
     
     /**
@@ -187,8 +199,8 @@ abstract public class Driver implements Actor, Observer {
         float originY = -car.getLength() / 2 - originOffset; // front of the car
         
         // The arcs bent with the steering of the car
-        float arcStart = MathUtils.min(2.5f * MathUtils.QUARTER_PI - steeringAngle + MathUtils.HALF_PI, MathUtils.PI);
-        float arcStop = MathUtils.max(1.5f * MathUtils.QUARTER_PI - steeringAngle + MathUtils.HALF_PI, 0);
+        float arcStart = MathUtils.min(2.5f * MathUtils.QUARTER_PI - steeringAngle, MathUtils.PI);
+        float arcStop = MathUtils.max(1.5f * MathUtils.QUARTER_PI - steeringAngle, 0);
         float arcStep = (arcStop - arcStart) / (numberOfRays - 1);
         
         final AtomicReference<Float> hit = new AtomicReference<>();
@@ -239,6 +251,10 @@ abstract public class Driver implements Actor, Observer {
             VecUtils.Intersection intersection = VecUtils.intersect(car.getPosition(), car.getAbsoluteVelocity(),
                 other.getPosition(), other.getAbsoluteVelocity());
             
+            // Is the driver coming from the left side? Then we have prevedence
+            if (car.getLocalPoint(other.getPosition()).x < 0.3f)
+                continue;
+            
             if (intersection == null)
                 continue;
             
@@ -273,5 +289,41 @@ abstract public class Driver implements Actor, Observer {
      */
     public boolean reachedDestination() {
         return path != null && pathIndex == path.size();
+    }
+    
+    /**
+     * Update the steering direction of the car we drive
+     */
+    @Override
+    public void act()
+    {
+        debugDraw.clear();
+        
+        float steeringAngle = VecUtils.getAngle(steerTowardsPath().negate());
+        
+        car.setSteeringDirection(steeringAngle);
+        
+        float distance = speedAdjustmentToPreventColission((steeringAngle - MathUtils.HALF_PI) * 2f, Math.max(Math.max(slowDistance, brakeDistance), reverseDistance), 10);
+        
+        if (distance > 0 && distance < reverseDistance && car.getLocalVelocity().y > 0.0f && stuckTime > scenario.getTime() - lastMovement) {
+            car.setAcceleration(Acceleration.REVERSE);
+        } else if (distance > 0 && distance < brakeDistance) {
+            car.setAcceleration(Acceleration.BRAKE);
+        } else if (distance > 0 && distance < slowDistance && car.getSpeedKMH() > slowSpeed) {
+            car.setAcceleration(Acceleration.BRAKE);
+            lastMovement = scenario.getTime();
+        } else if (steerTowardsPath().length() == 0) {
+            car.setAcceleration(Acceleration.NONE);
+            lastMovement = scenario.getTime();
+        } else if (speedAdjustmentToAvoidCars() < 0 && patienceTime > scenario.getTime() - lastMovement) {
+            car.setAcceleration(Acceleration.BRAKE);
+        } else if (car.getSpeedKMH() < maxSpeed) {
+            car.setAcceleration(Acceleration.ACCELERATE);
+            lastMovement = scenario.getTime();
+        }
+        else {
+            car.setAcceleration(Acceleration.NONE);
+            lastMovement = scenario.getTime();
+        }
     }
 }

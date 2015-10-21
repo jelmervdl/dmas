@@ -205,6 +205,10 @@ public class Car {
         return this.body.getLocalPoint(worldPoint);
     }
     
+    public Vec2 getLocalVector(Vec2 worldVector) {
+        return this.body.getLocalVector(worldVector);
+    }
+    
     public Vec2 getWorldPoint(Vec2 localPoint) {
         return this.body.getWorldPoint(localPoint);
     }

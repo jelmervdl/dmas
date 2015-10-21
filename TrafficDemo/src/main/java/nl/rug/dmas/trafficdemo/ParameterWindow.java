@@ -6,19 +6,13 @@
 package nl.rug.dmas.trafficdemo;
 
 import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
@@ -78,15 +72,27 @@ public class ParameterWindow extends JFrame {
             }
         });
         
-        fields.add(new ParameterField("Viewlength Human Drivers") {
+        fields.add(new ParameterField("Viewlength Autonomous Drivers") {
             @Override
             public String getValue() {
-                return scenario.viewLength.toString();
+                return scenario.autonomousViewLength.toString();
             }
 
             @Override
             public void setValue(String value) {
-                scenario.viewLength = Parameter.fromString(value);
+                scenario.autonomousViewLength = Parameter.fromString(value);
+            }
+        });
+        
+        fields.add(new ParameterField("Viewlength Human Drivers") {
+            @Override
+            public String getValue() {
+                return scenario.humanViewLength.toString();
+            }
+
+            @Override
+            public void setValue(String value) {
+                scenario.humanViewLength = Parameter.fromString(value);
             }
         });
         

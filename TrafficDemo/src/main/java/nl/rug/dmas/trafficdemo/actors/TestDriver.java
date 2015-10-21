@@ -5,6 +5,7 @@
  */
 package nl.rug.dmas.trafficdemo.actors;
 
+import java.util.List;
 import nl.rug.dmas.trafficdemo.Acceleration;
 import nl.rug.dmas.trafficdemo.Scenario;
 import org.jbox2d.common.Vec2;
@@ -15,10 +16,10 @@ import org.jbox2d.common.Vec2;
  */
 public class TestDriver extends Driver {
 
-    public TestDriver(Scenario scenario) {
-        super(scenario);
+    public TestDriver(Scenario scenario, List<Vec2> path, float viewLength) {
+        super(scenario, path, viewLength);
     }
-    
+
     @Override
     public void act() {
         setSteerDirection(steerTowardsMouse());
