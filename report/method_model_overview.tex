@@ -81,7 +81,7 @@ Each car has a driver, which can either be autonomous or human. These are furthe
 		path					
 			& n.a. 
 			& The path the agent is going to follow. \\
-		pahtIndex
+		pathIndex
 			& number
 			& The coordinate in the path that it the current target of the driver.\\
 		viewLength 			
@@ -131,7 +131,7 @@ Each car has a driver, which can either be autonomous or human. These are furthe
 
 \subparagraph{Higher-level entities}
 The parameters at the simulation level are presented in \cref{tab:par:method:model:overview:state:highlevel:sim}.
-The graph represents the streets, it is input as a connected directed graph with two special types of vertices; sources and sinks. Sources are vertices where cars can enter the simulation. The opposite type of vertex is a sink; vertices where cars can leave the simulation. In terms of traffic a source is the point of departure and a sink is the destination. To determine the \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car} we try to find a path from the source where the car is created to a randomly chosen reachable sink. Breadth-first search is used to determine which of the sinks are reachable from the source, and only from this pool a sink is chosen. The found path is represented as a list of edges, which are then converted to the set of coordinates that make up the \t{path}. If an edge in the path is bidirectional, the coordinates on that section are offset to the right in the driving direction to simulate driving on the right side of a two-way road. The angles between edges are smoothed into curves in the path of coordinates to simulate more friendly roads.
+The graph represents the streets, it is input as a connected directed graph with two special types of vertices; sources and sinks. Sources are vertices where cars can enter the simulation. The opposite type of vertex is a sink; vertices where cars can leave the simulation. In terms of traffic a source is the point of departure and a sink is the destination. To determine the \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car} we try to find a path from the source where the car is created to a randomly chosen reachable sink. Breadth-first search is used to determine which of the sinks are reachable from the source, and only from this pool a sink is chosen. The found path is represented as a list of edges, which are then converted to the set of coordinates that make up the \t{path}. If an edge in the path is bidirectional, the coordinates on that section are offset to the right in the driving direction to simulate driving on the right side of a two-way road. The angles between edges are smoothed into curves in the path of coordinates to simulate more car-friendly roads.
 
 The \t{ratioAutonomousCars} controls how many autonomous cars are present in the simulation relative to the number of human driven cars, i.e. if \t{ratioAutonomousCars} is set to one all cars are self-driving.
 
@@ -160,7 +160,7 @@ The \t{ratioAutonomousCars} controls how many autonomous cars are present in the
 \end{table}
 
 \subparagraph{Scales}
-Each time step is \si{\frac{1}{60}s} long. This small time steps ensures that our simulation approaches the continuous movement of real life vehicles. Furthermore the frequent update rate makes the visualisation of the simulation run smoothly, without creating a too large computational stress.
+Each time step is \si{$\frac{1}{60}$ \second} long. This small time steps ensures that our simulation approaches the continuous movement of real life vehicles. Furthermore the frequent update rate makes the visualisation of the simulation run smoothly, without creating a too large computational stress.
 
 The simulation can be run indefinitely to observe the behaviour of the cars visually, or with a time horizon for making quantitative observations.
 
@@ -174,7 +174,7 @@ Each time step all drivers are asked through \t{act} to alter the acceleration a
 
 The processes active in the driver behaviour model are \t{steerTowardsPath()}, \t{speedAdjustmentToAvoidCars()} and \t{speedAdjustmentToPreventColission()}.
 
-The process \t{steerTowardsPath} ensures that the vehicle steers towards its next target along the path of coordinates. As a car is added to the simulation it is passed its \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car}. When the position of the driver inside the car is fewer than \t{moveToNextTargetDistance} away from the coordinate, it drives to its next target, the next coordinate on its path. To prevent the driver from having to reverse when missing a coordinate, it will jump ahead in its path when it less than \t{skipAheadTargetDistance} away from a further coordinate in their path. Eventually the agent will reach its destination, even when it gets diverted by other vehicles along the way. The sink at that position will then remove the car from the simulation in the next time step.
+The process \t{steerTowardsPath} ensures that the vehicle steers towards its next target along the path of coordinates. As a car is added to the simulation it is passed its \t{path} mentioned in \cref{tab:par:method:model:overview:state:lowlevel:car}. When the position of the driver inside the car is fewer than \t{moveToNextTargetDistance} away from the coordinate, it drives to its next target, the next coordinate on its path. To prevent the driver from having to reverse when missing a coordinate, it will jump ahead in its path when it is less than \t{skipAheadTargetDistance} away from a further coordinate in their path. Eventually the agent will reach its destination, even when it gets diverted by other vehicles along the way. The sink at that position will then remove the car from the simulation in the next time step.
 
 Both \t{speedAdjustmentToAvoidCars()} and \t{speedAdjustmentToPreventCollision()} are used next to the \t{steerTowardsPath()} process to adjust the acceleration of the driver. The first is used by both drivers, and checks if the driver is going to intersect paths with another vehicle coming from the right side of the driver based in both their position and velocity as seen from the drivers point of view. If a collision with any of the vehicles in the \t{fixturesInSight} list seems imminent (i.e. the intersection of the paths is estimated to take place in front of the driver, not behind), the acceleration of the car is set to \t{BRAKE}.
 
@@ -183,7 +183,7 @@ If neither of these procedures define an acceleration, the preferred acceleratio
 
 % \algemeen{Bespreek scheduling van processen, welke volgorde uitgevoerd?}
 % \algemeen{Are some actions executed in a random order?}
-All actions are executed in a fixed order that stays the same for each iteration. First all sources and sinks are triggered. Then, all drivers are given the chance to update if their \t{actDelay} allows for it. Next, the physics simulation is run to simulate \si{\frac{1}{60} \second} of time. During this simulation all collisions and \t{fixturesInSight} lists are updated.
+All actions are executed in a fixed order that stays the same for each iteration. First all sources and sinks are triggered. Then, all drivers are given the chance to update if their \t{actDelay} allows for it. Next, the physics simulation is run to simulate \si{$\frac{1}{60}$ \second} of time. During this simulation all collisions and \t{fixturesInSight} lists are updated.
 
 % \algemeen{How is time modeled}
 % \algemeen{How are actions that happen concurrently IRL executed in the model}

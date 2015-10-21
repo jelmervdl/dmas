@@ -4,9 +4,9 @@
 
 
 \paragraph{Agents}
-There are a couple differences between human drivers and autonomous agents. Firstly, the view of the human drivers is limited, compared to that of autonomous drivers. Where the autonomous drivers have a circular view in a radius of \si{12 \meter}, the human drivers have an arc-shaped view of differing radius. This radius differs per driver. As the drivers are built, they get assigned a \t{viewLength}. This is sampled from a random distribution with a mean of \si{8 \meter} and a standard deviation of \si{\frac{4}{3} \meter}. If the sampled values are below zero, they are clamped to zero, to avoid negative a negative \t{viewLength}. 
+There are a couple differences between human drivers and autonomous agents. Firstly, the view of the human drivers is limited, compared to that of autonomous drivers. Where the autonomous drivers have a circular view in a radius of \si{12 \meter}, the human drivers have an arc-shaped view of differing radius. This radius differs per driver. As the drivers are built, they get assigned a \t{viewLength}. This is sampled from a random distribution with a mean of \si{8 \meter} and a standard deviation of \si{$\frac{4}{3}$ \meter}. If the sampled values are below zero, they are clamped to zero, to avoid negative a negative \t{viewLength}. 
 
-Furthermore, human drivers have an \t{actPeriod} of \si{100\milli\second}, which means that \si{100\milli\second} pass between each update step. This causes them to have a slower reaction to the continuous changes in the environment than autonomous drivers, which have an \t{actPeriod} equal to that of the simulation step time, namely\si{\frac{1}{60}\second}. 
+Furthermore, human drivers have an \t{actPeriod} of \si{100\milli\second}, which means that \si{100\milli\second} pass between each update step. This causes them to have a slower reaction to the continuous changes in the environment than autonomous drivers, which have an \t{actPeriod} equal to that of the simulation step time, namely\si{$\frac{1}{60}$ \second}. 
 
 Lastly, the way drivers react to other vehicles in their neighbourhood differs, this process is discussed in  \cref{par:method:model:overview:process}. 
 

@@ -70,23 +70,23 @@ We sample the width and length of a car independently from a normal distribution
 		pathIndex
 			& 0 \\
 		skipAheadTargetDistance
-			& \si{3\meter} \\
+			& \si{3 \meter} \\
 		moveToNextTargetDistance
-			& \si{5\meter} \\
+			& \si{5 \meter} \\
 		brakeDistance
-			& \si{3\meter} \\
+			& \si{3 \meter} \\
 		reverseDistance
-			& \si{0\meter} \\
+			& \si{0 \meter} \\
 		slowDistance
-			& \si{5\meter} \\
+			& \si{5 \meter} \\
 		maxSpeed
-			& \si{30\kilo\meter\per\hour}\\
+			& \si{30 \kilo\meter\per\hour}\\
 		slowSpeed
-			& \si{5\kilo\meter\per\hour} \\
+			& \si{5 \kilo\meter\per\hour} \\
 		patienceTime
-			& \si{30\second} \\
+			& \si{30 \second} \\
 		stuckTime
-			& \si{10\second} \\
+			& \si{10 \second} \\
 		\bottomrule
 	\end{tabularx}
 	\caption{An overview of the initialisation of driver-owned state parameters.}
@@ -94,7 +94,7 @@ We sample the width and length of a car independently from a normal distribution
 \end{table}
 
 
-The only parameter specific to the simulation itself is the \t{streetGraph} and \t{ratioAutonomousCars}, which we control to create different scenarios to determine the influence of autonomous cars on the traffic flow. The simulation also keeps track of \t{time}, but this always starts at \si{0\second}.
+The only parameter specific to the simulation itself is the \t{streetGraph} and \t{ratioAutonomousCars}, which we control to create different scenarios to determine the influence of autonomous cars on the traffic flow. The simulation also keeps track of \t{time}, but this always starts at \si{0 \second}.
 
 \begin{table}
 	\centering
@@ -105,7 +105,7 @@ The only parameter specific to the simulation itself is the \t{streetGraph} and 
 		streetGraph
 			& a directed graph of edges and vertices with positions, which can marked as sources or sinks. \\
 		time 
-			& \si{0\second} \\
+			& \si{0 \second} \\
 		ratioAutonomousCars
 			& 0.5 \\
 		\bottomrule
