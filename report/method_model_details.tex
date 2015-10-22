@@ -2,19 +2,19 @@
 \paragraph{Initialisation}
 \label{par:method:model:details:initialization}
 % \algemeen{How are the environment and the individuals created at the start of a simulation run, i.e. what are the initial values of the state variables? Is initialisation always the same, or was it varied among simulations? Were the initial values chosen arbitrarily or based on data? References to those data should be provided}
-The initial variables are partly fixed, partly variable, an overview of all variables relating to cars and their initial values is presented in \cref{tab:par:method:model:details:init:car:value}. The variability is between agents, but not necessarily between simulations. These varying values are chosen arbitrarily for each run of the simulation.
-For the random variables between $m$ and $n$ we use an normal distribution with the mean $\mu = m + \frac{n-m}{2}$ and standard deviation $\sigma = \frac{n-m}{3}$. The range of values are limited to $m \leq x \geq n$ to prevent the rare chance that a car with values that cause undefined behaviour is created, e.g. a car with a negative length.
+The initial variables are partly fixed, partly variable. An overview of all variables relating to cars and their initial values is presented in \cref{tab:par:method:model:details:init:car:value}. The variability is between agents, but not necessarily between simulations. These varying values are chosen arbitrarily for each run of the simulation.
+
+For the random variables between $m$ and $n$ we use a normal distribution with mean $\mu = m + \frac{n-m}{2}$ and standard deviation $\sigma = \frac{n-m}{3}$. The range of these values are limited to $m \leq x \geq n$ to prevent the creation of a car with values that cause undefined behaviour, e.g. a car with a negative length.
 An exception to this behaviour is the selection of the destination vertex and the choice between an autonomous or human driver. These are sampled independently from a uniform distribution.
 
-
 % Initial position
-The initial \t{position} of a car, i.e. its point of departure, the location of the source that has space and need of a new car. The \t{velocity} is zero and the \t{angle} is equal to the angle towards the driver their first target so that the car does not have to make an awkward turn before it can start following their path.
+The initial \t{position} of a car, i.e. its point of departure, is the location of the source that has space and is in need of a new car. The initial \t{velocity} of the car is zero and its \t{angle} is equal to the angle towards its first target so that the car does not have to make an awkward turn before it can start following its path.
 
 % Path
-The \t{path} of a car starts at the initial \t{position} of the car and ends at its destination which is uniformly and independently sampled from the \t{sinks} of the \t{streetGraph} that are reachable from this source.
+The \t{path} of a car starts at the initial \t{position} of the car and ends at its destination which is uniformly and independently sampled from the \t{sinks} of the \t{streetGraph} that are reachable from its point of departure.
 
 % Drivers
-The type of \t{driver} is chosen randomly, weighted with the ratio of human driven vehicles to autonomous cars. I.e. if we have nine human drivers for each autonomous car, a driver is nine times as likely to get be driven by a human.
+The type of \t{driver} is chosen randomly, weighted with the ratio of human driven vehicles to autonomous cars. For example if we have nine human drivers for each autonomous car, a driver is nine times as likely to be driven by a human.
 
 % Car size
 We sample the width and length of a car independently from a normal distribution. The minimum and the maximum of this distribution are chosen in such a way that cars are no smaller than a 2004 Smart Coupe and no larger than the maximum size of a private car allowed by the Dutch legislation. The exact ranges are presented in \cref{tab:par:method:model:details:init:car:value}.
@@ -93,8 +93,7 @@ We sample the width and length of a car independently from a normal distribution
 	\label{tab:par:method:model:details:init:driver:value}
 \end{table}
 
-
-The only parameter specific to the simulation itself is the \t{streetGraph} and \t{ratioAutonomousCars}, which we control to create different scenarios to determine the influence of autonomous cars on the traffic flow. The simulation also keeps track of \t{time}, but this always starts at \si{0 \second}.
+The only parameters specific to the simulation itself are the \t{streetGraph} and \t{ratioAutonomousCars}, which we control to create different scenarios to determine the influence of autonomous cars on the traffic flow. The simulation also keeps track of \t{time}, but this always starts at \SI{0}{\second}.
 
 \begin{table}
 	\centering
@@ -117,4 +116,4 @@ The only parameter specific to the simulation itself is the \t{streetGraph} and 
 \paragraph{Input}
 \label{par:method:model:details:input}
 % \algemeen{The dynamics of many IBMs are driven by some environmental conditions which change over space and time. All these environmental conditions are “input”, i.e. imposed dynamics of certain state variables.}
-This simulation requires a graph, sources and sinks in that graph, the locations of vertices in that graph, the human-autonomous ratio and optionally how long the simulation should run. The graph represents the connections between the streets, and describes where the streets and intersections lie in the simulated world. Vertices can be marked as a source or as a sink, or both, making that vertex a possible starting point or destination for drivers. The human-autonomous ratio indicates how many human drivers we have relative to the number of autonomous cars. It controls the ratio of human cars to autonomous cars that are generated at each source.
+This simulation requires a graph, sources and sinks in that graph, the locations of vertices in that graph, the human-autonomous ratio and optionally how long the simulation should run. The graph represents the connections between the streets, and describes where the streets and intersections lie in the simulated world. Vertices can be marked as a source or as a sink, or both, making that vertex a possible starting point or destination for drivers. The human-autonomous ratio indicates how many human drivers we have relative to the number of autonomous cars. To be exact it controls the ratio of human cars to autonomous cars that are generated at each source.

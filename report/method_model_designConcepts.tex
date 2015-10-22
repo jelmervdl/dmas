@@ -4,9 +4,9 @@
 
 
 \paragraph{Agents}
-There are two differences between human drivers and autonomous agents. Firstly, the field of view of the human drivers is limited, compared to that of autonomous drivers. Where the autonomous drivers have a circular view in a radius of \SI{16}{\meter}, the human drivers have an arc-shaped view of differing radius. This radius differs per driver. As human drivers are built, they get assigned a \t{viewLength}. This is sampled from a random distribution with a mean of \SI{8}{\meter} and a standard deviation of \SI{4/3}{\meter}. If the sampled values are below 8 or above 16, they are clamped to 8 or 16, to avoid undefined behaviour of the simulation due to an unexpected \t{viewLength}.
+There are two differences between human drivers and autonomous agents. Firstly, the field of view of the human drivers is limited, compared to that of autonomous drivers. Where the autonomous drivers have a circular view with a radius of \SI{16}{\meter}, the human drivers have an arc-shaped view with a radius that differs per driver. As human drivers are built, they get assigned a \t{viewLength}. This is sampled from a random distribution with a mean of \SI{8}{\meter} and a standard deviation of \SI{4/3}{\meter}. If the sampled values are below 8 or above 16, they are clamped to 8 or 16, to avoid undefined behaviour of the simulation due to an unexpected \t{viewLength}.
 
-Furthermore, human drivers have an \t{actPeriod} of \SI{100}{\milli\second}, which means that at least \SI{100}{\milli\second} must pass between each update step. This causes them to have a slower reaction to the continuous changes in the environment than autonomous drivers, which have an \t{actPeriod} equal to that of the simulation step time, namely\SI{1/60}{\second}.
+Furthermore, human drivers have an \t{actPeriod} of \SI{100}{\milli\second}, which means that at least \SI{100}{\milli\second} must pass between each update step. This causes them to have a slower reaction to the continuous changes in the environment than autonomous drivers, which have an \t{actPeriod} equal to that of the simulation step time, namely \SI{1/60}{\second}.
 
 The remaining parameters are equal for both the human and autonomous driver. Although the driving behaviours are the same for both, the differences in field of view and time between consecutive updates causes them to act differently in different situations.
 
@@ -28,11 +28,11 @@ The remaining parameters are equal for both the human and autonomous driver. Alt
 
 \paragraph{Sensing \& Interaction} 
 % \algemeen{What internal and environmental state variables are individuals assumed to sense or “know” and consider in their adaptive decisions?}
-Individual vehicles can sense other vehicles and other objects if they are close enough to `see' them. Whether or not a driver is close enough to observe an object depends on its \t{viewShape} and \t{viewLength}. Even when two drivers see each other, they can only see the \t{position} and \t{velocity} of each other.
+Individual vehicles can sense other vehicles and objects if they are close enough to `see' them. Whether or not a driver is close enough to observe an object depends on its \t{viewShape} and \t{viewLength}. Even when two drivers see each other, they can only see the \t{position} and \t{velocity} of each other.
 
 For ease of programming, most calculations are done using the absolute positions of cars in the world coordinate system, although all actions are based upon distances and positions relative to the drivers position.
 
-Although drivers can observe other vehicles and objects they cannot interact with them. Both human driven and autonomous vehicles can only see other objects if they appear within that agents' field of view. The field of view of an autonomous driver is larger and circular while the field of view of a human driver is limited to an arc of \SI{90}{\degree} towards the front of the car. The radius of that arc is defined by \t{viewLength}.
+Although drivers can observe other vehicles and objects they cannot interact with them. Both human driven and autonomous vehicles can only see other objects if they appear within that agent's field of view. The field of view of an autonomous driver is larger and circular whereas the field of view of a human driver is limited to an arc of \SI{90}{\degree} towards the front of the car. The radius of that arc is defined by \t{viewLength}.
 
 % \paragraph{Interaction} 
 % % \algemeen{What kinds of interactions among individuals are assumed?}
@@ -48,6 +48,6 @@ Although drivers can observe other vehicles and objects they cannot interact wit
 
 \paragraph{Observation} 
 % \algemeen{How are data collected from the IBM for testing, understanding, and analysing it?}
-We measure how long a vehicle takes to get from its point of departure to its destination. The exact measurements are discussed extensively in \cref{sub:method:design}.
+We measure how long a vehicle needs to get from its point of departure to its destination. The exact measurements are discussed extensively in \cref{sub:method:design}.
 
 
