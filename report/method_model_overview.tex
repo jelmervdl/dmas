@@ -160,7 +160,7 @@ The \t{ratioAutonomousCars} controls how many autonomous cars are present in the
 \end{table}
 
 \subparagraph{Scales}
-Each time step is \si{$\frac{1}{60}$ \second} long. This small time steps ensures that our simulation approaches the continuous movement of real life vehicles. Furthermore the frequent update rate makes the visualisation of the simulation run smoothly, without creating a too large computational stress.
+Each time step is \SI{1 / 60}{\second} long. This small time steps ensures that our simulation approaches the continuous movement of real life vehicles. Furthermore the frequent update rate makes the visualisation of the simulation run smoothly, without creating a too large computational stress.
 
 The simulation can be run indefinitely to observe the behaviour of the cars visually, or with a time horizon for making quantitative observations.
 
@@ -185,7 +185,7 @@ If neither of these procedures define an acceleration, the preferred acceleratio
 
 % \algemeen{Bespreek scheduling van processen, welke volgorde uitgevoerd?}
 % \algemeen{Are some actions executed in a random order?}
-All actions are executed in a fixed order that stays the same for each iteration. First all sources and sinks are triggered. Then, all drivers are given the chance to update if their \t{actDelay} allows for it. Next, the physics simulation is run to simulate \si{$\frac{1}{60}$ \second} of time. During this simulation all collisions and \t{fixturesInSight} lists are updated.
+All actions are executed in a fixed order that stays the same for each iteration. First all sources and sinks are triggered. Then, all drivers are given the chance to update if their \t{actDelay} allows for it. Next, the physics simulation is run to simulate \SI{1/60}{\second} of time. During this simulation all collisions and \t{fixturesInSight} lists are updated.
 
 % \algemeen{How is time modeled}
 % \algemeen{How are actions that happen concurrently IRL executed in the model}
